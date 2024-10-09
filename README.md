@@ -80,8 +80,8 @@ Modul ini memfasilitasi pengguna dalam mengelola akun dan menyimpan produk favor
 
 ### 5. **Modul Resep**
 Modul ini memungkinkan pengguna untuk mengelompokkan produk-produk sebagai resep yang bisa mempermudah pengguna untuk membeli produk-produk tersebut. Fitur utama:
-Membuat list produk yang ingin dibeli oleh pengguna sebagai resep.
-Menambahkan, mengedit, dan menghapus resep.
+- **Resep**: Membuat list produk yang ingin dibeli oleh pengguna sebagai resep.
+- **Edit Resep**: Menambahkan, mengedit, dan menghapus resep.
 
 ### 6. **Modul Review**
 Modul ini memungkinkan pengguna memberikan ulasan produk, termasuk manfaat atau efek samping yang mungkin tidak tertera di deskripsi produk. Fitur utama:
