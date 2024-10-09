@@ -2,7 +2,6 @@
 
 **Solo Obat? Obatnya di Solo, Sehatnya di Kamu**
 
-
 ## Anggota Kelompok
 
 - **Alwie Attar Elfandra** - 2306241726
@@ -124,3 +123,6 @@ Modul ini memungkinkan pengguna membuat pertanyaan tentang obat, toko, atau rese
 
 <hr>
 
+
+## Tautan Deployment Aplikasi
+http://m-arvin-sobat.pbp.cs.ui.ac.id/
