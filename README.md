@@ -36,11 +36,12 @@ Aplikasi ini memberikan solusi lengkap untuk masyarakat Solo dan pengunjung kota
 - Melihat detail produk.
 - Menambahkan produk ke keranjang dan daftar favorit.
 - Melihat halaman profil pengguna.
+- Membuat pertanyaan pada QnA produk.
 
-### 2. Admin
+### 2. Apoteker
 - Menambah dan mengelola produk obat-obatan serta toko yang menyediakan produk tersebut.
 - Memberikan update dan menghapus informasi produk obat.
-
+- Menjawab pertanyaan pada QnA produk.
 
 <hr>
 
@@ -55,7 +56,7 @@ Modul ini menangani proses autentikasi pengguna, termasuk login, registrasi, dan
 - **Pemulihan Kata Sandi**: Fasilitas untuk pengguna yang lupa kata sandi.
 
 ### 2. **Modul Produk**
-Halaman ini menampilkan semua produk yang tersedia di platform. Pengguna dapat melihat, menyortir, dan memfilter produk sesuai kebutuhan. Fitur utama:
+Modul ini menampilkan semua produk yang tersedia di platform. Pengguna dapat melihat, menyortir, dan memfilter produk sesuai kebutuhan. Fitur utama:
 - **Informasi Produk**: Nama, harga, dan deskripsi produk.
 - **Gambar Produk**: Menampilkan gambar produk dari berbagai sudut.
 - **Ulasan & Rating**: Penilaian dan ulasan dari pengguna lain.
@@ -65,7 +66,7 @@ Halaman ini menampilkan semua produk yang tersedia di platform. Pengguna dapat m
 - **Pagination**: Mengatur jumlah produk yang tampil per halaman.
 
 ### 3. **Modul Toko**
-Halaman ini menampilkan daftar toko yang terdaftar di platform, memungkinkan pengguna mencari toko berdasarkan kategori, lokasi, atau popularitas. Fitur utama:
+Modul ini menampilkan daftar toko yang terdaftar di platform, memungkinkan pengguna mencari toko berdasarkan kategori, lokasi, atau popularitas. Fitur utama:
 - **Informasi Toko**: Nama dan lokasi toko.
 - **Daftar Produk**: Produk yang dijual oleh toko tersebut.
 - **Ulasan & Rating Toko**: Penilaian dan ulasan terhadap toko.
@@ -76,15 +77,18 @@ Halaman ini menampilkan daftar toko yang terdaftar di platform, memungkinkan pen
 
 ### 4. **Modul Daftar Favorit**
 Modul ini memfasilitasi pengguna dalam mengelola akun dan menyimpan produk favorit. Fitur utama:
-- **Keranjang Belanja**: Menyimpan produk yang dipilih pengguna sebelum checkout.
 - **Daftar Favorit**: Produk yang disimpan untuk dibeli nanti atau ditandai sebagai favorit.
-- **Pengaturan Akun**: Mengelola informasi pribadi seperti alamat, nomor telepon, dan preferensi pengiriman.
 
-### 5. **Modul Review**
+### 5. **Modul Resep**
+Modul ini memungkinkan pengguna untuk mengelompokkan produk-produk sebagai resep yang bisa mempermudah pengguna untuk membeli produk-produk tersebut. Fitur utama:
+Membuat list produk yang ingin dibeli oleh pengguna sebagai resep.
+Menambahkan, mengedit, dan menghapus resep.
+
+### 6. **Modul Review**
 Modul ini memungkinkan pengguna memberikan ulasan produk, termasuk manfaat atau efek samping yang mungkin tidak tertera di deskripsi produk. Fitur utama:
 - **Komentar**: Pengguna dapat memberikan komentar terhadap produk disertai nama pengguna.
 
-### 6. **Modul Tanya Jawab (QnA/Forum)**
+### 7. **Modul Tanya Jawab (QnA/Forum)**
 Modul ini memungkinkan pengguna membuat pertanyaan tentang obat, toko, atau resep. Pertanyaan dapat dijawab oleh apoteker yang berpengalaman. Fitur utama:
 - **Tanya Jawab**: Setiap produk memiliki forum tanya jawab yang dapat dilihat oleh pengguna lain.
 - **Edit**: Pengguna dapat mengedit pertanyaan dan jawaban.
