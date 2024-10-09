@@ -1,10 +1,6 @@
-﻿# SoBat Solo Obat
+﻿# [SoBat Solo Obat]((http://m-arvin-sobat.pbp.cs.ui.ac.id/)
 
 **Solo Obat? Obatnya di Solo, Sehatnya di Kamu**
-
-## Tautan Deployment Aplikasi
-
-[Check aplikasi SoBat disini!](http://m-arvin-sobat.pbp.cs.ui.ac.id/)
 
 
 ## Anggota Kelompok
