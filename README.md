@@ -1,4 +1,4 @@
-﻿# [SoBat Solo Obat]((http://m-arvin-sobat.pbp.cs.ui.ac.id/)
+﻿# [SoBat Solo Obat](http://m-arvin-sobat.pbp.cs.ui.ac.id/)
 
 **Solo Obat? Obatnya di Solo, Sehatnya di Kamu**
 
