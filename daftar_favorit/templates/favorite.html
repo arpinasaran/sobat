@@ -1,0 +1,11 @@
+<h2>Your Favorite</h2>
+<ul>
+    {% for item in favorite_items %}
+        <li>
+            {{ item.product.name }} - {{ item.product.description }}
+            <a href="{% url 'daftar_favorit:remove_from_favorite' item.pk %}">Remove</a>
+        </li>
+    {% empty %}
+        <p>No items in your wishlist.</p>
+    {% endfor %}
+</ul>
