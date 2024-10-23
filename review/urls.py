@@ -1,7 +1,10 @@
 from django.urls import path
-from .views import *
+from .views import reviews, create_review
+
+app_name = 'review'
 
 urlpatterns = [
-    path('product/<uuid:product_id>/reviews/', reviews, name='reviews'),
-    path('product/<uuid:product_id>/reviews/create/', create_review, name='create_review'),
+    path('display-reviews/', reviews, name='reviews'),
+    path('<uuid:product_id>/display-reviews/', reviews, name='reviews'),
+    path('<uuid:product_id>/display-reviews/create/', create_review, name='create_review'),
 ]

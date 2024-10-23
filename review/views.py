@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.html import strip_tags
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
@@ -6,12 +6,15 @@ from django.http import HttpResponse
 from .models import Review
 from .forms import ReviewForm
 from product.models import DrugEntry as Produk
-from .models import Review
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 
-def create_review(request, product_id):
-    product = Produk.objects.get(id=product_id)
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import Produk, Review
+from .forms import ReviewForm
+
+def create_review(request, product_id=None):
+    product = get_object_or_404(Produk, id=product_id) if product_id else None
     form = ReviewForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():
         review = form.save(commit=False)
@@ -19,7 +22,10 @@ def create_review(request, product_id):
         review.product = product
         review.save()
         return redirect('product_reviews', product_id=product_id)
-    context = {'form': form, 'product': product}
+    context = {
+        'form': form,
+        'product': product,
+    }
     return render(request, 'create_review.html', context)
 
 @csrf_exempt
@@ -45,8 +51,11 @@ def delete_review(request, review_id):
     Review.objects.get(pk=review_id).delete()
     return HttpResponseRedirect(reverse('review:reviews'))
 
-def reviews(request, product_id):
-    product = Produk.objects.get(id=product_id)
-    reviews = Review.objects.filter(product=product)
-    context = {'product': product, 'reviews': reviews }
+def reviews(request, product_id=None):
+    product = get_object_or_404(Produk, id=product_id) if product_id else None
+    reviews = Review.objects.filter(product=product) if product else Review.objects.none()
+    context = {
+        'product': product,
+        'reviews': reviews,
+    }
     return render(request, 'reviews.html', context)

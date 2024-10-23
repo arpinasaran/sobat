@@ -8,12 +8,14 @@
 <div class="max-w-full md:max-w-3xl mx-auto p-2 md:p-4">
     <h2 class="text-xl md:text-2xl font-semibold mb-2 md:mb-4">Reviews for {{ product.name }}</h2>
     <div class="mt-4 md:mt-6">
-        <a href="{% url 'homepage:show_main' product.id %}" class="bg-blue-500 hover:bg-blue-700 text-white py-1 px-3 mr-2 rounded-md text-sm">
+        <a href="{% url 'main:show_main' %}" class="bg-blue-500 hover:bg-blue-700 text-white py-1 px-3 mr-2 rounded-md text-sm">
             Back
         </a>
+        {% if product != None %}
         <a href="{% url 'review:create_review' product.id %}" class="bg-blue-500 hover:bg-blue-700 text-white py-1 px-3 rounded-md text-sm">
             Add Review
         </a>
+        {% endif %}
     </div>
     <ul class="space-y-2 md:space-y-4">
         {% for review in reviews %}
