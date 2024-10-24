@@ -35,7 +35,7 @@ def create_review_ajax(request, product_id=None):
     review.save()
     return HttpResponse(b"CREATED", status=201)
 
-def edit_product(request, review_id):
+def edit_review(request, review_id):
     review = Review.objects.get(pk=review_id)
     form = ReviewForm(request.POST or None, instance = review)
     if form.is_valid() and request.method == "POST":
@@ -51,7 +51,7 @@ def reviews(request, product_id=None):
     product = get_object_or_404(Produk, id=product_id) if product_id else None
     reviews = Review.objects.filter(product=product) if product else Review.objects.none()
     context = { 'product': product, 'reviews': reviews }
-    return render(request, 'reviews_old.html', context)
+    return render(request, 'reviews.html', context)
 
 def reviews_json(request, product_id=None):
     product = get_object_or_404(Produk, id=product_id) if product_id else None

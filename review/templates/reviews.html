@@ -11,7 +11,7 @@
         <a href="{% url 'main:show_main' %}" class="bg-blue-500 hover:bg-blue-700 text-white py-1 px-3 mr-2 rounded-md text-sm">
             Back
         </a>
-        {% if product != None %}
+        {% if product %}
         <a href="{% url 'review:create_review' product.id %}" class="bg-blue-500 hover:bg-blue-700 text-white py-1 px-3 rounded-md text-sm">
             Add Review
         </a>
@@ -57,7 +57,11 @@
 </div>
 <script>
   async function getReviews(){
-    return fetch("{% url 'review:reviews_json' product.id %}").then((res) => res.json())
+    {% if product %}
+      return fetch("{% url 'review:reviews_json' product.id %}").then((res) => res.json())
+    {% else %}
+      return [];
+    {% endif %}
   }
   async function refreshReviews() {
     document.getElementById("review_list").innerHTML = "";
@@ -71,6 +75,7 @@
     } else {
         classNameString = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full"
         reviews.forEach((item) => {
+            const reviewId = item.pk || {};
             const currentUser = "{{ request.user }}";
             const user = item.fields.user || {};
             const username = DOMPurify.sanitize(user.nama || "");
@@ -80,24 +85,26 @@
             const date = DOMPurify.sanitize(item.fields.date_created || "");
             const isCurrentUser = (currentUser === user);
             if (role !== "apoteker") {
-            htmlString += `
-            <li class="bg-white shadow p-3 md:p-4 rounded-md">
+            htmlString += `<li class="bg-white shadow p-3 md:p-4 rounded-md">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
                     <strong class="text-base md:text-lg">By: ${username}</strong>
                     <span class="text-yellow-600 mt-2 md:mt-0">Rating: ${rating}/5 Stars</span>
                 </div>
                 <p class="text-gray-700 mt-2 md:mt-2 text-sm md:text-base">${comment}</p>
                 <small class="text-gray-500">Date Published: ${date}</small>`}
-            if (isCurrentUser) {
+            if (isCurrentUser && reviewId) {
+                const editUrl = `/review/${reviewId}/edit/`;
+                const deleteUrl = `/review/${reviewId}/delete/`;
                 htmlString += `
                     <div class="mt-2 flex space-x-2">
-                        <a href="{% url 'review:edit_review' review.id %}" class="bg-blue-500 hover:bg-blue-700 text-white py-1 px-3 rounded-md text-sm">
+                        <a href="${editUrl}" class="bg-blue-500 hover:bg-blue-700 text-white py-1 px-3 rounded-md text-sm">
                             Edit
                         </a>
-                        <a href="{% url 'review:delete_review' review.id %}" class="bg-blue-500 hover:bg-blue-700 text-white py-1 px-3 rounded-md text-sm">
+                        <a href="${deleteUrl}" class="bg-blue-500 hover:bg-blue-700 text-white py-1 px-3 rounded-md text-sm">
                             Delete
                         </a>
-                    </div>`}
+                    </div>`;
+            }
             htmlString += `</li>`;
             });
     }
@@ -134,7 +141,9 @@
   document.getElementById("closeModalBtn").addEventListener("click", hideModal);
 
   function createReview() {
-    fetch("{% url 'main:create_review_ajax' %}", {
+    const productId = "{{ product.id }}" || "";
+    const url = `/review/${productId}/create_ajax/`;
+    fetch(url, {
       method: "POST",
       body: new FormData(document.querySelector('#reviewForm')),
     }).then(response => refreshReviews())
