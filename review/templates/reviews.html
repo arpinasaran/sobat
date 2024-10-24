@@ -57,7 +57,7 @@
 </div>
 <script>
   async function getReviews(){
-    return fetch("{% url 'review:reviews_json' %}").then((res) => res.json())
+    return fetch("{% url 'review:reviews_json' product.id %}").then((res) => res.json())
   }
   async function refreshReviews() {
     document.getElementById("review_list").innerHTML = "";
@@ -71,22 +71,25 @@
     } else {
         classNameString = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full"
         reviews.forEach((item) => {
-            const user = item.fields.user;
-            const username = DOMPurify.sanitize(item.fields.user.nama);
-            const role = item.fields.user.role;
-            const comment = DOMPurify.sanitize(item.fields.comment);
-            const rating = item.fields.rating;
-            const date = DOMPurify.sanitize(item.fields.date_created);
+            const currentUser = "{{ request.user }}";
+            const user = item.fields.user || {};
+            const username = DOMPurify.sanitize(user.nama || "");
+            const role = user.role || "";
+            const comment = DOMPurify.sanitize(item.fields.comment || "");
+            const rating = item.fields.rating || "";
+            const date = DOMPurify.sanitize(item.fields.date_created || "");
+            const isCurrentUser = (currentUser === user);
+            if (role !== "apoteker") {
             htmlString += `
-            {% if ${role} != "apoteker" %}
             <li class="bg-white shadow p-3 md:p-4 rounded-md">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
                     <strong class="text-base md:text-lg">By: ${username}</strong>
                     <span class="text-yellow-600 mt-2 md:mt-0">Rating: ${rating}/5 Stars</span>
                 </div>
                 <p class="text-gray-700 mt-2 md:mt-2 text-sm md:text-base">${comment}</p>
-                <small class="text-gray-500">Date Published: ${date}</small>
-                {% if request.user == ${user} %}
+                <small class="text-gray-500">Date Published: ${date}</small>`}
+            if (isCurrentUser) {
+                htmlString += `
                     <div class="mt-2 flex space-x-2">
                         <a href="{% url 'review:edit_review' review.id %}" class="bg-blue-500 hover:bg-blue-700 text-white py-1 px-3 rounded-md text-sm">
                             Edit
@@ -94,10 +97,9 @@
                         <a href="{% url 'review:delete_review' review.id %}" class="bg-blue-500 hover:bg-blue-700 text-white py-1 px-3 rounded-md text-sm">
                             Delete
                         </a>
-                    </div>
-                {% endif %}
-            </li>
-            {% endif %}`;});
+                    </div>`}
+            htmlString += `</li>`;
+            });
     }
     document.getElementById("review_list").className = classNameString;
     document.getElementById("review_list").innerHTML = htmlString;
