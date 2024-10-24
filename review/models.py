@@ -6,7 +6,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 
 class Review(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    reviewer = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     product = models.ForeignKey(Produk, on_delete=models.CASCADE)
     rating = models.FloatField(validators=[MinValueValidator(0), MaxValueValidator(5)])
     comment = models.TextField()

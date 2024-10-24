@@ -8,12 +8,12 @@ from .forms import ReviewForm
 from product.models import DrugEntry as Produk
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-
+from django.core import serializers
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Produk, Review
 from .forms import ReviewForm
 
-def create_review(request, product_id=None):
+def create_review(request, product_id):
     product = get_object_or_404(Produk, id=product_id) if product_id else None
     form = ReviewForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():
@@ -21,11 +21,8 @@ def create_review(request, product_id=None):
         review.user = request.user
         review.product = product
         review.save()
-        return redirect('product_reviews', product_id=product_id)
-    context = {
-        'form': form,
-        'product': product,
-    }
+        return redirect('reviews', product_id=product_id)
+    context = { 'form': form, 'product': product }
     return render(request, 'create_review.html', context)
 
 @csrf_exempt
@@ -33,9 +30,8 @@ def create_review(request, product_id=None):
 def create_review_ajax(request, product_id):
     comment = strip_tags(request.POST.get("comment"))
     rating = request.POST.get("rating")
-    reviewer = request.user
     product = Produk.objects.get(id=product_id)
-    review = Review(reviewer=reviewer, product=product, rating=rating, comment=comment)
+    review = Review(user=request.user, product=product, rating=rating, comment=comment)
     review.save()
     return HttpResponse(b"CREATED", status=201)
 
@@ -51,11 +47,13 @@ def delete_review(request, review_id):
     Review.objects.get(pk=review_id).delete()
     return HttpResponseRedirect(reverse('review:reviews'))
 
-def reviews(request, product_id=None):
+def reviews(request, product_id):
     product = get_object_or_404(Produk, id=product_id) if product_id else None
     reviews = Review.objects.filter(product=product) if product else Review.objects.none()
-    context = {
-        'product': product,
-        'reviews': reviews,
-    }
+    context = { 'product': product, 'reviews': reviews }
     return render(request, 'reviews.html', context)
+
+def reviews_json(request, product_id):
+    product = get_object_or_404(Produk, id=product_id) if product_id else None
+    reviews = Review.objects.filter(product=product) if product else Review.objects.none()
+    return HttpResponse(serializers.serialize("json", reviews), content_type="application/json")
