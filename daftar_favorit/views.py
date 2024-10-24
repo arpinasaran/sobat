@@ -28,8 +28,16 @@ def add_to_favorite(request, product_id):
         messages.info(request, "Product is already in your Favorite")
     return redirect('show_favorite')
 
+
 @login_required
 def remove_from_favorites(request, product_id):
-    product = Favorite.objects.get(pk = product_id)
-    product.delete()
-    return HttpResponseRedirect(reverse('daftar_favorit:show_favorite'))
+    product = get_object_or_404(Favorite, pk=product_id)
+    context = {
+        'favorite': product
+    }
+    if request.method == 'POST':
+        product.delete()
+        messages.success(request, 'Favorit berhasil dihapus.')
+        return redirect('daftar_favorite:show_favorite')
+    
+    return render(request, 'delete_favorite.html', context)
