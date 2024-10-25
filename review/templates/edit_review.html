@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block meta %}
+<title>Edit Review For {{ product.name }}</title>
+{% endblock meta %}
+
+{% block content %}
+{% include 'navbar.html' %}
+<div class="max-w-lg mx-auto p-4 mt-16">
+    <h2 class="text-2xl font-semibold mb-4">Edit Review for {{ product.name }}</h2>
+
+    <form method="POST" class="space-y-4 bg-white p-6 shadow rounded-md border border-black">
+        {% csrf_token %}
+        {{ form.as_p }}
+        
+        <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md">
+            Submit
+        </button>
+        <a href="{% url 'review:reviews' product.id %}" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md" style="padding-top: 10px; padding-bottom: 10px;">
+            Cancel
+        </a>
+    </form>
+</div>
+{% endblock content %}
