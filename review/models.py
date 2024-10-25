@@ -13,4 +13,4 @@ class Review(models.Model):
     date_created = models.DateField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.product.name} Review: {self.rating} Star(s) - {self.reviewer.username}"
+        return f"{self.product.name} Review: {self.rating} Star(s) - {self.user.nama}"
