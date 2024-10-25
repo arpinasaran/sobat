@@ -35,7 +35,7 @@ def create_drug_ajax(request):
     drug_form = request.POST.get("drug_form")
     price = request.POST.get("price")
     availibility = request.POST.get("availibility") == "true"  # Mengonversi string ke boolean
-    img = request.FILES.get("img")  # Mengambil gambar dari FILES, bukan POST
+    image = request.FILES.get("image")  # Mengambil gambar dari FILES, bukan POST
 
     # Membuat entri baru dalam model DrugEntry
     new_drug = DrugEntry(
@@ -46,7 +46,7 @@ def create_drug_ajax(request):
         drug_form=drug_form,
         price=int(price),
         availibility=availibility,
-        img=img
+        image=image
     )
     new_drug.save()
 
@@ -68,8 +68,8 @@ def edit_drug_ajax(request, id):
     drug.availibility = request.POST.get("availibility") == "true"
     
     # Mengambil file gambar baru jika ada, atau mempertahankan gambar lama
-    if 'img' in request.FILES:
-        drug.img = request.FILES['img']
+    if 'image' in request.FILES:
+        drug.image = request.FILES['image']
     
     # Menyimpan perubahan
     drug.save()
