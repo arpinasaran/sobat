@@ -10,7 +10,8 @@ class DrugEntry(models.Model):
     drug_form = models.CharField(max_length=31)
     price = models.IntegerField()
     availibility = models.BooleanField(default=True)
-    # shop = models.ForeignKey('shop.ShopEntry', on_delete=models.RESTRICT, related_name='shop')
+    # shop = models.ForeignKey('shop.ShopEntry', on_delete=models.CASCADE, related_name='shop')
+    img = models.ImageField(upload_to='media/')
 
     def __str__(self):
         return self.name

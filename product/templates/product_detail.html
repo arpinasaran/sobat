@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mx-auto p-6">
+    <div class="max-w-md mx-auto bg-white rounded-lg shadow-lg p-6">
+        <img class="w-full h-64 object-cover rounded-lg mb-4" src="/media/{{ product.img }}" alt="{{ product.name }}">
+        <h1 class="text-3xl font-bold text-gray-800 mb-4">{{ product.name }}</h1>
+        <p class="text-lg text-gray-600 mb-4">Category: {{ product.category }}</p>
+        <p class="text-lg text-gray-600 mb-4">Type: {{ product.drug_type }}</p>
+        <p class="text-lg text-gray-600 mb-4">Form: {{ product.drug_form }}</p>
+        <p class="text-2xl font-bold text-green-600 mb-4">Rp {{ product.price }}</p>
+        <p class="text-lg text-gray-600 mb-6">{{ product.desc }}</p>
+        <a href="/" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-lg">Back to Products</a>
+    </div>
+</div>
+{% endblock content %}
