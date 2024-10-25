@@ -1,12 +1,12 @@
 from django.forms import ModelForm
-from forum.models import Pertanyaan, Jawaban
+from forum.models import Question, Answer
 
-class PertanyaanForm(ModelForm):
+class QuestionForm(ModelForm):
     class Meta:
-        model = Pertanyaan
-        fields = ["mood", "feelings", "mood_intensity"]
+        model = Question
+        fields = ["question_title", "question"]
 
-class JawabanForm(ModelForm):
+class AnswerForm(ModelForm):
     class Meta:
-        model = Jawaban
-        fields = ["mood", "feelings", "mood_intensity"]
+        model = Answer
+        fields = []

@@ -4,10 +4,11 @@ from django.contrib.auth.decorators import login_required
 
 @login_required(login_url='/login')
 def show_main(request):
-    print("halo")
+    last_login = request.COOKIES.get('last_login', None)
+
     context = {
         'name': request.user.username,
-        'last_login': request.COOKIES['last_login'],
+        'last_login': last_login
     }
 
     return render(request, "main.html", context)
