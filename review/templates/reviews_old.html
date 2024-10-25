@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block meta %}
+<title>Create Review</title>
+{% endblock meta %}
+
+{% block content %}
+{% include 'navbar.html' %}
+<div class="max-w-full md:max-w-3xl mx-auto p-2 md:p-4">
+    <h2 class="text-xl md:text-2xl font-semibold mb-2 md:mb-4">Reviews for {{ product.name }}</h2>
+    <div class="mt-4 md:mt-6">
+        <a href="{% url 'main:show_main' %}" class="bg-blue-500 hover:bg-blue-700 text-white py-1 px-3 mr-2 rounded-md text-sm">
+            Back
+        </a>
+        {% if product != None %}
+        <a href="{% url 'review:create_review' product.id %}" class="bg-blue-500 hover:bg-blue-700 text-white py-1 px-3 rounded-md text-sm">
+            Add Review
+        </a>
+        {% endif %}
+    </div>
+    <ul class="space-y-2 md:space-y-4">
+        {% for review in reviews %}
+            {% if review.user.role != "apoteker" %}
+            <li class="bg-white shadow p-3 md:p-4 rounded-md">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
+                    <strong class="text-base md:text-lg">By: {{ review.user.nama }}</strong>
+                    <span class="text-yellow-600 mt-2 md:mt-0">Rating: {{ review.rating }}/5 Stars</span>
+                </div>
+                <p class="text-gray-700 mt-2 md:mt-2 text-sm md:text-base">{{ review.comment }}</p>
+                <small class="text-gray-500">Date Published: {{ review.date_created }}</small>
+                {% if request.user == review.user %}
+                    <div class="mt-2 flex space-x-2">
+                        <a href="{% url 'review:edit_review' review.id %}" class="bg-blue-500 hover:bg-blue-700 text-white py-1 px-3 rounded-md text-sm">
+                            Edit
+                        </a>
+                        <a href="{% url 'review:delete_review' review.id %}" class="bg-blue-500 hover:bg-blue-700 text-white py-1 px-3 rounded-md text-sm">
+                            Delete
+                        </a>
+                    </div>
+                {% endif %}
+            </li>
+            {% endif %}
+            {% empty %}
+            <li class="text-center text-gray-500">No Reviews Are Available For This Product.</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock content %}

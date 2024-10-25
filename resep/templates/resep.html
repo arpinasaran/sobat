@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block meta %}
+<title>Mental Health Tracker</title>
+{% endblock meta %}
+{% block content %}
+{% include 'navbar.html' %}
+<div class="overflow-x-hidden px-4 md:px-8 pb-8 pt-24 min-h-screen bg-gray-100 flex flex-col">
+    <h1>TEST</h1>
+
+    {% if not resep %}
+    <p>Belum ada data resep.</p>
+    {% else %}
+    <table>
+    <tr>
+        <th>Name</th>
+        <th>Price</th>
+        <th>Amount</th>
+        </tr>
+
+    {% for produk in resep %}
+        <tr>
+            <td>{{produk.product.name}}</td>
+            <td>{{produk.product.price}}</td>
+            <td>{{produk.amount}}</td>
+            <td><button>-</button></td>
+            <td><button>+</button></td>
+        </tr>
+    {% endfor %}
+    </table>
+    {% endif %}
+</div>
+{% endblock content %}
