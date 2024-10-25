@@ -12,6 +12,7 @@ class DrugEntry(models.Model):
     price = models.IntegerField()
     availibility = models.BooleanField(default=True)
     # shop = models.ForeignKey('shop.ShopEntry', on_delete=models.RESTRICT, related_name='shop')
+    image = models.ImageField()
 
     def __str__(self):
         return self.name
