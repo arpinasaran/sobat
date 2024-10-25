@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .models import Review
 from .forms import ReviewForm
 from product.models import DrugEntry as Produk
+from authentication.models import User
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.shortcuts import render, redirect, get_object_or_404
@@ -34,6 +35,15 @@ def delete_review(request, review_id, product_id):
 
 def reviews(request, product_id=None):
     product = get_object_or_404(Produk, id=product_id) if product_id else None
+    users = User.objects.all()
     reviews = Review.objects.filter(product=product) if product else Review.objects.none()
-    context = { 'product': product, 'reviews': reviews }
+    selected_user_id = request.GET.get('user')
+    if product:
+        if selected_user_id:
+            reviews = Review.objects.filter(product=product, user_id=selected_user_id)
+        else:
+            reviews = Review.objects.filter(product=product)
+    else:
+        reviews = Review.objects.none()
+    context = { 'product': product, 'reviews': reviews, 'users': users }
     return render(request, 'reviews.html', context)

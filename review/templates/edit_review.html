@@ -6,22 +6,19 @@
 
 {% block content %}
 {% include 'navbar.html' %}
-<div class="max-w-lg mx-auto p-4">
+<div class="max-w-lg mx-auto p-4 mt-16">
     <h2 class="text-2xl font-semibold mb-4">Edit Review for {{ product.name }}</h2>
 
-    <form method="POST" class="space-y-4 bg-white p-6 shadow rounded-md">
+    <form method="POST" class="space-y-4 bg-white p-6 shadow rounded-md border border-black">
         {% csrf_token %}
         {{ form.as_p }}
         
-        <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md">
+        <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md">
             Submit
         </button>
-    </form>
-
-    <div class="mt-4">
-        <a href="{% url 'review:reviews' product.id %}" class="text-gray-500 hover:text-gray-700">
+        <a href="{% url 'review:reviews' product.id %}" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md" style="padding-top: 10px; padding-bottom: 10px;">
             Cancel
         </a>
-    </div>
+    </form>
 </div>
 {% endblock content %}

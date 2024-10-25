@@ -7,8 +7,9 @@
 {% block content %}
 {% include 'navbar.html' %}
 <div class="max-w-full md:max-w-3xl mx-auto p-2 mt-16 md:p-4">
-    <h2 class="text-xl md:text-2xl font-semibold mb-2 md:mb-4">Reviews for {{ product.name }}</h2>
-    <div class="mt-4 md:mt-6">
+    <h2 class="text-xl md:text-2xl font-semibold md:mb-4">Reviews for {{ product.name }}</h2>
+
+    <div class="mt-6 mb-6 md:mt-6">
         <a href="{% url 'main:show_main' %}" class="bg-blue-500 hover:bg-blue-700 text-white py-1 px-3 mr-2 rounded-md text-sm">
             Back
         </a>
@@ -18,6 +19,20 @@
         </a>
         {% endif %}
     </div>
+
+    <form method="get" action="" class="mb-6">
+        <label for="user" class="text-gray-700">Filter by User:</label>
+        <select name="user" id="user" class="ml-2 p-1 border rounded border border-black">
+            <option value="">All Users</option>
+            {% for user in users %}
+                <option value="{{ user.id }}" {% if user.id|stringformat:"s" == request.GET.user %} selected {% endif %}>
+                    {{ user.nama }}
+                </option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white py-1 px-3 ml-2 rounded-md text-sm">Filter</button>
+    </form>
+
     <ul class="space-y-2 md:space-y-4">
         {% for review in reviews %}
             {% if review.user.role != "apoteker" %}
@@ -40,7 +55,7 @@
                 {% endif %}
             </li>
             {% endif %}
-            {% empty %}
+        {% empty %}
             <li class="text-center text-gray-500">No Reviews Are Available For This Product.</li>
         {% endfor %}
     </ul>
