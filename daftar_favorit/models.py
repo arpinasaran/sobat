@@ -1,19 +1,14 @@
 from django.db import models
-from django.contrib.auth.models import User
+from authentication.models import User
 import uuid
+from product.models import DrugEntry
 
 
-class Product(models.Model):
-    name = models.CharField(max_length=255)
-    description = models.TextField()
-
-    def __str__(self):
-        return self.name
 
 class Favorite(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    date_added = models.DateTimeField(auto_now_add=True)
+    product = models.ForeignKey(DrugEntry, on_delete=models.CASCADE)
+    # date_added = models.DateTimeField(auto_now_add=True)
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     def __str__(self):

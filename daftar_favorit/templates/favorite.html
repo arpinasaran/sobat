@@ -1,10 +1,11 @@
 <h2>Your Favorite</h2>
+
 <ul>
     {% for item in favorite_items %}
- 
+    
         <li>
             {{ item.product.name }} - {{ item.product.description }}
-            <a href="{% url 'daftar_favorite:delete_favorite' item.id %}">Remove</a>
+            <a href="{% url 'daftar_favorite:delete_favorite' item.id %}">Favorit</a>
             
         </li>
     

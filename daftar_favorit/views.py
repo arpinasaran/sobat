@@ -1,32 +1,51 @@
 from django.shortcuts import render, redirect, get_object_or_404,reverse
-from .models import Favorite
-from .models import Product
+from daftar_favorit.models import Favorite
+from product.models import DrugEntry
+from django.http import HttpResponse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect,HttpResponseRedirect
 from django.urls import reverse
 from django.http import JsonResponse
+from django.core import serializers
 
 # Create your views here.
+# def show_json(request):
+#     data = MoodEntry.objects.filter(user=request.user)
+#     return HttpResponse(serializers.serialize("json", data), content_type="application/json")
 
-@login_required
+
 def show_favorite(request):
-    favorite_item = Favorite.objects.filter(user=request.user   )
+    favorite_item = Favorite.objects.filter(user=request.user)
+    # print(User)
     context = {
         
         'favorite_items':favorite_item
     }
     return render(request,'favorite.html',context)
 
+def show_json(request):
+    data = Favorite.objects.filter(user=request.user)
+    return HttpResponse(serializers.serialize("json", data), content_type="application/json")
+
+
+def show_json_by_id(request, id):
+    data = Favorite.objects.filter(pk=id)
+    return HttpResponse(serializers.serialize("json", data), content_type="application/json")
 @login_required
 def add_to_favorite(request, product_id):
-    product = Favorite.objects.get(id=product_id)
-    favorite_item, created = Favorite.objects.get_or_create(user=request.user, product=product)
-    if created:
-        messages.success(request, "Product added to Favorite")
+    if request.method == 'POST':
+        form = Favorite(request.POST)
+        if form.is_valid():
+            favorit = form.save(commit=False)
+            favorit.user = request.user  # Set pengguna yang sedang login
+            favorit.save()
+            messages.success(request, 'Favorit berhasil ditambahkan.')
+            return redirect('show_favorit')
     else:
-        messages.info(request, "Product is already in your Favorite")
-    return redirect('show_favorite')
+        form = Favorite()
+
+    return render(request, 'favorit/add_favorit.html', {'form': form})
 
 
 @login_required
@@ -37,7 +56,7 @@ def remove_from_favorites(request, product_id):
     }
     if request.method == 'POST':
         product.delete()
-        messages.success(request, 'Favorit berhasil dihapus.')
+        # messages.success(request, 'Favorit berhasil dihapus.')
         return redirect('daftar_favorite:show_favorite')
     
     return render(request, 'delete_favorite.html', context)
