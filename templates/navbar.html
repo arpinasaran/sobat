@@ -1,0 +1,33 @@
+<!-- Modify navbar.html to add Shop link -->
+<nav class="bg-indigo-600 shadow-lg fixed top-0 left-0 z-40 w-screen">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+          <div class="flex items-center">
+              <h1 class="text-2xl font-bold text-center text-white">SoBat</h1>
+          </div>
+          <div class="hidden md:flex items-center">
+              {% if user.is_authenticated %}
+                  <a href="{% url 'shop:list' %}" class="text-center bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded transition duration-300 mr-4">
+                      Shop
+                  </a>
+                  {% if user.shopprofile %}
+                      <a href="{% url 'shop:profile' shop_id=user.shopprofile.id %}" class="text-center bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition duration-300 mr-4">
+                          My Shop
+                      </a>
+                  {% endif %}
+                  <span class="text-gray-300 mr-4">Welcome, {{ user.username }}</span>
+                  <a href="{% url 'authentication:logout' %}" class="text-center bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition duration-300">
+                      Logout
+                  </a>
+              {% else %}
+                  <a href="{% url 'authentication:login' %}" class="text-center bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-300 mr-2">
+                      Login
+                  </a>
+                  <a href="{% url 'authentication:register' %}" class="text-center bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition duration-300">
+                      Register
+                  </a>
+              {% endif %}
+          </div>
+      </div>
+  </div>
+</nav>
