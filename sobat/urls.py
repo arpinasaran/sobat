@@ -10,6 +10,6 @@ urlpatterns = [
     path('shop/', include('shop.urls')),
     path('', include('authentication.urls')),
     path('', include('main.urls')),
-    path('', include('forum.urls')),
+    path('forum/', include('forum.urls')),
     path('resep/', include('resep.urls'))
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
