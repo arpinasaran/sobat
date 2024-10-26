@@ -13,10 +13,10 @@
         {% csrf_token %}
         {{ form.as_p }}
         
-        <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md">
+        <button type="submit" class="bg-[#254922] hover:bg-[#1e3a3a] text-white font-bold py-2 px-4 rounded-md">
             Submit
         </button>
-        <a href="{% url 'review:reviews' product.id %}" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md" style="padding-top: 10px; padding-bottom: 10px;">
+        <a href="{% url 'review:reviews' product.id %}" class="bg-[#254922] hover:bg-[#1e3a3a] text-white font-bold py-2 px-4 rounded-md" style="padding-top: 10px; padding-bottom: 10px;">
             Cancel
         </a>
     </form>
