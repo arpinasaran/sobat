@@ -16,7 +16,7 @@
     </div>
 
     <div class="mt-6 mb-6 md:mt-6">
-        <a href="{% url 'main:show_main' %}" class="bg-blue-500 hover:bg-blue-700 text-white py-1 px-3 mr-2 rounded-md text-sm">
+        <a href="{% url 'product:show_drug' product.id %}" class="bg-blue-500 hover:bg-blue-700 text-white py-1 px-3 mr-2 rounded-md text-sm">
             Back
         </a>
         {% if product != None %}
@@ -47,7 +47,12 @@
             <li class="bg-white shadow p-3 md:p-4 rounded-md">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
                     <strong class="text-base md:text-lg">By: {{ review.user.nama }}</strong>
-                    <span class="text-yellow-600 mt-2 md:mt-0">Rating: {{ review.rating }}/5 Stars</span>
+                    <span class="text-yellow-600 mt-2 md:mt-0">
+                        Rating: {{ review.rating }}/5 
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="inline h-4 w-4 text-yellow-500" viewBox="0 0 24 24">
+                            <path d="M12 .587l3.668 7.431 8.2 1.191-5.938 5.789 1.408 8.202L12 18.896l-7.338 3.853 1.408-8.202L.132 9.209l8.2-1.191z"/>
+                        </svg>
+                    </span>
                 </div>
                 <p class="text-gray-700 mt-2 md:mt-2 text-sm md:text-base">{{ review.comment }}</p>
                 <small class="text-gray-500">Date Published: {{ review.date_created }}</small>
