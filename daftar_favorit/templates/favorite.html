@@ -7,21 +7,29 @@
 
 {% block content %}
 {% include 'navbar.html' %}
-<div class="flex flex-col items-center mt-20 bg-blue-50 w-full">
-<h2 >Your Favorite</h2>
+<div class="">
+    <h2 class="text-3xl font-bold text-blue-700 mb-6">Your Favorites</h2>
 
-<ul>
-    {% for item in favorite_items %}
-    
-        <li>
-            {{ item.product.name }} - {{ item.product.description }}
-            <a href="{% url 'daftar_favorite:delete_favorite' item.id %}">Remove</a>
-            
-        </li>
-    
-    {% empty %}
-        <p>No items in your wishlist.</p>
-    {% endfor %}
-</ul>
+    <div class="w-full max-w-4xl">
+        {% if favorite_items %}
+            <ul class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 hover">
+                {% for item in favorite_items %}
+                    <li class="bg-white shadow-xl rounded-lg p-4 flex flex-col justify-between hover:bg-blue-100 hover:shadow-xl transform hover:scale-105 transition duration-300 ">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800">{{ item.product.name }}</h3>
+                            <p class="text-gray-600 mt-2">{{ item.product.description }}</p>
+                        </div>
+                        <div class="mt-4">
+                            <a href="{% url 'daftar_favorite:delete_favorite' item.id %}" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded text-sm transition duration-300">
+                                Remove
+                            </a>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="text-gray-600 mt-10 text-center">No items in your wishlist.</p>
+        {% endif %}
+    </div>
 </div>
 {% endblock content %}

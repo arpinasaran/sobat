@@ -33,19 +33,13 @@ def show_json_by_id(request, id):
     data = Favorite.objects.filter(pk=id)
     return HttpResponse(serializers.serialize("json", data), content_type="application/json")
 @login_required
-def add_to_favorite(request, product_id):
-    if request.method == 'POST':
-        form = Favorite(request.POST)
-        if form.is_valid():
-            favorit = form.save(commit=False)
-            favorit.user = request.user  # Set pengguna yang sedang login
-            favorit.save()
-            messages.success(request, 'Favorit berhasil ditambahkan.')
-            return redirect('show_favorit')
-    else:
-        form = Favorite()
-
-    return render(request, 'favorit/add_favorit.html', {'form': form})
+def add_to_favorites(request, product_id):
+    # Dapatkan produk berdasarkan ID, atau berikan 404 jika tidak ditemukan
+    product = get_object_or_404(DrugEntry, id=product_id)
+    favorite, created = Favorite.objects.get_or_create(user=request.user, product=product)
+    
+    # Redirect to a valid URL
+    return redirect('main:show_favorite') 
 
 
 @login_required
