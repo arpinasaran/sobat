@@ -1,4 +1,3 @@
-# shop/models.py
 from django.db import models
 from django.conf import settings
 from product.models import DrugEntry
@@ -12,20 +11,26 @@ class ShopProfile(models.Model):
     address = models.TextField()
     opening_time = models.TimeField()
     closing_time = models.TimeField()
+    products = models.ManyToManyField(DrugEntry, through='ShopProduct')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"{self.name} - {self.owner.username}"
 
-class ShopProduct(DrugEntry):
-    shop = models.ForeignKey(ShopProfile, on_delete=models.CASCADE, related_name='products')
+class ShopProduct(models.Model):
+    # Menggunakan AutoField sebagai primary key default
+    shop = models.ForeignKey(ShopProfile, on_delete=models.CASCADE, related_name='shop_products')
+    product = models.ForeignKey(DrugEntry, on_delete=models.CASCADE, related_name='shop_products')
+    is_available = models.BooleanField(default=True)
+    stock = models.PositiveIntegerField(default=0)
+    selling_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    is_available = models.BooleanField(default=True)
 
     class Meta:
-        db_table = 'shop_shopproduct'
+        unique_together = ['shop', 'product']
+        ordering = ['-created_at']
 
     def __str__(self):
-        return f"{self.name} - {self.shop.name}"
+        return f"{self.product.name} at {self.shop.name}"

@@ -3,15 +3,39 @@
 
 {% block content %}
 <div class="container mx-auto p-6">
-    <div class="max-w-md mx-auto bg-white rounded-lg shadow-lg p-6">
-        <img class="w-full h-64 object-cover rounded-lg mb-4" src="/media/{{ product.image }}" alt="{{ product.name }}">
-        <h1 class="text-3xl font-bold text-gray-800 mb-4">{{ product.name }}</h1>
-        <p class="text-lg text-gray-600 mb-4">Category: {{ product.category }}</p>
-        <p class="text-lg text-gray-600 mb-4">Type: {{ product.drug_type }}</p>
-        <p class="text-lg text-gray-600 mb-4">Form: {{ product.drug_form }}</p>
-        <p class="text-2xl font-bold text-green-600 mb-4">Rp {{ product.price }}</p>
-        <p class="text-lg text-gray-600 mb-6">{{ product.desc }}</p>
-        <a href="/" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-lg">Back to Products</a>
+    <div class="flex items-start space-x-6">
+        <!-- Product Image -->
+        <div class="w-1/3">
+            <img class="w-full h-64 object-cover rounded-lg mb-4" src="/media/{{ product.image }}" alt="{{ product.name }}">
+        </div>
+        
+        <!-- Product Details -->
+        <div class="w-2/3 bg-white rounded-lg shadow-lg p-6">
+            <!-- Product Name and Price -->
+            <h1 class="text-2xl font-semibold text-gray-800">{{ product.name }}</h1>
+            <p class="text-3xl font-bold text-green-600 mb-2">Rp {{ product.price }}</p>
+
+            <!-- Description and Details -->
+            <div class="text-gray-600 mt-4">
+                <p><strong>Category:</strong> {{ product.category }}</p>
+                <p><strong>Type:</strong> {{ product.drug_type }}</p>
+                <p><strong>Form:</strong> {{ product.drug_form }}</p>
+                <p class="mt-4">{{ product.desc }}</p>
+            </div>
+
+            <!-- Navigation Links for Product Details -->
+            <div class="mt-6 flex space-x-4 text-sm font-semibold text-gray-600">
+                <span class="border-b-2 border-green-500">Detail</span>
+                <span>Spesifikasi</span>
+                <span>Info Penting</span>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="mt-6">
+                <a href="/" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg">Back to Products</a>
+                <a href="/review/{{ product.pk }}" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg">See Product Review</a>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock content %}

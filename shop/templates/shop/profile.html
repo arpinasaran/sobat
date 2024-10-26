@@ -1,4 +1,3 @@
-<!-- templates/shop/profile.html -->
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
@@ -24,8 +23,8 @@
                     <a href="{% url 'shop:edit_profile' shop.id %}" class="inline-block bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
                         Edit Profile
                     </a>
-                    <a href="{% url 'shop:add_product' shop.id %}" class="inline-block bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600">
-                        Add Product
+                    <a href="{% url 'shop:manage_products' shop.id %}" class="inline-block bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600">
+                        Manage Products
                     </a>
                 </div>
                 {% endif %}
@@ -51,9 +50,6 @@
         <div class="bg-white rounded-lg shadow-lg overflow-hidden relative">
             {% if user.is_authenticated and user.role == 'apoteker' and user == shop.owner %}
             <div class="absolute top-2 right-2 space-x-2">
-                <a href="{% url 'shop:edit_product' shop.id product.id %}" class="bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600">
-                    Edit
-                </a>
                 <form method="POST" action="{% url 'shop:delete_product' shop.id product.id %}" class="inline" onsubmit="return confirm('Are you sure you want to delete this product?');">
                     {% csrf_token %}
                     <button type="submit" class="bg-red-500 text-white p-2 rounded-lg hover:bg-red-600">
