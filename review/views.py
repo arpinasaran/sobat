@@ -1,13 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Review
 from .forms import ReviewForm
 from product.models import DrugEntry as Produk
 from authentication.models import User
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-from django.shortcuts import render, redirect, get_object_or_404
 from .models import Produk, Review
-from .forms import ReviewForm
+from django.db.models import Avg
 
 def create_review(request, product_id=None):
     product = get_object_or_404(Produk, id=product_id) if product_id else None
@@ -45,5 +43,10 @@ def reviews(request, product_id=None):
             reviews = Review.objects.filter(product=product)
     else:
         reviews = Review.objects.none()
-    context = { 'product': product, 'reviews': reviews, 'users': users }
+
+    average_rating = reviews.aggregate(Avg('rating'))['rating__avg'] if reviews.exists() else None
+    if average_rating is not None:
+        average_rating = round(average_rating, 1)
+
+    context = { 'product': product, 'reviews': reviews, 'users': users, 'average_rating': average_rating }
     return render(request, 'reviews.html', context)
