@@ -44,7 +44,7 @@ INSTALLED_APPS = [
     'main',
     'forum',
     'product',
-    'shop',
+    'shop.apps.ShopConfig',
     'resep'
 ]
 

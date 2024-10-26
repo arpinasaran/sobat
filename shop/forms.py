@@ -1,5 +1,7 @@
+# shop/forms.py
 from django import forms
-from .models import ShopProfile, Product
+from product.forms import DrugEntryForm
+from .models import ShopProfile, ShopProduct
 
 class ShopProfileForm(forms.ModelForm):
     class Meta:
@@ -10,8 +12,7 @@ class ShopProfileForm(forms.ModelForm):
             'closing_time': forms.TimeInput(attrs={'type': 'time'}),
         }
 
-class ProductForm(forms.ModelForm):
-    class Meta:
-        model = Product
-        fields = ['name', 'category', 'drug_type', 'medium', 'price', 
-                 'description', 'dosage', 'is_available', 'image']
+class ShopProductForm(DrugEntryForm):
+    class Meta(DrugEntryForm.Meta):
+        model = ShopProduct
+        fields = DrugEntryForm.Meta.fields + ['image']  # Menambahkan field tambahan yang ada di shop
