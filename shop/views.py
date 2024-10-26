@@ -6,7 +6,9 @@ from django.db.models import Q
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseForbidden
 from .models import ShopProfile, ShopProduct
-from .forms import ShopProfileForm, ShopProductForm
+from .forms import ShopProfileForm, ManageProductForm
+from product.models import DrugEntry
+from collections import defaultdict
 
 def shop_list(request):
     shops = ShopProfile.objects.all().order_by('-created_at')
@@ -15,7 +17,12 @@ def shop_list(request):
 def shop_profile(request, shop_id):
     shop = get_object_or_404(ShopProfile, id=shop_id)
     products = shop.products.all().order_by('?')  # Random order for beranda
-    categories = ShopProduct.objects.filter(shop=shop).values_list('category', flat=True).distinct()
+    
+    # Get categories through the related DrugEntry model
+    categories = DrugEntry.objects.filter(
+        shop_products__shop=shop  # Changed from shopproduct__shop to shop_products__shop
+    ).values_list('category', flat=True).distinct()
+    
     context = {
         'shop': shop,
         'products': products,
@@ -27,13 +34,19 @@ def shop_profile(request, shop_id):
 def shop_catalog(request, shop_id, category=None):
     shop = get_object_or_404(ShopProfile, id=shop_id)
     products = shop.products.all()
+
     if category and category != 'all':
         products = products.filter(category=category)
-    categories = ShopProduct.objects.filter(shop=shop).values_list('category', flat=True).distinct()
+
+    # Retrieve distinct categories from the related DrugEntry model
+    categories = DrugEntry.objects.filter(
+        shop_products__shop=shop
+    ).values_list('category', flat=True).distinct()
+
     context = {
         'shop': shop,
         'products': products,
-        'categories': categories,
+        'categories': sorted(set(categories)),  # Ensure categories are unique and sorted
         'current_category': category,
         'is_owner': request.user == shop.owner if request.user.is_authenticated else False
     }
@@ -75,64 +88,60 @@ def edit_profile(request, shop_id):
     return render(request, 'shop/edit_profile.html', {'form': form, 'shop': shop})
 
 @login_required
-def add_product(request, shop_id):
+def manage_products(request, shop_id):
     shop = get_object_or_404(ShopProfile, id=shop_id)
+    
     if request.user != shop.owner:
-        messages.error(request, "You don't have permission to add products to this shop.")
+        messages.error(request, "You don't have permission to manage products in this shop.")
         return redirect('shop:profile', shop_id=shop_id)
     
     if request.method == 'POST':
-        form = ShopProductForm(request.POST, request.FILES)
+        form = ManageProductForm(request.POST, shop=shop)
         if form.is_valid():
-            product = form.save(commit=False)
-            product.shop = shop
-            product.save()
-            messages.success(request, 'Product added successfully.')
+            selected_products = form.cleaned_data['selected_products']
+            
+            # Get current products in shop
+            current_products = set(ShopProduct.objects.filter(shop=shop).values_list('product_id', flat=True))
+            # Convert selected products to set of IDs
+            new_products = set(product.id for product in selected_products)
+            
+            # Remove products that were unselected
+            products_to_remove = current_products - new_products
+            ShopProduct.objects.filter(shop=shop, product_id__in=products_to_remove).delete()
+            
+            # Add newly selected products
+            products_to_add = new_products - current_products
+            for product_id in products_to_add:
+                ShopProduct.objects.create(
+                    shop=shop,
+                    product_id=product_id,
+                    is_available=True
+                )
+            
+            messages.success(request, 'Shop products updated successfully.')
             return redirect('shop:profile', shop_id=shop_id)
     else:
-        form = ShopProductForm()
-    return render(request, 'shop/add_product.html', {'form': form, 'shop': shop})
-
-@login_required
-def edit_product(request, shop_id, product_id):
-    shop = get_object_or_404(ShopProfile, id=shop_id)
-    product = get_object_or_404(ShopProduct, id=product_id, shop=shop)
+        form = ManageProductForm(shop=shop)
     
-    if request.user != shop.owner:
-        raise PermissionDenied("You don't have permission to edit this product")
-    
-    if request.method == 'POST':
-        form = ShopProductForm(request.POST, request.FILES, instance=product)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Product updated successfully.')
-            return redirect('shop:profile', shop_id=shop_id)
-    else:
-        form = ShopProductForm(instance=product)
-    
-    return render(request, 'shop/edit_product.html', {
+    context = {
         'form': form,
         'shop': shop,
-        'product': product
-    })
+        'products': DrugEntry.objects.all()
+    }
+    return render(request, 'shop/manage_products.html', context)
 
 @login_required
 def delete_product(request, shop_id, product_id):
     shop = get_object_or_404(ShopProfile, id=shop_id)
-    product = get_object_or_404(ShopProduct, id=product_id, shop=shop)
+    shop_product = get_object_or_404(ShopProduct, shop=shop, product_id=product_id)
     
     if request.user != shop.owner:
-        return HttpResponseForbidden("You don't have permission to delete this product")
-    
-    if request.method == 'GET':
-        return render(request, 'shop/delete_product.html', {
-            'shop': shop,
-            'product': product
-        })
-    
-    if request.method == 'POST':
-        product.delete()
+        messages.error(request, "You don't have permission to delete products from this shop.")
         return redirect('shop:profile', shop_id=shop_id)
+    
+    shop_product.delete()
+    messages.success(request, 'Product removed from shop successfully.')
+    return redirect('shop:profile', shop_id=shop_id)
 
 @login_required
 def delete_shop(request, shop_id):

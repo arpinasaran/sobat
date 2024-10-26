@@ -1,7 +1,7 @@
-# shop/forms.py
+# forms.py
 from django import forms
-from product.forms import DrugEntryForm
 from .models import ShopProfile, ShopProduct
+from product.models import DrugEntry
 
 class ShopProfileForm(forms.ModelForm):
     class Meta:
@@ -12,7 +12,15 @@ class ShopProfileForm(forms.ModelForm):
             'closing_time': forms.TimeInput(attrs={'type': 'time'}),
         }
 
-class ShopProductForm(DrugEntryForm):
-    class Meta(DrugEntryForm.Meta):
-        model = ShopProduct
-        fields = DrugEntryForm.Meta.fields + ['image']  # Menambahkan field tambahan yang ada di shop
+class ManageProductForm(forms.Form):
+    selected_products = forms.ModelMultipleChoiceField(
+        queryset=DrugEntry.objects.all(),
+        widget=forms.CheckboxSelectMultiple
+    )
+
+    def __init__(self, *args, **kwargs):
+        shop = kwargs.pop('shop', None)
+        super(ManageProductForm, self).__init__(*args, **kwargs)
+        if shop:
+            initial_products = DrugEntry.objects.filter(shop_products__shop=shop)
+            self.fields['selected_products'].initial = initial_products
