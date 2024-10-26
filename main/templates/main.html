@@ -5,11 +5,35 @@
 <title>SoBat</title>
 <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.7/dist/purify.min.js"></script>
 {% endblock meta %}
+
 {% block content %}
 {% include 'navbar.html' %}
-<br>
-<br>
-<br>
-<p>main</p>
+
+<!-- Hero Section with Centered Text and Button -->
+<div class="relative">
+    <img src="{% static 'image/main.jpg' %}" alt="Main Image" class="w-full h-screen object-cover">
+    <div class="absolute inset-0 flex flex-col items-center justify-center text-white text-center bg-black bg-opacity-50">
+        <h1 class="text-4xl font-bold">Solo Obat</h1>
+        <button onclick="scrollToBottom()" class="mt-4 bg-white text-black font-semibold py-2 px-6 rounded hover:bg-gray-300">
+            Selengkapnya &rarr;
+        </button>
+    </div>
+</div>
+
+<!-- Content that is scrolled to when clicking 'Selengkapnya' -->
+<div id="scroll-target" class="p-10">
+    <p>Content here after scrolling down...</p>
+</div>
+
+<!-- Footer Section -->
+<div class="bg-[#e3d6c5] py-8 text-center">
+    <p class="text-sm text-gray-600">© 2024 By SoBat.</p>
+</div>
+
+<script>
+    function scrollToBottom() {
+        document.getElementById('scroll-target').scrollIntoView({ behavior: 'smooth' });
+    }
+</script>
 
 {% endblock content %}
