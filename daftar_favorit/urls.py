@@ -10,5 +10,6 @@ urlpatterns = [
     path('delete/<uuid:product_id>', views.remove_from_favorites, name='delete_favorite'),
     path('json/', views.show_json, name='show_json'),
     path('', include('main.urls')),
+     path('api/favorite_count/', views.get_favorite_count, name='get_favorite_count'),
     
 ]

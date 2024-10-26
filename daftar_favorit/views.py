@@ -58,3 +58,10 @@ def remove_from_favorites(request, product_id):
         return redirect('daftar_favorite:show_favorite')
     
     return render(request, 'delete_favorite.html', context)
+
+def get_favorite_count(request):
+    if request.user.is_authenticated:
+        favorite_count = Favorite.objects.filter(user=request.user).count()
+    else:
+        favorite_count = 0
+    return JsonResponse({'favorite_count': favorite_count})
