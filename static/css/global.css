@@ -18,3 +18,7 @@
     background-size: 200% 100%;
     animation: shine 3s infinite;
 }
+
+h1 {
+    font-family: Verdana, sans-serif;
+}

@@ -11,12 +11,11 @@
     </div>
 
     <!-- Tombol Create Product -->
-    <a href="/product/create-drug/" class="fixed bottom-10 right-10 bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-full shadow-lg transition duration-300">
-        + Create Product
-    </a>
-    <button onclick="openModal()" class="fixed bottom-10 right-30 bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-full shadow-lg transition duration-300">
-        + Create Drug Ajax
+    {% if request.user.role == "apoteker" %}
+    <button onclick="openModal()" class="fixed bottom-10 right-30 bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-full shadow-lg transition duration-300">
+        Add New Drug
     </button>    
+    {% endif %}
 </div>
 
 <!-- Modal untuk Create Drug -->
