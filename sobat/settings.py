@@ -44,7 +44,7 @@ INSTALLED_APPS = [
     'main',
     'forum',
     'product',
-    'shop',
+    'shop.apps.ShopConfig',
     'resep'
 ]
 
@@ -134,7 +134,7 @@ else:
     STATIC_ROOT = BASE_DIR / 'static' # merujuk ke /static root project pada mode production
 
 MEDIA_URL = 'media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
