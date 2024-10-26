@@ -100,6 +100,11 @@ def show_drug(request, id):
 
     return render(request, "product_detail.html", {'product': product})
 
+def show_seller(request, id):
+    product = DrugEntry.objects.get(pk=id)
+
+    return render(request, 'show_seller.html', {'product' : product})
+
 def show_xml(request):
     data = DrugEntry.objects.all()
     return HttpResponse(serializers.serialize("xml", data), content_type="application/xml")

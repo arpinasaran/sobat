@@ -117,6 +117,8 @@ def manage_products(request, shop_id):
                     product_id=product_id,
                     is_available=True
                 )
+                product = DrugEntry.objects.get(pk=product_id)
+                product.shops.add(shop)
             
             messages.success(request, 'Shop products updated successfully.')
             return redirect('shop:profile', shop_id=shop_id)
