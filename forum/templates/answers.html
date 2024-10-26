@@ -1,0 +1,612 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block meta %}
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.7/dist/purify.min.js"></script>
+{% endblock meta %}
+
+{% block content %}
+{% include 'navbar.html' %}
+
+<style>
+.card:hover {
+  transform: scale(1.05);
+  transition: transform 0.1s ease;
+}
+</style>
+
+
+<div class="h-8"></div>
+
+<div class="flex flex-col items-center mt-12 bg-blue-50 w-full">
+  <div class="p-2 mb-6 relative text-center w-[800px]">
+    <div class="bg-white border border-blue-300 shadow-lg rounded-lg p-6 space-y-4">
+  
+      <div id="question_card" class="mb-6"></div>
+  
+      <!-- Flex container for the paragraph and button, centered -->
+      <div class="flex items-center justify-center mb-6 space-x-4">
+        <p id="choose" class="text-blue-600 text-lg" style="max-width: 600px; text-align: center;">
+          Choose an item to answer if necessary
+        </p>
+  
+        <button id="mainChoose" data-modal-target="crudModal" data-modal-toggle="crudModal" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-300" onclick="showModal();">
+          Choose
+        </button>
+      </div>
+  
+      <div id="product_selected"></div>
+  
+      <form id="form" method="POST">
+        {% csrf_token %}
+  
+        <!-- Answer Textarea -->
+        <label for="answer" class="block text-sm font-medium text-blue-800">Answer</label>
+        <textarea name="answer" id="answer" rows="4" 
+                  class="block w-full border border-blue-200 rounded-md p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-400 text-sm"
+                  placeholder="Write your answer..." required></textarea>
+        
+        <!-- Action Buttons -->
+        <div class="flex justify-between items-center mt-4">
+          <a href="{% url 'forum:show_forum' %}" 
+              class="text-sm text-blue-600 hover:text-blue-700 transition-colors">
+              Back
+          </a>
+          <button id="button_post"
+                  class="flex items-center text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-bold py-2 px-6 rounded-lg shadow-md transition duration-300">
+            Post
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 ml-2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3" />
+            </svg>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <p class="text-blue-600 text-lg">
+    Answers:
+  </p>
+
+  <div id="answer_cards" class="mt-2"></div>
+    
+
+    <!-- Modal -->
+    <div id="crudModal" tabindex="-1" class="hidden fixed inset-0 z-50 w-full flex items-center justify-center bg-gray-800 bg-opacity-50 overflow-x-hidden overflow-y-auto transition-opacity duration-300 ease-out">
+      <div id="crudModalContent" class="relative bg-white rounded-lg shadow-lg w-full sm:w-4/5 md:w-3/4 lg:w-2/3 mx-4 sm:mx-0 transform scale-95 opacity-0 transition-transform transition-opacity duration-300 ease-out">
+        <!-- Modal header -->
+        <div class="flex items-center justify-between p-4 border-b rounded-t">
+          <h3 class="text-xl font-semibold text-blue-800">
+            Choose an item!
+          </h3>
+
+          <input type="text" id="search-input" class="mx-4 w-full border border-blue-300 border-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 rounded-lg py-2 px-4 placeholder-gray-400 shadow-sm transition duration-200 ease-in-out"
+              placeholder="Search for products...">
+
+          <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center" id="closeModalBtn">
+            <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+              <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+            </svg>
+            <span class="sr-only">Close modal</span>
+          </button>
+        </div>
+        <!-- Modal body -->
+        <div id="product_cards" class="px-6 py-4 space-y-6 form-style max-h-80 overflow-auto"></div>
+        <!-- Message Box -->
+        <div id="messageBox" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden" style="z-index: 1000;">
+          <div class="bg-white rounded-lg shadow-lg p-6 max-w-sm text-center">
+              <p class="text-red-600 font-semibold mb-4">Please select a product!</p>
+              <button onclick="closeMessageBox()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+                  OK
+              </button>
+          </div>
+        </div>
+        <!-- Modal footer -->
+        <div class="flex flex-col space-y-2 md:flex-row md:space-y-0 md:space-x-2 p-6 border-t border-gray-200 rounded-b justify-center md:justify-end">
+          <button type="button" id="cancelButton" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg">Cancel</button>
+          <button type="button" id="chooseButton" class="bg-indigo-700 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg">Choose</button>
+        </div>
+      </div>
+    </div>    
+  </div>
+</div>
+
+<script>
+  async function getProduct() {
+    return fetch("{% url 'product:show_json' %}").then((res) => res.json());
+  }
+  
+  function getProductById(id) {
+    return fetch(`/product/json/${id}/`).then((res) => res.json());
+  }
+
+  async function getAnswers(id){
+      return fetch(`/forum/show_json_answer/${id}/`).then((res) => res.json())
+  }
+
+  function getQuestionById(id) {
+    return fetch(`/forum/json/${id}/`).then((res) => res.json());
+  }
+
+  async function refreshAnswerCards() {
+    const answers = await getAnswers("{{ question_pk }}");
+    const answersCardContainer = document.getElementById("answer_cards");
+
+    answersCardContainer.innerHTML = "";
+
+    if (answers.length === 0) {
+          const noAnswersMessage = document.createElement("div");
+          noAnswersMessage.className = "text-center text-gray-700 mt-4"; // Styling for the message
+          noAnswersMessage.innerHTML = `<p>No answers yet...</p>`;
+          answersCardContainer.appendChild(noAnswersMessage);
+          return;
+    }
+
+    // Sort answwers by likes in ascending order
+    answers.sort((a, b) => b.fields.num_likes - a.fields.num_likes);
+
+    const currentUserPk = parseInt("{{ user_pk }}");
+
+    for (const answer of answers) {
+        const answerContent = document.createElement("div");
+        answerContent.className = "container py-2";
+
+        // Check if drug_ans is not null, then get product information
+        let product = null;
+        if (answer.fields.drug_ans) {
+            const products = await getProductById(answer.fields.drug_ans);
+            product = products[0]; // Check if product exists
+        }
+
+        const isLiked = answer.fields.likes.includes(currentUserPk);
+
+        // Conditional HTML rendering based on whether `product` exists
+        answerContent.innerHTML = product ? `
+          <div class="shadow-lg rounded-lg border border-blue-300 p-4 transition-transform hover:scale-105 duration-300 ease-in-out card max-w-sm mx-auto" style="max-width: 600px;">
+              <div class="grid grid-cols-[8rem_auto] gap-6">
+                  <!-- First Column: Image and Product Name -->
+                  <div class="flex flex-col items-center">
+                      <!-- Image -->
+                      <img class="w-28 h-28 object-cover rounded-lg shadow-md border border-blue-200 mb-2" 
+                          src="/media/${product.fields.image}" alt="${product.fields.name}" />
+
+                      <!-- Product Name -->
+                      <p class="text-xs font-bold text-blue-800 text-center">${product.fields.name}</p>
+                  </div>
+
+                  <div class="text-left">
+                      <!-- By Username -->
+                      <p class="text-xs text-gray-600 mb-1">By ${answer.fields.username}</p>
+
+                      <!-- Answer Text -->
+                      <p class="text-sm text-gray-700 mt-1">
+                          <span>${answer.fields.answer}</span>
+                      </p>
+                  </div>
+              </div>
+
+              <!-- Buttons for Likes and Answers and Delete -->
+              <div class="mt-4 flex">
+                  <button type="submit" onclick="likeAnswer('${answer.pk}');" class="d-flex align-items-center ml-4">
+                      ${isLiked
+                          ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="red" class="size-5">
+                              <path d="m11.645 20.91-.007-.003-.022-.012a15.247 15.247 0 0 1-.383-.218 25.18 25.18 0 0 1-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0 1 12 5.052 5.5 5.5 0 0 1 16.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 0 1-4.244 3.17 15.247 15.247 0 0 1-.383.219l-.022.012-.007.004-.003.001a.752.752 0 0 1-.704 0l-.003-.001Z" />
+                          </svg>`
+                          : `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="red" class="size-5">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
+                          </svg>`
+                      }
+                  </button>
+                  <p class="my-1 mx-1">${answer.fields.num_likes}</p>
+
+                  <div class="mt-3 mx-1 d-flex align-items-center ml-auto">
+                      <button type="submit" onclick="deleteAnswer('${answer.pk}')" style="display: none;" id="delete-button">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="black" class="bi bi-trash" viewBox="0 0 16 16">
+                              <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6Z"/>
+                              <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1v1ZM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118ZM2.5 3h11V2h-11v1Z"/>
+                          </svg>
+                      </button>
+                  </div>
+              </div>
+          </div>
+
+            ` : `
+          <div class="shadow-lg rounded-lg border border-blue-300 p-4 transition-transform hover:scale-105 duration-300 ease-in-out card" style="max-width: 600px;">
+            <div class="text-left mx-4">
+                <!-- By Username -->
+                <p class="text-xs text-gray-600 mb-1">By ${answer.fields.username}</p>
+
+                <!-- Answer Text -->
+                <p class="text-sm text-gray-700 mt-1">
+                    <span class="">${answer.fields.answer}</span>
+                </p>
+            </div>
+
+            <!-- Buttons for Likes and Answers and Delete -->
+          <div class="mt-4 flex">
+              <button type="submit" onclick="likeAnswer('${answer.pk}');" class="d-flex align-items-center ml-4">
+                ${isLiked
+                  ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="red" class="size-5">
+                    <path d="m11.645 20.91-.007-.003-.022-.012a15.247 15.247 0 0 1-.383-.218 25.18 25.18 0 0 1-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0 1 12 5.052 5.5 5.5 0 0 1 16.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 0 1-4.244 3.17 15.247 15.247 0 0 1-.383.219l-.022.012-.007.004-.003.001a.752.752 0 0 1-.704 0l-.003-.001Z" />
+                  </svg>`
+                  : `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="red" class="size-5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
+                  </svg>`
+                }
+              </button>
+              <p class="mt-1 mx-1">${answer.fields.num_likes}</p>
+                  <div class="mt-3 mx-1 d-flex align-items-center ml-auto">
+                      <button type="submit" onclick="deleteAnswer('${answer.pk}')" style="display: none;" id="delete-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+                          <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6Z"/>
+                          <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1v1ZM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118ZM2.5 3h11V2h-11v1Z"/>
+                        </svg>
+                      </button>
+                  </div>
+              </div>
+            </div>
+        </div>
+        `;
+
+        const deleteButton = answerContent.querySelector("#delete-button");
+        if (answer.fields.user === currentUserPk) {
+            deleteButton.style.display = "block"; // Show the button
+        } else {
+            deleteButton.style.display = "none"; // Hide the button
+        }
+
+        // Append the question content to the container
+        answersCardContainer.appendChild(answerContent);
+    }
+  }
+
+  refreshAnswerCards();
+
+  function likeAnswer(answerId) {
+    const scrollPosition = window.scrollY;
+
+    fetch(`/forum/like_answer/${answerId}/`, {
+        method: "POST"
+    }).then(() => {
+        // Refresh the cards after liking the answer
+        refreshAnswerCards().then(() => {
+            window.scrollTo(0, scrollPosition);
+        });
+    });
+  }
+
+  function deleteAnswer(answerId) {
+    const scrollPosition = window.scrollY;
+    
+    fetch(`/forum/delete_answer/${answerId}/`, {
+        method: "DELETE"
+    }).then(() => {
+        // Refresh the cards after liking the question
+        refreshAnswerCards().then(() => {
+            window.scrollTo(0, scrollPosition);
+        });
+    });
+  }
+
+  async function answerQuestion() {
+    const questions = await getQuestionById("{{ question_pk }}");
+    const question = questions[0];
+
+    fetch(`/forum/answer_question/${question.pk}/${chosenProductId}/`, {
+        method: "POST",
+        body: new FormData(document.querySelector('#form'))
+    })
+    .then(response => {
+        if (response.ok) {
+            // Reset the form
+            document.getElementById("form").reset();
+            refreshAnswerCards();
+        } else {
+            console.log("Error creating answer.");
+        }
+    })
+    .catch(error => {
+        console.error("Error:", error);
+    });
+
+    return false;
+  }
+
+  async function loadQuestion() {
+    const questionsCardContainer = document.getElementById("question_card");
+    questionsCardContainer.innerHTML = "";
+
+    const currentUserPk = parseInt("{{ user_pk }}");
+    const questions = await getQuestionById("{{ question_pk }}");
+    const question = questions[0];
+
+    const questionContent = document.createElement("div");
+    questionContent.className = "container py-2";
+
+    // Check if drug_asked is not null, then get product information
+    let product = null;
+    if (question.fields.drug_asked) {
+        const products = await getProductById(question.fields.drug_asked);
+        product = products[0]; // Check if product exists
+    }
+
+    // Conditional HTML rendering based on whether `product` exists
+    questionContent.innerHTML = product ? `
+        <div class="shadow-lg rounded-lg border border-blue-300 p-4 transition-transform hover:scale-105 duration-300 ease-in-out card max-w-sm mx-auto" style="max-width: 600px;">
+            <div class="grid grid-cols-[8rem_auto] gap-6">
+                <!-- First Column: Image and Product Name -->
+                <div class="flex flex-col items-center">
+                    <!-- Image -->
+                    <img class="w-28 h-28 object-cover rounded-lg shadow-md border border-blue-200 mb-2" 
+                        src="/media/${product.fields.image}" alt="${product.fields.name}" />
+
+                    <!-- Product Name -->
+                    <p class="text-xs font-bold text-blue-800 text-center">${product.fields.name}</p>
+                </div>
+
+                <!-- Second Column: Question Title and Question Text -->
+                <div class="text-left">
+                    <!-- By Username -->
+                    <p class="text-xs text-gray-600 mb-1">By ${question.fields.username}</p>
+                    
+                    <!-- Question Title -->
+                    <p class="text-base font-bold text-blue-800 mt-1 h-12 overflow-hidden">
+                        <span class="block line-clamp-2">${question.fields.question_title}</span>
+                    </p>
+
+                    <!-- Question Text -->
+                    <p class="text-xs text-gray-700 mt-1 h-24 overflow-hidden">
+                        <span class="block line-clamp-6">${question.fields.question}</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+        ` : `
+    <div class="shadow-lg rounded-lg border border-blue-300 p-4 transition-transform hover:scale-105 duration-300 ease-in-out card" style="max-width: 600px;">
+        <div class="text-left mx-4">
+            <!-- By Username -->
+            <p class="text-xs text-gray-600 mb-1">By ${question.fields.username}</p>
+            
+            <!-- Question Title -->
+            <p class="text-base font-bold text-blue-800 mt-1 h-12 overflow-hidden">
+                <span class="block line-clamp-2">${question.fields.question_title}</span>
+            </p>
+
+            <!-- Question Text -->
+            <p class="text-xs text-gray-700 mt-1 h-24 overflow-hidden">
+                <span class="block line-clamp-6">${question.fields.question}</span>
+            </p>
+        </div>
+    </div>
+    `;
+
+    // Append the question content to the container
+    questionsCardContainer.appendChild(questionContent);
+  }
+
+  loadQuestion();
+
+
+
+  async function refreshCards(products = null) {
+      const productCardContainer = document.getElementById("product_cards");
+
+      // Clear existing cards and messages
+      productCardContainer.innerHTML = "";
+
+      // If no products are provided, fetch all products
+      if (!products) {
+          products = await getProduct();
+      }
+
+      // Check if products array is empty
+      if (products.length === 0) {
+          const noProductsMessage = document.createElement("div");
+          noProductsMessage.className = "text-center text-gray-700 mt-4"; // Styling for the message
+          noProductsMessage.innerHTML = `<p>No products found matching your search.</p>`;
+          productCardContainer.appendChild(noProductsMessage);
+          return;
+      }
+
+      // Set up dynamic columns using CSS Grid
+      const gridContainer = document.createElement("div");
+      gridContainer.className = "grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"; // Responsive columns
+
+      // Generate product cards
+      products.forEach((product) => {
+          const productCard = document.createElement("div");
+
+          // Create inner HTML for each product card
+          productCard.innerHTML = `
+              <div class="flex flex-col items-center shadow-lg rounded-lg md:flex border border-blue-300 p-4 transition-transform hover:scale-105 duration-300 ease-in-out card" 
+                  data-name="${product.fields.name}" data-id="${product.pk}" onclick="selectProduct(this);">
+                  <!-- Product Image -->
+                  <img class="w-32 h-32 object-cover rounded-lg shadow-md border border-blue-200 mb-3" 
+                      src="/media/${product.fields.image}" alt="${product.fields.name}" />
+
+                  <!-- Product Details -->
+                  <div class="text-center">
+                      <h5 class="text-sm font-bold text-blue-800 mb-2">${product.fields.name}</h5>
+                      <p class="text-xs text-gray-700 mb-1">
+                          <span class="font-semibold text-blue-600">Category:</span> ${product.fields.category}
+                      </p>
+                      <p class="text-xs text-gray-700 mb-1">
+                          <span class="font-semibold text-blue-600">Type:</span> ${product.fields.drug_type}
+                      </p>
+                      <p class="text-xs text-gray-700 mb-1">
+                          <span class="font-semibold text-blue-600">Price:</span> ${product.fields.price}
+                      </p>
+                      <p class="text-xs text-gray-700 mb-1">
+                          <span class="font-semibold text-blue-600">Availability:</span> ${product.fields.availibility ? 'Available' : 'Not Available'}
+                      </p>
+                  </div>
+              </div>
+          `;
+
+          // Append each product card to the grid container
+          gridContainer.appendChild(productCard);
+      });
+
+      // Add the grid to the main container
+      productCardContainer.appendChild(gridContainer);
+  }
+
+  // Initial call to refreshCards to load all products
+  refreshCards();
+
+  const searchInput = document.getElementById("search-input");
+
+  searchInput.addEventListener("input", async function() {
+      const searchText = searchInput.value.toLowerCase();
+      const allProducts = await getProduct(); // Fetch all products once for filtering
+
+      // Filter products based on search text
+      const filteredProducts = allProducts.filter(product =>
+          product.fields.name.toLowerCase().includes(searchText)
+      );
+
+      // Refresh the card display with filtered products
+      refreshCards(filteredProducts);
+  });
+
+  let chosenProduct = null;
+  let chosenProductId = null;
+  let selected = false;
+  let chosen = false;
+
+  function selectProduct(card) {
+    // Remove selection from previously selected cards
+    removeSelected();
+
+    // Get the product details from the card
+    chosenProduct = card.getAttribute("data-name");
+    chosenProductId = card.getAttribute("data-id");
+    selected = true;
+
+    // Add visual feedback to the selected card
+    card.classList.add('bg-blue-300', 'border-blue-700', 'text-white');
+  }
+
+  function removeSelected() {
+    let previouslySelected = document.querySelector('.bg-blue-300');
+    if (previouslySelected) {
+      previouslySelected.classList.remove('bg-blue-300', 'border-blue-700', 'text-white');
+    }
+    selected = false;
+  }
+
+  async function chooseProduct() {
+    if (selected) {
+        // Update the display to show the chosen product
+        let chosenTitle = document.querySelector("#choose");
+        chosenTitle.textContent = `The chosen product is: ${chosenProduct}`;
+
+        let products = await getProductById(chosenProductId);
+        let productCardContainer = document.querySelector("#product_selected");
+        productCardContainer.innerHTML = "";
+
+        let productContent = document.createElement("div");
+        products.forEach((product) => {
+          productContent.innerHTML = `
+            <div class="flex items-center shadow-lg rounded-lg border border-blue-300 p-4 mb-4 transition-transform hover:scale-105 duration-300 ease-in-out card" 
+                data-name="${product.fields.name}" data-id="${product.pk}">
+              
+              <!-- Product Image (left side) -->
+              <div class="flex-shrink-0">
+                <img class="w-32 h-32 object-cover rounded-lg shadow-md border border-blue-200 mb-3" 
+                    src="/media/${product.fields.image}" alt="${product.fields.name}" />
+              </div>
+
+              <!-- Product Details (right side) -->
+              <div class="ml-6 text-left"> <!-- Added margin-left to separate image and text -->
+                <h5 class="text-sm font-bold text-blue-800 mb-2">${product.fields.name}</h5>
+                
+                <p class="text-xs text-gray-700 mb-1">
+                  <span class="font-semibold text-blue-600">Category:</span> ${product.fields.category}
+                </p>
+                
+                <p class="text-xs text-gray-700 mb-1">
+                  <span class="font-semibold text-blue-600">Type:</span> ${product.fields.drug_type}
+                </p>
+                
+                <p class="text-xs text-gray-700 mb-1">
+                  <span class="font-semibold text-blue-600">Price:</span> ${product.fields.price}
+                </p>
+                
+                <p class="text-xs text-gray-700 mb-1">
+                  <span class="font-semibold text-blue-600">Availability:</span> ${product.fields.availibility ? 'Available' : 'Not Available'}
+                </p>
+              </div>
+            </div>
+          `;
+        });
+        productCardContainer.appendChild(productContent);
+        
+        let modal = document.querySelector("#mainChoose");
+        modal.textContent = "Choose Another One";
+        chosen = true;
+        
+    } else {
+      let chosenTitle = document.querySelector("#choose");
+      chosenTitle.textContent = `Choose an item to ask about!`;
+    }
+  }
+
+  // modals
+  const modal = document.getElementById('crudModal');
+  const modalContent = document.getElementById('crudModalContent');
+
+  function showModal() {
+      const modal = document.getElementById('crudModal');
+      const modalContent = document.getElementById('crudModalContent');
+
+      modal.classList.remove('hidden'); 
+      setTimeout(() => {
+        modalContent.classList.remove('opacity-0', 'scale-95');
+        modalContent.classList.add('opacity-100', 'scale-100');
+      }, 50); 
+  }
+
+  function hideModal() {
+      const modal = document.getElementById('crudModal');
+      const modalContent = document.getElementById('crudModalContent');
+
+      modalContent.classList.remove('opacity-100', 'scale-100');
+      modalContent.classList.add('opacity-0', 'scale-95');
+
+      setTimeout(() => {
+        modal.classList.add('hidden');
+      }, 150); 
+  }
+
+  document.getElementById("cancelButton").addEventListener("click", function() {
+    hideModal();
+    removeSelected();
+  });
+  document.getElementById("closeModalBtn").addEventListener("click", function() {
+    hideModal();
+    removeSelected();
+  });
+  document.getElementById("chooseButton").addEventListener("click", function() {
+    chooseProduct();
+    if (selected) {
+      hideModal();
+      removeSelected();
+    } else {
+      showMessageBox()
+    }
+  });
+
+  document.getElementById("button_post").addEventListener("click", answerQuestion)
+
+    // Function to show the message box
+  function showMessageBox() {
+      document.getElementById("messageBox").classList.remove("hidden");
+  }
+
+  // Function to close the message box
+  function closeMessageBox() {
+      document.getElementById("messageBox").classList.add("hidden");
+  }
+</script>
+{% endblock content %}
