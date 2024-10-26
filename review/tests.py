@@ -88,7 +88,7 @@ class reviewTest(TestCase):
         )
         self.assertEqual(review.date_created, timezone.now().date())
     
-    def test_rating_field_validation(self):
+    def test_rating_validation(self):
         review = Review.objects.create(
             user = self.user,
             product = self.product,
@@ -98,7 +98,7 @@ class reviewTest(TestCase):
         with self.assertRaises(ValidationError):
             review.full_clean()
     
-    def test_delete_review(self):
+    def test_delete_a_review(self):
         review = Review.objects.create(
             user = self.user,
             product = self.product,
@@ -109,3 +109,38 @@ class reviewTest(TestCase):
         review.delete()
         with self.assertRaises(Review.DoesNotExist):
             Review.objects.get(id=review_id)
+
+    def test_create_review_view_func(self):
+        url = reverse('review:create_review', args=[self.product.id])
+        response = self.client.post(url, {
+            'rating': 4,
+            'comment': 'Great product!',
+        })
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(Review.objects.filter(product=self.product, user=self.user, rating=4).exists())
+
+    def test_edit_review_view_func(self):
+        url = reverse('review:edit_review', args=[self.product.id, self.review.id])
+        response = self.client.post(url, {'rating': 4.4, 'comment': 'Updated comment'})
+        self.assertEqual(response.status_code, 302)
+        self.review.refresh_from_db()
+        self.assertEqual(self.review.comment, "Updated comment")
+        self.assertEqual(self.review.rating, 4.4)
+
+    def test_delete_review_view_func(self):
+        url = reverse('review:delete_review', args=[self.product.id, self.review.id])
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(Review.objects.filter(id=self.review.id).exists())
+
+    def test_reviews_view_func_with_filter(self):
+        url = reverse('review:reviews', args=[self.product.id])
+        response = self.client.get(url, {'user': self.user.id})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "This is a disappointing product.")
+
+    def test_reviews_view_funch_with_no_filter(self):
+        url = reverse('review:reviews', args=[self.product.id])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "This is a disappointing product.")
