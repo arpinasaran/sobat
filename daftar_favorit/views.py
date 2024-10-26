@@ -35,14 +35,15 @@ def show_json_by_id(request, id):
 @login_required
 def add_to_favorites(request, product_id):
     # Dapatkan produk berdasarkan ID, atau berikan 404 jika tidak ditemukan
+       
     product = get_object_or_404(DrugEntry, id=product_id)
     favorite, created = Favorite.objects.get_or_create(user=request.user, product=product)
     
     # Redirect to a valid URL
     if created:
-        return JsonResponse({'status': 'success', 'message': 'Product added to favorites'})
+       return JsonResponse({'status': 'success'})
     else:
-        return JsonResponse({'status': 'info', 'message': 'Product already in favorites'})
+        return JsonResponse({'status': 'failed', 'message': 'Invalid request'}, status=400)
 
 
 @login_required
@@ -51,7 +52,7 @@ def remove_from_favorites(request, product_id):
     context = {
         'favorite': product
     }
-    if request.method == 'POST':
+    if request.method == 'POST':    
         product.delete()
         # messages.success(request, 'Favorit berhasil dihapus.')
         return redirect('daftar_favorite:show_favorite')

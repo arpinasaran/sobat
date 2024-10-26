@@ -1,72 +1,66 @@
-<nav class="bg-indigo-600 shadow-lg fixed top-0 left-0 z-40 w-screen">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex items-center justify-between h-16">
-      <div class="flex items-center">
-        <h1 class="text-2xl font-bold text-center text-white">SoBat</h1>
-      </div>
-      
-      <!-- Desktop Menu -->
-      <div class="hidden md:flex items-center">
-        <a href="{% url 'main:show_main' %}" class="text-white mx-4 hover:underline">Home</a>
-        <a href="{% url 'product:show_main' %}" class="text-white mx-4 hover:underline">Products</a>
-        <a href="{% url 'daftar_favorite:show_favorite' %}" class="text-white mx-4 hover:underline">Favorite</a>
-        <a href="{% url 'forum:show_forum' %}" class="text-white mx-4 hover:underline">QnA</a>
-        
+{% load static %}
+<nav class="bg-white shadow-md fixed top-0 left-0 z-40 w-full">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+            <!-- Logo and SoBat Text -->
+            <div class="flex items-center space-x-2">
+                <a href="{% url 'main:show_main' %}">
+                    <img src="{% static 'image/Logo.jpg' %}" alt="SoBat Logo" class="h-10">
+                </a>
+                <span class="text-2xl font-bold" style="color: #254922;">SoBat</span>
+            </div>
+            <!-- Desktop Menu -->
+            <div class="hidden md:flex space-x-6">
+                <a href="{% url 'main:show_main' %}" class="text-gray-700 hover:text-black">Home</a>
+                <a href="{% url 'product:show_main' %}" class="text-gray-700 hover:text-black">Products</a>
+                <a href="{% url 'daftar_favorite:show_favorite' %}" class="text-gray-700  mx-4 hover:underline">Favorite</a>
+        <a href="{% url 'forum:show_forum' %}" class="text-gray-700 hover:text-black">QnA</a>
+                <a href="{% url 'shop:list' %}" class="text-gray-700 hover:text-black">Shop</a>
+                {% if user.is_authenticated %}
+                    {% if user.shopprofile %}
+                        <a href="{% url 'shop:profile' shop_id=user.shopprofile.id %}" class="text-gray-700 hover:text-black">My Shop</a>
+                    {% endif %}
+                    <span class="text-gray-500">Welcome, {{ user.username }}</span>
+                    <a href="{% url 'authentication:logout' %}" class="text-gray-700 hover:text-red-600">Logout</a>
+                {% else %}
+                    <a href="{% url 'authentication:login' %}" class="text-gray-700 hover:text-blue-600">Login</a>
+                    <a href="{% url 'authentication:register' %}" class="text-gray-700 hover:text-green-600">Register</a>
+                {% endif %}
+            </div>
+            <!-- Mobile Menu Button -->
+            <div class="md:hidden flex items-center">
+                <button class="mobile-menu-button">
+                    <svg class="w-6 h-6 text-gray-800" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" stroke="currentColor">
+                        <path d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu hidden md:hidden px-4 pt-2 pb-4 bg-white shadow-lg">
+        <a href="{% url 'main:show_main' %}" class="block text-gray-700 py-2 hover:bg-gray-100">Home</a>
+        <a href="{% url 'product:show_main' %}" class="block text-gray-700 py-2 hover:bg-gray-100">Products</a>
+        <a href="{% url 'forum:show_forum' %}" class="block text-gray-700 py-2 hover:bg-gray-100">QnA</a>
+        <a href="{% url 'shop:list' %}" class="block text-gray-700 py-2 hover:bg-gray-100">Shop</a>
         {% if user.is_authenticated %}
-          <span class="text-gray-300 mr-4">Welcome, {{ user.username }}</span>
-          <a href="{% url 'authentication:logout' %}" class="text-center bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition duration-300">
-            Logout
-          </a>
+            {% if user.shopprofile %}
+                <a href="{% url 'shop:profile' shop_id=user.shopprofile.id %}" class="block text-gray-700 py-2 hover:bg-gray-100">My Shop</a>
+            {% endif %}
+            <a href="{% url 'authentication:logout' %}" class="block text-gray-700 py-2 hover:bg-gray-100">Logout</a>
         {% else %}
-          <a href="{% url 'authentication:login' %}" class="text-center bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-300 mr-2">
-            Login
-          </a>
-          <a href="{% url 'authentication:register' %}" class="text-center bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition duration-300">
-            Register
-          </a>
+            <a href="{% url 'authentication:login' %}" class="block text-gray-700 py-2 hover:bg-gray-100">Login</a>
+            <a href="{% url 'authentication:register' %}" class="block text-gray-700 py-2 hover:bg-gray-100">Register</a>
         {% endif %}
-      </div>
-
-      <!-- Mobile Menu Button -->
-      <div class="md:hidden flex items-center">
-        <button class="mobile-menu-button">
-          <svg class="w-6 h-6 text-white" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" stroke="currentColor">
-            <path d="M4 6h16M4 12h16M4 18h16"></path>
-          </svg>
-        </button>
-      </div>
     </div>
-  </div>
+</nav>
 
-  <!-- Mobile Menu -->
-  <div class="mobile-menu hidden md:hidden px-4 w-full md:max-w-full">
-    <div class="pt-2 pb-3 space-y-1 mx-auto">
-      <a href="{% url 'main:show_main' %}" class="block text-white px-3 py-2">Home</a>
-      <a href="{% url 'product:show_main' %}" class="block text-white px-3 py-2">Products</a>
-      <a href="{% url 'forum:show_forum' %}" class="block text-white px-3 py-2">QnA</a>
-
-      {% if user.is_authenticated %}
-        <span class="block text-gray-300 px-3 py-2">Welcome, {{ user.username }}</span>
-        <a href="{% url 'authentication:logout' %}" class="block text-center bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition duration-300">
-          Logout
-        </a>
-      {% else %}
-        <a href="{% url 'authentication:login' %}" class="block text-center bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-300 mb-2">
-          Login
-        </a>
-        <a href="{% url 'authentication:register' %}" class="block text-center bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition duration-300">
-          Register
-        </a>
-      {% endif %}
-    </div>
-  </div>
-
-  <script>
+<script>
     const btn = document.querySelector("button.mobile-menu-button");
     const menu = document.querySelector(".mobile-menu");
 
     btn.addEventListener("click", () => {
-      menu.classList.toggle("hidden");
+        menu.classList.toggle("hidden");
     });
-  </script>
-</nav>
+</script>

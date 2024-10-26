@@ -12,21 +12,23 @@
 
     <div class="w-full max-w-4xl">
         {% if favorite_items %}
-            <ul class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 hover">
-                {% for item in favorite_items %}
-                    <li class="bg-white shadow-xl rounded-lg p-4 flex flex-col justify-between hover:bg-blue-100 hover:shadow-xl transform hover:scale-105 transition duration-300 ">
-                        <div>
-                            <h3 class="text-lg font-semibold text-gray-800">{{ item.product.name }}</h3>
-                            <p class="text-gray-600 mt-2">{{ item.product.description }}</p>
-                        </div>
-                        <div class="mt-4">
-                            <a href="{% url 'daftar_favorite:delete_favorite' item.id %}" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded text-sm transition duration-300">
-                                Remove
-                            </a>
-                        </div>
-                    </li>
+           
+                {% for product in favorite_items %}
+                <div class="container mx-auto p-6">
+                    <div class="max-w-md mx-auto bg-white rounded-lg shadow-lg p-6">
+                        <img class="w-full h-64 object-cover rounded-lg mb-4" src="/media/{{ product.image }}" alt="{{ product.name }}">
+                        <h1 class="text-3xl font-bold text-gray-800 mb-4">{{ product.product.name }}</h1>
+                       
+                        <p class="text-2xl font-bold text-green-600 mb-4">Rp {{  product.product.price }}</p>
+                        <p class="text-lg text-gray-600 mb-6">{{  product.product.desc }}</p>
+                        <a href="{% url 'daftar_favorite:delete_favorite' product.id %}" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-lg">delete</a>
+                        <button id="addToResepBtn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-lg">Tambah ke Resep</button>
+                       
+                    </div>
+                    </div>
+                </div>
                 {% endfor %}
-            </ul>
+          
         {% else %}
             <p class="text-gray-600 mt-10 text-center">No items in your wishlist.</p>
         {% endif %}
