@@ -1,0 +1,244 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+{% include 'navbar.html' %}
+
+<div class="container mx-auto p-6 mt-16">
+    <h1 class="text-3xl font-bold text-center text-blue-800 mb-10">Our Products</h1>
+    
+    <!-- Grid untuk menampilkan produk -->
+    <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Kartu produk akan diisi di sini oleh JavaScript -->
+    </div>
+
+    <!-- Tombol Create Product -->
+    {% if request.user.role == "apoteker" %}
+    <button onclick="openModal()" class="fixed bottom-10 right-30 bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-full shadow-lg transition duration-300">
+        Add New Drug
+    </button>    
+    {% endif %}
+</div>
+
+<!-- Modal untuk Create Drug -->
+<div id="createDrugModal" class="hidden fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
+    <div class="bg-white p-6 rounded-lg shadow-lg w-80">
+        <h2 class="text-xl font-bold mb-4">Create Drug</h2>
+        <form id="drugForm" enctype="multipart/form-data">
+            <input type="text" name="name" placeholder="Drug Name" class="w-full p-2 mb-2 border rounded" required>
+            <textarea name="desc" placeholder="Description" class="w-full p-2 mb-2 border rounded" required></textarea>
+            <input type="text" name="category" placeholder="Category" class="w-full p-2 mb-2 border rounded" required>
+            <input type="text" name="drug_type" placeholder="Drug Type" class="w-full p-2 mb-2 border rounded" required>
+            <input type="text" name="drug_form" placeholder="Drug Form" class="w-full p-2 mb-2 border rounded" required>
+            <input type="number" name="price" placeholder="Price" class="w-full p-2 mb-2 border rounded" required>
+            <label class="flex items-center">
+                <input type="checkbox" name="availibility" class="mr-2"> Available
+            </label>
+            <input type="file" name="image" class="w-full p-2 mb-4 border rounded" required>
+            <button type="button" onclick="submitDrugForm()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">Create</button>
+            <button type="button" onclick="closeModal()" class="bg-gray-300 hover:bg-gray-400 text-black font-bold py-2 px-4 rounded">Cancel</button>
+        </form>
+    </div>
+</div>
+
+<!-- Modal untuk Edit Drug -->
+<div id="editDrugModal" class="hidden fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
+    <div class="bg-white p-6 rounded-lg shadow-lg w-80">
+        <h2 class="text-xl font-bold mb-4">Edit Drug</h2>
+        <form id="editDrugForm" enctype="multipart/form-data">
+            <input type="text" name="name" placeholder="Drug Name" class="w-full p-2 mb-2 border rounded" required>
+            <textarea name="desc" placeholder="Description" class="w-full p-2 mb-2 border rounded" required></textarea>
+            <input type="text" name="category" placeholder="Category" class="w-full p-2 mb-2 border rounded" required>
+            <input type="text" name="drug_type" placeholder="Drug Type" class="w-full p-2 mb-2 border rounded" required>
+            <input type="text" name="drug_form" placeholder="Drug Form" class="w-full p-2 mb-2 border rounded" required>
+            <input type="number" name="price" placeholder="Price" class="w-full p-2 mb-2 border rounded" required>
+            <label class="flex items-center">
+                <input type="checkbox" name="availibility" class="mr-2"> Available
+            </label>
+            <input type="file" name="image" class="w-full p-2 mb-4 border rounded" required>
+            <button type="button" onclick="submitEditDrugForm()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">Save Changes</button>
+            <button type="button" onclick="closeEditModal()" class="bg-gray-300 hover:bg-gray-400 text-black font-bold py-2 px-4 rounded">Cancel</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Fungsi untuk mendapatkan data produk dari backend (Django)
+    async function fetchProducts() {
+        try {
+            const response = await fetch("{% url 'product:show_json' %}");
+            const products = await response.json();
+            return products;
+        } catch (error) {
+            console.error("Error fetching products:", error);
+            return [];
+        }
+    }
+
+    // Fungsi untuk membuat kartu produk
+    function createProductCard(product) {
+        return `
+            <div class="card bg-white shadow-lg rounded-lg overflow-hidden border border-gray-200 flex flex-col items-center p-4 relative cursor-pointer" 
+                onclick="window.location.href='/product/view-drug/${product.pk}/';">
+                
+                <!-- Icon Titik Tiga di Pojok Kanan Atas -->
+                <div class="absolute top-2 right-2">
+                    <button onclick="toggleMenu(event, '${product.pk}')" class="text-gray-600 hover:text-gray-800 focus:outline-none">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v.01M12 12v.01M12 18v.01" />
+                        </svg>
+                    </button>
+
+                    <!-- Dropdown Menu -->
+                    <div class="hidden absolute right-0 mt-2 w-32 bg-white rounded-lg shadow-lg z-10 text-sm" id="menu-${product.pk}">
+                        <a href="/product/edit-drug/${product.pk}/" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Edit Product</a>
+                        <a href="/product/delete-drug/${product.pk}/" class="block px-4 py-2 text-red-600 hover:bg-red-100">Delete Product</a>
+                        <a onclick="openEditModal('${product.pk}', event)" class="block px-4 py-2 text-blue-500 hover:bg-blue-100">Edit Ajax</a>
+                    </div>
+                </div>
+
+                <!-- Konten Kartu Produk -->
+                <img class="w-full h-48 object-cover mb-3" src="/media/${product.fields.image}" alt="${product.fields.image}">
+                <div class="text-center">
+                    <h3 class="text-lg font-bold text-gray-800 mb-2">${product.fields.name}</h3>
+                    <p class="text-green-500 font-semibold text-xl mb-2">Rp ${product.fields.price}</p>
+                    <button class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-full flex items-center space-x-2">
+                        <span>BELI</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+
+    function submitDrugForm() {
+        const form = document.getElementById('drugForm');
+        const formData = new FormData(form);
+
+        fetch("{% url 'product:create_drug_ajax' %}", {
+            method: "POST",
+            body: formData,
+            headers: {
+                "X-CSRFToken": "{{ csrf_token }}"  // Gunakan CSRF token untuk keamanan
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                form.reset();
+                // alert("Drug created successfully!");
+                closeModal();
+                displayProducts(); // Update tampilan produk jika menggunakan grid
+            } else {
+                alert("Failed to create drug.");
+            }
+        })
+        .catch(error => console.error("Error:", error));
+    }
+
+    // Fungsi untuk membuka dan menutup modal
+    function openModal() {
+        document.getElementById("createDrugModal").classList.remove("hidden");
+    }
+    function closeModal() {
+        document.getElementById("createDrugModal").classList.add("hidden");
+    }
+
+
+    // Fungsi untuk menampilkan semua produk di dalam grid
+    async function displayProducts() {
+        const products = await fetchProducts();
+        const productGrid = document.getElementById('productGrid');
+        
+        // Bersihkan isi grid sebelumnya
+        productGrid.innerHTML = '';
+
+        // Generate kartu untuk setiap produk
+        products.forEach(product => {
+            const cardHTML = createProductCard(product);
+            productGrid.innerHTML += cardHTML;
+        });
+    }
+
+    function toggleMenu(event, productId) {
+        event.stopPropagation(); // Mencegah klik di luar menu untuk menutup dropdown
+        const menu = document.getElementById(`menu-${productId}`);
+        
+        // Toggle visibility dropdown menu
+        if (menu.classList.contains('hidden')) {
+            menu.classList.remove('hidden');
+        } else {
+            menu.classList.add('hidden');
+        }
+    }
+
+    // Fungsi untuk menutup menu ketika klik di luar area menu
+    window.addEventListener('click', function() {
+        document.querySelectorAll('[id^="menu-"]').forEach(menu => {
+            menu.classList.add('hidden');
+        });
+    });
+
+
+    // Panggil fungsi untuk menampilkan produk ketika halaman pertama kali dimuat
+    window.onload = displayProducts;
+
+    let currentDrugId;
+
+    function openEditModal(drugId) {
+        event.stopPropagation();
+        currentDrugId = drugId;
+        fetchDrugDetails(drugId);  // Memanggil data untuk mengisi form
+        document.getElementById("editDrugModal").classList.remove("hidden");
+    }
+
+    async function fetchDrugDetails(drugId) {
+        try {
+            const response = await fetch(`/product/${drugId}/`);
+            const drug = await response.json();
+
+            // Isi form dengan data produk
+            const form = document.getElementById('editDrugForm');
+            form.name.value = drug.name;
+            form.desc.value = drug.desc;
+            form.category.value = drug.category;
+            form.drug_type.value = drug.drug_type;
+            form.drug_form.value = drug.drug_form;
+            form.price.value = drug.price;
+            form.availibility.checked = drug.availibility;
+        } catch (error) {
+            console.error("Error fetching drug details:", error);
+        }
+    }
+
+    function closeEditModal() {
+        document.getElementById("editDrugModal").classList.add("hidden");
+    }
+
+    function submitEditDrugForm() {
+        const form = document.getElementById('editDrugForm');
+        const formData = new FormData(form);
+
+        fetch(`/product/edit-drug-ajax/${currentDrugId}/`, {
+            method: "POST",
+            body: formData,
+            headers: {
+                "X-CSRFToken": "{{ csrf_token }}"
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                alert("Drug updated successfully!");
+                form.reset();
+                closeEditModal();
+                displayProducts(); // Update tampilan produk
+            } else {
+                alert("Failed to update drug.");
+            }
+        })
+        .catch(error => console.error("Error:", error));
+    }
+
+</script>
+{% endblock content %}
