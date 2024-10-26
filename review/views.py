@@ -35,7 +35,7 @@ def delete_review(request, review_id, product_id):
 
 def reviews(request, product_id=None):
     product = get_object_or_404(Produk, id=product_id) if product_id else None
-    users = User.objects.all()
+    users = User.objects.filter(role='pengguna')
     reviews = Review.objects.filter(product=product) if product else Review.objects.none()
     selected_user_id = request.GET.get('user')
     if product:
