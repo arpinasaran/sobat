@@ -109,9 +109,9 @@
                           <span class="font-semibold text-blue-600">Availability:</span> ${product.fields.availibility ? 'Available' : 'Not Available'}
                       </p>
                       <div class="mt-4">
-                           <a href="javascript:void(0);" onclick="addToFavorites('{{ product.id }}')" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded text-sm transition duration-300">
-                        Add to Favorites
-                        </a>
+                           <a href="/favorite/add/${product.pk}/" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded text-sm transition duration-300">
+    Add to Favorites
+</a>
                         </div>
                   </div>
               </div>

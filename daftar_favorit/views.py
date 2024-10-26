@@ -39,7 +39,10 @@ def add_to_favorites(request, product_id):
     favorite, created = Favorite.objects.get_or_create(user=request.user, product=product)
     
     # Redirect to a valid URL
-    return redirect('main:show_favorite') 
+    if created:
+        return JsonResponse({'status': 'success', 'message': 'Product added to favorites'})
+    else:
+        return JsonResponse({'status': 'info', 'message': 'Product already in favorites'})
 
 
 @login_required
