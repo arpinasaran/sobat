@@ -16,12 +16,12 @@
     </div>
 
     <div class="mt-6 mb-6 md:mt-6">
-        <a href="{% url 'product:show_drug' product.id %}" class="bg-blue-500 hover:bg-blue-700 text-white py-1 px-3 mr-2 rounded-md text-sm">
+        <a href="{% url 'product:show_drug' product.id %}" class="bg-[#254922] hover:bg-[#1e3a3a] text-white py-1 px-3 mr-2 rounded-md text-sm">
             Back
         </a>
         {% if product != None %}
         {% if request.user.role != "apoteker" %}
-        <a href="{% url 'review:create_review' product.id %}" class="bg-blue-500 hover:bg-blue-700 text-white py-1 px-3 rounded-md text-sm">
+        <a href="{% url 'review:create_review' product.id %}" class="bg-[#254922] hover:bg-[#1e3a3a] text-white py-1 px-3 rounded-md text-sm">
             Add Review
         </a>
         {% endif %}
@@ -38,7 +38,7 @@
                 </option>
             {% endfor %}
         </select>
-        <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white py-1 px-3 ml-2 rounded-md text-sm">Filter</button>
+        <button type="submit" class="bg-[#254922] hover:bg-[#1e3a3a] text-white py-1 px-3 ml-2 rounded-md text-sm">Filter</button>
     </form>
 
     <ul class="space-y-2 md:space-y-4">
@@ -58,10 +58,10 @@
                 <small class="text-gray-500">Date Published: {{ review.date_created }}</small>
                 {% if request.user == review.user %}
                     <div class="mt-2 flex space-x-2">
-                        <a href="{% url 'review:edit_review' product_id=product.id review_id=review.id %}" class="bg-blue-500 hover:bg-blue-700 text-white py-1 px-3 rounded-md text-sm">
+                        <a href="{% url 'review:edit_review' product_id=product.id review_id=review.id %}" class="bg-[#254922] hover:bg-[#1e3a3a] text-white py-1 px-3 rounded-md text-sm">
                             Edit
                         </a>
-                        <a href="{% url 'review:delete_review' product_id=product.id review_id=review.id %}" class="bg-blue-500 hover:bg-blue-700 text-white py-1 px-3 rounded-md text-sm">
+                        <a href="{% url 'review:delete_review' product_id=product.id review_id=review.id %}" class="bg-[#254922] hover:bg-[#1e3a3a] text-white py-1 px-3 rounded-md text-sm">
                             Delete
                         </a>
                     </div>
