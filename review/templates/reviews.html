@@ -14,13 +14,15 @@
             Back
         </a>
         {% if product != None %}
+        {% if request.user.role != "apoteker" %}
         <a href="{% url 'review:create_review' product.id %}" class="bg-blue-500 hover:bg-blue-700 text-white py-1 px-3 rounded-md text-sm">
             Add Review
         </a>
         {% endif %}
+        {% endif %}
     </div>
 
-    <form method="get" action="" class="mb-6">
+    <form method="get" action="" class="mb-6 flex items-center space-x-3">
         <label for="user" class="text-gray-700">Filter by User:</label>
         <select name="user" id="user" class="ml-2 p-1 border rounded border border-black">
             <option value="">All Users</option>
