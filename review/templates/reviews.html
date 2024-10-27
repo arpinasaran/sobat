@@ -9,7 +9,9 @@
 <div class="max-w-full md:max-w-3xl mx-auto p-2 mt-16 md:p-4">
     <h2 class="text-xl md:text-2xl font-semibold md:mb-4">Reviews:</h2>
 
-    <img class="h-64 object-cover mb-4 mx-auto" src="{{ product.image.url }}" alt="{{ product.name }}">
+    {% if product.image %}
+        <img class="h-64 object-cover mb-4 mx-auto" src="{{ product.image.url }}" alt="{{ product.name }}">
+    {% endif %}
     <div class="text-center">
         <h3 class="text-lg font-bold text-gray-800 mb-2">{{product.name}}</h3>
         <p class="text-green-500 font-semibold text-xl mb-2">Rp {{product.price}}</p>
@@ -20,11 +22,11 @@
             Back
         </a>
         {% if product != None %}
-        {% if request.user.role != "apoteker" %}
-        <a href="{% url 'review:create_review' product.id %}" class="bg-[#254922] hover:bg-[#1e3a3a] text-white py-1 px-3 rounded-md text-sm">
-            Add Review
-        </a>
-        {% endif %}
+            {% if request.user.role != "apoteker" %}
+            <a href="{% url 'review:create_review' product.id %}" class="bg-[#254922] hover:bg-[#1e3a3a] text-white py-1 px-3 rounded-md text-sm">
+                Add Review
+            </a>
+            {% endif %}
         {% endif %}
     </div>
 
@@ -42,22 +44,32 @@
     </div><br>
 
     <form method="get" action="" class="mb-6 flex items-center space-x-3">
-        <label for="user" class="text-gray-700">Filter:</label>
+        <label for="user" class="text-gray-700">User:</label>
         <select name="user" id="user" class="ml-2 p-1 border rounded border border-black">
             <option value="">All Users</option>
             {% for user in users %}
-                <option value="{{ user.id }}" {% if user.id|stringformat:"s" == request.GET.user %} selected {% endif %}>
+                <option value="{{ user.id }}" {% if user.id|stringformat:"s" == selected_user_id %} selected {% endif %}>
                     {{ user.nama }}
                 </option>
             {% endfor %}
         </select>
+        <label for="rating" class="text-gray-700 ml-4">Rating:</label>
+        <select name="rating" id="rating" class="ml-2 p-1 border rounded border border-black">
+            <option value="">All Ratings</option>
+            {% for rating in "012345" %}
+                <option value="{{ rating }}" {% if rating|stringformat:"s" == selected_rating %} selected {% endif %}>
+                    {{ rating }} Stars
+                </option>
+            {% endfor %}
+        </select>
+
         <button type="submit" class="bg-[#254922] hover:bg-[#1e3a3a] text-white py-1 px-3 ml-2 rounded-md text-sm">Filter</button>
     </form>
 
     <ul class="space-y-2 md:space-y-4">
         {% for review in reviews %}
             {% if review.user.role != "apoteker" %}
-            <li class="bg-white shadow p-3 md:p-4 rounded-md">
+            <li class="bg-white shadow p-3 md:p-4 rounded-md border border-black">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
                     <strong class="text-base md:text-lg">By: {{ review.user.nama }}</strong>
                     <span class="text-yellow-600 mt-2 md:mt-0">
@@ -82,7 +94,7 @@
             </li>
             {% endif %}
         {% empty %}
-            <li class="text-center text-gray-500">No Reviews Are Available For This Product</li>
+            <li class="text-center text-gray-500">No Reviews Are Present</li>
         {% endfor %}
     </ul>
 </div>

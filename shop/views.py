@@ -108,7 +108,11 @@ def manage_products(request, shop_id):
         # Remove products that were unselected
         products_to_remove = current_products - new_products
         ShopProduct.objects.filter(shop=shop, product_id__in=products_to_remove).delete()
-        
+
+        for product_id in products_to_remove:
+            product = DrugEntry.objects.get(pk=product_id)
+            product.shops.remove(shop)
+
         # Add newly selected products
         products_to_add = new_products - current_products
         for product_id in products_to_add:
@@ -116,6 +120,8 @@ def manage_products(request, shop_id):
                 shop=shop,
                 product_id=product_id,
             )
+            product = DrugEntry.objects.get(pk=product_id)
+            product.shops.add(shop)
 
         messages.success(request, 'Shop products updated successfully.')
         return redirect('shop:profile', shop_id=shop_id)
@@ -143,6 +149,8 @@ def delete_product(request, shop_id, product_id):
         messages.error(request, "You don't have permission to delete products from this shop.")
         return redirect('shop:profile', shop_id=shop_id)
     
+    product = DrugEntry.objects.get(pk=product_id)
+    product.shops.remove(shop)
     shop_product.delete()
     messages.success(request, 'Product removed from shop successfully.')
     return redirect('shop:profile', shop_id=shop_id)

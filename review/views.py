@@ -34,17 +34,20 @@ def delete_review(request, review_id, product_id):
 def reviews(request, product_id=None):
     product = get_object_or_404(Produk, id=product_id) if product_id else None
     users = User.objects.filter(role='pengguna')
-    reviews = Review.objects.filter(product=product) if product else Review.objects.none()
+    all_reviews = Review.objects.filter(product=product) if product else Review.objects.none()
     selected_user_id = request.GET.get('user')
+    selected_rating = request.GET.get('rating')
     if product:
         if selected_user_id:
             reviews = Review.objects.filter(product=product, user_id=selected_user_id)
         else:
             reviews = Review.objects.filter(product=product)
+        if selected_rating:
+            reviews = reviews.filter(rating=selected_rating)
     else:
         reviews = Review.objects.none()
 
-    average_rating = reviews.aggregate(Avg('rating'))['rating__avg'] if reviews.exists() else None
+    average_rating = all_reviews.aggregate(Avg('rating'))['rating__avg'] if all_reviews.exists() else None
     if average_rating is not None:
         average_rating = round(average_rating, 1)
 

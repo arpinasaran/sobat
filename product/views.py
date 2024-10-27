@@ -6,23 +6,24 @@ from django.core import serializers
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
+from daftar_favorit.models import Favorite
 
 @login_required(login_url='/login')
 def show_main(request):
     products = DrugEntry.objects.all()
     return render(request, "all_products.html", {'products': products})
 
-def create_drug(request):
-    if request.method == 'POST':
-        form = DrugEntryForm(request.POST, request.FILES)
-        if form.is_valid():
-            form.save()
-            return redirect('product:show_main')  
-    else:
-        form = DrugEntryForm()
+# def create_drug(request):
+#     if request.method == 'POST':
+#         form = DrugEntryForm(request.POST, request.FILES)
+#         if form.is_valid():
+#             form.save()
+#             return redirect('product:show_main')  
+#     else:
+#         form = DrugEntryForm()
     
-    context = {'form': form}
-    return render(request, "create_drug.html", context)
+#     context = {'form': form}
+#     return render(request, "create_drug.html", context)
 
 @csrf_exempt
 @require_POST
@@ -34,7 +35,6 @@ def create_drug_ajax(request):
     drug_type = request.POST.get("drug_type")
     drug_form = request.POST.get("drug_form")
     price = request.POST.get("price")
-    availibility = request.POST.get("availibility") == "true"  # Mengonversi string ke boolean
     image = request.FILES.get("image")  # Mengambil gambar dari FILES, bukan POST
 
     # Membuat entri baru dalam model DrugEntry
@@ -45,7 +45,6 @@ def create_drug_ajax(request):
         drug_type=drug_type,
         drug_form=drug_form,
         price=int(price),
-        availibility=availibility,
         image=image
     )
     new_drug.save()
@@ -65,7 +64,6 @@ def edit_drug_ajax(request, id):
     drug.drug_type = request.POST.get("drug_type", drug.drug_type)
     drug.drug_form = request.POST.get("drug_form", drug.drug_form)
     drug.price = int(request.POST.get("price", drug.price))
-    drug.availibility = request.POST.get("availibility") == "true"
     
     # Mengambil file gambar baru jika ada, atau mempertahankan gambar lama
     if 'image' in request.FILES:
@@ -76,17 +74,17 @@ def edit_drug_ajax(request, id):
 
     return HttpResponse(b"UPDATED", status=200)
 
-def edit_drug(request, id):
-    product = DrugEntry.objects.get(pk=id)
+# def edit_drug(request, id):
+#     product = DrugEntry.objects.get(pk=id)
 
-    form = DrugEntryForm(request.POST or None, instance=product)
+#     form = DrugEntryForm(request.POST or None, instance=product)
 
-    if form.is_valid() and request.method == "POST":
-        form.save()
-        return HttpResponseRedirect(reverse('product:show_main'))
+#     if form.is_valid() and request.method == "POST":
+#         form.save()
+#         return HttpResponseRedirect(reverse('product:show_main'))
 
-    context = {'form': form}
-    return render(request, "create_drug.html", context) #still need to fix
+#     context = {'form': form}
+#     return render(request, "create_drug.html", context) #still need to fix
 
 def delete_drug(request, id):
     product = DrugEntry.objects.get(pk=id)
@@ -100,17 +98,14 @@ def show_drug(request, id):
 
     return render(request, "product_detail.html", {'product': product})
 
-def show_xml(request):
-    data = DrugEntry.objects.all()
-    return HttpResponse(serializers.serialize("xml", data), content_type="application/xml")
+def show_seller(request, id):
+    product = DrugEntry.objects.get(pk=id)
+
+    return render(request, 'show_seller.html', {'product' : product})
 
 def show_json(request):
     data = DrugEntry.objects.all()
     return HttpResponse(serializers.serialize("json", data), content_type="application/json")
-
-def show_xml_by_id(request, id):
-    data = DrugEntry.objects.filter(pk=id)
-    return HttpResponse(serializers.serialize("xml", data), content_type="application/xml")
 
 def show_json_by_id(request, id):
     data = DrugEntry.objects.filter(pk=id)

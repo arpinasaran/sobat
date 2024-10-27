@@ -149,6 +149,9 @@
                     if (response.deleted) {
                         // Hapus baris dari tabel jika produk dihapus
                         $('#row-' + resepId).remove();
+                        if (response.reloaded) {
+                            location.reload();
+                        }
                     } else {
                         // Update jumlah item di halaman
                         $('#amount-' + resepId + ' span').text(response.amount);
