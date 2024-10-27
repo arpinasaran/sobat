@@ -123,7 +123,7 @@
     document.addEventListener('DOMContentLoaded', () => {
       const btn = document.querySelector("button.mobile-menu-button");
       const menu = document.querySelector(".mobile-menu");
-      const userIcon = document.getElementById("user-icon");
+    
       const logoutMenu = document.getElementById("logout-menu");
   
       // Initialize favorite count when the page loads
@@ -134,16 +134,7 @@
       });
   
       // Toggle logout menu
-      userIcon.addEventListener("click", () => {
-          logoutMenu.classList.toggle("hidden");
-      });
-  
-      // Close the logout menu when clicking outside
-      window.addEventListener("click", (event) => {
-          if (!userIcon.contains(event.target) && !logoutMenu.contains(event.target)) {
-              logoutMenu.classList.add("hidden");
-          }
-      });
+      
     });
   </script>
   
