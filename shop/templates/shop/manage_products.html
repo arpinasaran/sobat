@@ -1,12 +1,25 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="pt-16">
-    <div class="container mx-auto px-4 py-8">
+    <div class="container mx-auto px-4 py-8 relative">
         <h1 class="text-2xl font-bold mb-6">Manage Shop Products</h1>
         
-        <form method="POST" class="space-y-6">
+        <!-- Action buttons at the top right corner -->
+        <div class="absolute top-8 right-0 flex space-x-4">
+            <a href="{% url 'shop:profile' shop.id %}" 
+               class="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                Cancel
+            </a>
+            <button type="submit" form="manage-products-form"
+                    class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                Save Changes
+            </button>
+        </div>
+        
+        <!-- Form begins here -->
+        <form id="manage-products-form" method="POST" class="space-y-6">
             {% csrf_token %}
-            
+
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {% for product in products %}
                 <div class="border rounded-lg p-4 relative {% if product.is_selected %}bg-green-50 border-green-200{% endif %}">
@@ -34,15 +47,6 @@
                     </label>
                 </div>
                 {% endfor %}
-            </div>
-            
-            <div class="flex justify-end space-x-4 mt-8">
-                <a href="{% url 'shop:profile' shop.id %}" class="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                    Cancel
-                </a>
-                <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                    Save Changes
-                </button>
             </div>
         </form>
     </div>

@@ -1,7 +1,7 @@
 <!-- templates/shop/components/product_card.html -->
 <div class="bg-white rounded-lg shadow-lg overflow-hidden">
     <a href="{% url 'product:show_drug' product.pk %}">
-        <div class="aspect-w-1 aspect-h-1">
+        <div class="w-full h-48 overflow-hidden">  <!-- Fixed height added here -->
             {% if product.image %}
                 <img src="{{ product.image.url }}" alt="{{ product.name }}" class="w-full h-full object-cover">
             {% else %}
