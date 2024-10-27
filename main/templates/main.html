@@ -11,23 +11,63 @@
 
 <!-- Hero Section with Centered Text and Button -->
 <div class="relative">
-    <img src="{% static 'image/main.jpg' %}" alt="Main Image" class="w-full h-screen object-cover">
+    <video autoplay loop muted playsinline class="w-full h-screen object-cover">
+        <source src="{% static 'image/main.mp4' %}" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
     <div class="absolute inset-0 flex flex-col items-center justify-center text-white text-center bg-black bg-opacity-50">
-        <h1 class="text-4xl font-bold">Solo Obat</h1>
-        <button onclick="scrollToBottom()" class="mt-4 bg-white text-black font-semibold py-2 px-6 rounded hover:bg-gray-300">
+        <h1 class="text-5xl font-bold mb-2">Solo Obat</h1>
+        <p class="text-lg mb-4 text-center max-w-md">Discover the finest medicines and herbal remedies to enhance your health and well-being.</p>
+        <button onclick="scrollToBottom()" class="mt-2 bg-transparent border-2 border-white text-white font-semibold py-2 px-6 rounded-full hover:bg-white hover:text-black transition duration-300">
             Selengkapnya &rarr;
         </button>
     </div>
 </div>
 
 <!-- Content that is scrolled to when clicking 'Selengkapnya' -->
-<div id="scroll-target" class="p-10">
-    <p>Content here after scrolling down...</p>
+<div id="scroll-target" class="p-10 pt-24">
+    <!-- Features/Services Title -->
+    <h2 class="text-3xl font-semibold text-center mb-8">Features & Services</h2>
+
+    <!-- Product, QnA, and Shop Section -->
+    <div class="flex flex-col md:flex-row justify-center space-x-0 md:space-x-8 py-10 space-y-8 md:space-y-0">
+        <!-- Product Image -->
+        <a href="{% url 'product:show_main' %}" class="relative group max-w-md">
+            <img src="{% static 'image/product.jpg' %}" alt="Product" class="w-full h-auto transition duration-300 group-hover:opacity-75">
+            <div class="absolute inset-0 bg-gray-800 bg-opacity-50 opacity-0 group-hover:opacity-100 transition duration-300 flex items-center justify-center">
+                <span class="text-white text-2xl font-semibold">Product</span>
+            </div>
+        </a>
+
+        <!-- QnA Image -->
+        <a href="{% url 'forum:show_forum' %}" class="relative group max-w-md">
+            <img src="{% static 'image/qna.jpg' %}" alt="QnA" class="w-full h-auto transition duration-300 group-hover:opacity-75">
+            <div class="absolute inset-0 bg-gray-800 bg-opacity-50 opacity-0 group-hover:opacity-100 transition duration-300 flex items-center justify-center">
+                <span class="text-white text-2xl font-semibold">QnA</span>
+            </div>
+        </a>
+
+        <!-- Shop Image -->
+        <a href="{% url 'shop:list' %}" class="relative group max-w-md">
+            <img src="{% static 'image/shop.jpg' %}" alt="Shop" class="w-full h-auto transition duration-300 group-hover:opacity-75">
+            <div class="absolute inset-0 bg-gray-800 bg-opacity-50 opacity-0 group-hover:opacity-100 transition duration-300 flex items-center justify-center">
+                <span class="text-white text-2xl font-semibold">Shop</span>
+            </div>
+        </a>
+    </div>
+</div>
+
+<!-- Static Image with Hover Effect and Thank-You Message -->
+<div class="relative group my-10">
+    <img src="{% static 'image/home.jpg' %}" alt="Thank You Image" class="w-full h-64 object-cover transition duration-300 group-hover:opacity-75">
+    <div class="absolute inset-0 bg-gray-800 bg-opacity-50 opacity-0 group-hover:opacity-100 transition duration-300 flex items-center justify-center">
+        <span class="text-white text-xl font-semibold">Thank you for using our website</span>
+    </div>
 </div>
 
 <!-- Footer Section -->
-<div class="bg-[#e3d6c5] py-8 text-center">
-    <p class="text-sm text-gray-600">© 2024 By SoBat.</p>
+<div class="bg-white py-8 text-center">
+    <p class="text-sm text-[#254922]">© 2024 By SoBat.</p>
 </div>
 
 <script>

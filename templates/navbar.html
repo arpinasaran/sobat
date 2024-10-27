@@ -1,16 +1,18 @@
 {% load static %}
 <nav class="bg-white shadow-md fixed top-0 left-0 z-40 w-full">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between h-16">
-            <!-- Logo and SoBat Text -->
-            <div class="flex items-center space-x-2">
+    <!-- Gambar Header Kiri -->
+    <img src="{% static 'image/header_left.jpg' %}" alt="Header Left" class="absolute top-0 left-0 h-16">
+
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+        <div class="flex-grow flex items-center justify-between h-16" style="padding-left: 100px; padding-right: 100px;">
+            <!-- SoBat Text -->
+            <div class="flex items-center space-x-2 bg-white px-2 py-1 rounded-md">
                 <a href="{% url 'main:show_main' %}">
-                    <img src="{% static 'image/Logo.jpg' %}" alt="SoBat Logo" class="h-10">
+                    <span class="text-2xl font-bold" style="color: #254922;">SoBat</span>
                 </a>
-                <span class="text-2xl font-bold" style="color: #254922;">SoBat</span>
             </div>
             <!-- Desktop Menu -->
-            <div class="hidden md:flex space-x-6">
+            <div class="hidden md:flex items-center space-x-6 bg-white px-2 py-1 rounded-md">
                 <a href="{% url 'main:show_main' %}" class="text-gray-700 hover:text-black">Home</a>
                 <a href="{% url 'product:show_main' %}" class="text-gray-700 hover:text-black">Products</a>
                 <a href="{% url 'forum:show_forum' %}" class="text-gray-700 hover:text-black">QnA</a>
@@ -19,8 +21,19 @@
                     {% if user.shopprofile %}
                         <a href="{% url 'shop:profile' shop_id=user.shopprofile.id %}" class="text-gray-700 hover:text-black">My Shop</a>
                     {% endif %}
-                    <span class="text-gray-500">Welcome, {{ user.username }}</span>
-                    <a href="{% url 'authentication:logout' %}" class="text-gray-700 hover:text-red-600">Logout</a>
+                    <div class="relative inline-block text-left">
+                        <div>
+                            <span class="flex items-center cursor-pointer" id="user-icon">
+                                <img src="{% static 'image/navbar.jpg' %}" alt="User Icon" class="w-10 h-10 rounded-full">
+                                <span class="text-gray-500 ml-2">Welcome, {{ user.username }}</span>
+                            </span>
+                        </div>
+                        <div id="logout-menu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10">
+                            <div class="py-1">
+                                <a href="{% url 'authentication:logout' %}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Logout</a>
+                            </div>
+                        </div>
+                    </div>
                 {% else %}
                     <a href="{% url 'authentication:login' %}" class="text-gray-700 hover:text-blue-600">Login</a>
                     <a href="{% url 'authentication:register' %}" class="text-gray-700 hover:text-green-600">Register</a>
@@ -36,6 +49,9 @@
             </div>
         </div>
     </div>
+
+    <!-- Gambar Header Kanan -->
+    <img src="{% static 'image/header_right.jpg' %}" alt="Header Right" class="absolute top-0 right-0 h-16">
 
     <!-- Mobile Menu -->
     <div class="mobile-menu hidden md:hidden px-4 pt-2 pb-4 bg-white shadow-lg">
@@ -58,8 +74,22 @@
 <script>
     const btn = document.querySelector("button.mobile-menu-button");
     const menu = document.querySelector(".mobile-menu");
+    const userIcon = document.getElementById("user-icon");
+    const logoutMenu = document.getElementById("logout-menu");
 
     btn.addEventListener("click", () => {
         menu.classList.toggle("hidden");
+    });
+
+    // Toggle logout menu
+    userIcon.addEventListener("click", () => {
+        logoutMenu.classList.toggle("hidden");
+    });
+
+    // Close the logout menu when clicking outside
+    window.addEventListener("click", (event) => {
+        if (!userIcon.contains(event.target) && !logoutMenu.contains(event.target)) {
+            logoutMenu.classList.add("hidden");
+        }
     });
 </script>
