@@ -130,9 +130,9 @@ http://m-arvin-sobat.pbp.cs.ui.ac.id/
 <hr>
 
 ## Pembagian Pekerjaan
-Arvin: Modul Product dan integrasi dengan model-model lain & navbar
-Ariq: Modul QnA & implementasi autentikasi
-Apta: Modul Favorite & footer
-Janssen: Modul review & implementasi 100 produk di database
-Brenda: Modul Shop & design homepage 
-Alwie: Implementasi modul resep dan integrasi dengan modul produk
+- Arvin: Modul Product dan integrasi dengan model-model lain & navbar
+- Ariq: Modul QnA & implementasi autentikasi
+- Apta: Modul Favorite & footer
+- Janssen: Modul review & implementasi 100 produk di database
+- Brenda: Modul Shop & design homepage 
+- Alwie: Implementasi modul resep dan integrasi dengan modul produk
