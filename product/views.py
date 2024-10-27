@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from daftar_favorit.models import Favorite
+from shop.models import ShopProfile
 
 @login_required(login_url='/login')
 def show_main(request):
@@ -110,3 +111,23 @@ def show_json(request):
 def show_json_by_id(request, id):
     data = DrugEntry.objects.filter(pk=id)
     return HttpResponse(serializers.serialize("json", data), content_type="application/json")
+
+from django.http import HttpResponse
+from product.models import DrugEntry
+from shop.models import ShopProfile, ShopProduct
+
+def update(request):
+    # Step 1: Iterate through all ShopProduct entries
+    all_shop_products = ShopProduct.objects.all()
+
+    for shop_product in all_shop_products:
+        # Get the related shop and product from each ShopProduct entry
+        shop = shop_product.shop
+        product = shop_product.product
+
+        # Step 2: Check if the shop is already associated with the product
+        if not product.shops.filter(id=shop.id).exists():
+            # If not, add the shop to the product's shops
+            product.shops.add(shop)
+
+    return HttpResponse("Updated all shop-product relationships successfully.")
