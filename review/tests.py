@@ -20,7 +20,6 @@ class reviewTest(TestCase):
             drug_type="Something",
             drug_form="Capsule",
             price=10000,
-            availibility=True,
             image=SimpleUploadedFile(name='test_image.jpg', content=b'', content_type='image/jpeg')
         )
         self.review = Review.objects.create(
