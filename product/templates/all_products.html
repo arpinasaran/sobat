@@ -214,7 +214,7 @@
     // Fungsi untuk membuat kartu produk
     function createProductCard(product) {
         return `
-            <div class="card bg-white shadow-lg rounded-lg overflow-hidden border border-gray-200 flex flex-col items-center p-4 relative cursor-pointer" 
+            <div class="card bg-white shadow-lg rounded-lg overflow-hidden border border-gray-200 flex flex-col items-center p-4 content-fit relative cursor-pointer" 
                 onclick="window.location.href='/product/view-drug/${product.pk}/';">
                 
                 <!-- Icon Titik Tiga di Pojok Kanan Atas -->
@@ -233,10 +233,15 @@
                 </div>
 
                 <!-- Konten Kartu Produk -->
-                <img class="w-full h-48 object-cover mb-3" src="/media/${product.fields.image}" alt="${product.fields.image}">
-                <div class="text-center">
-                    <h3 id="product-name-placeholder" class="text-lg font-light text-gray-800 mb-2 font-serif">${product.fields.name}</h3>
-                    <p class="text-green-500 font-semibold text-xl mb-2">Rp ${product.fields.price}</p>
+                <div class="container mx-auto p-6">
+                    <div class="flex flex-wrap justify">
+                        <div class="bg-white rounded-lg shadow-lg p-6 flex flex-col h-full">
+                            <img class="w-full h-48 object-cover rounded-lg mb-4" src="/media/${ product.fields.image }" alt="${ product.fields.name }">
+                            <h1 class="text-xl font-bold text-gray-800 mb-2">${ product.fields.name }</h1>
+                            <p class="text-xl font-bold text-green-600 mb-2">Rp ${ product.fields.price }</p>
+                            <p class="text-sm text-gray-600 mb-4 flex-1">${ product.fields.desc }</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         `;
