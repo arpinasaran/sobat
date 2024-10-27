@@ -9,4 +9,4 @@ class QuestionForm(ModelForm):
 class AnswerForm(ModelForm):
     class Meta:
         model = Answer
-        fields = []
+        fields = ["answer"]

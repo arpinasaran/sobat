@@ -1,33 +1,235 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load custom_filters %}
 {% block meta %}
-<title>Mental Health Tracker</title>
+<title>Resep</title>
 {% endblock meta %}
 {% block content %}
 {% include 'navbar.html' %}
 <div class="overflow-x-hidden px-4 md:px-8 pb-8 pt-24 min-h-screen bg-gray-100 flex flex-col">
-    <h1>TEST</h1>
-
     {% if not resep %}
-    <p>Belum ada data resep.</p>
+    <p class="text-center text-xl">Belum ada obat yang dimasukkan ke resep.</p>
     {% else %}
-    <table>
-    <tr>
-        <th>Name</th>
-        <th>Price</th>
-        <th>Amount</th>
-        </tr>
-
-    {% for produk in resep %}
-        <tr>
-            <td>{{produk.product.name}}</td>
-            <td>{{produk.product.price}}</td>
-            <td>{{produk.amount}}</td>
-            <td><button>-</button></td>
-            <td><button>+</button></td>
-        </tr>
-    {% endfor %}
-    </table>
+    <div class="overflow-x-auto" style="box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.05), 0 6px 20px 0 rgba(0, 0, 0, 0.05)">
+        <table class="min-w-full bg-white border border-gray-300">
+            <thead>
+                <tr class="bg-gray-300 text-center">
+                    <th class="py-2 px-4 border-b">Produk</th>
+                    <th class="py-2 px-4 border-b">Harga</th>
+                    <th class="py-2 px-4 border-b">Jumlah</th>
+                    <th class="py-2 px-4 border-b">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for produk in resep %}
+                <tr id="row-{{ produk.id }}" class="text-center">
+                    <td class="py-2 px-4 border-b">
+                        <img src="/media/{{ produk.product.image }}" alt="{{ produk.product.name }}" class="w-16 h-16 object-cover rounded mx-auto">
+                        <h1> {{ produk.product.name }} </h1>
+                    </td>
+                    <td class="py-2 px-4 border-b">Rp {{ produk.product.price }}</td>
+                    <td class="py-2 px-4 border-b" id="amount-{{ produk.id }}">
+                        <div class="flex justify-center items-center">
+                            <button class="decrease btn btn-danger" data-id="{{ produk.id }}">-</button>
+                            <span class="mx-2">{{ produk.amount }}</span>
+                            <button class="increase btn btn-success" data-id="{{ produk.id }}">+</button>
+                        </div>
+                    </td>
+                    <td class="py-2 px-4 border-b">Rp {{ produk.product.price|floatformat:0|multiply:produk.amount }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="mt-4 text-center">
+        <div class="bg-gray-200 p-4 rounded-lg shadow-md inline-block">
+            <h3 class="text-xl font-bold">Total Harga: <span id="total-price" class="text-black">Rp {{ total_price }}</span></h3>
+        </div>
+        <br>
+        <button id="checkout-button" class="mt-4 btn btn-checkout">Checkout</button>  <!-- Tambahkan tombol Checkout -->
+    </div>
+    
     {% endif %}
 </div>
+
+<!-- Tambahkan CSS untuk desain tombol -->
+<style>
+    .btn {
+        font-size: 1rem;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.2s;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-danger {
+        background-color: #e63946;
+        color: white;
+    }
+
+    .btn-danger:hover {
+        background-color: #d62839;
+        transform: scale(1.05);
+    }
+
+    .btn-success {
+        background-color: #2a9d8f;
+        color: white;
+    }
+
+    .btn-success:hover {
+        background-color: #21867a;
+        transform: scale(1.05);
+    }
+
+    .btn-checkout {
+        background-color: #3085D6;
+        color: white;
+    }
+
+    .btn-checkout:hover {
+        background-color: #2979c3;
+        transform: scale(1.05);
+    }
+
+    tbody tr:nth-child(odd) {
+        background-color: #f0f0f0c9; /* Warna untuk baris ganjil */
+    }
+    
+    tbody tr:nth-child(even) {
+        background-color: #ffffff; /* Warna untuk baris genap */
+    }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('.increase').on('click', function() {
+            let resepId = $(this).data('id');
+            updateAmount(resepId, 'increase');
+        });
+
+        $('.decrease').on('click', function() {
+            let resepId = $(this).data('id');
+            
+            // Cek apakah jumlah produk adalah 1 sebelum mengurangi
+            if ($('#amount-' + resepId + ' span').text() === '1') {
+                // SweetAlert untuk konfirmasi penghapusan
+                Swal.fire({
+                    title: 'Apakah Anda yakin?',
+                    text: "Produk ini akan dihapus dari resep Anda!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Ya, hapus!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        updateAmount(resepId, 'decrease');
+                    }
+                });
+            } else {
+                updateAmount(resepId, 'decrease');
+            }
+        });
+
+        function updateAmount(resepId, action) {
+            $.ajax({
+                url: "{% url 'resep:update_amount' %}",
+                type: "POST",
+                data: {
+                    'resep_id': resepId,
+                    'action': action,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}',
+                },
+                success: function(response) {
+                    if (response.deleted) {
+                        // Hapus baris dari tabel jika produk dihapus
+                        $('#row-' + resepId).remove();
+                    } else {
+                        // Update jumlah item di halaman
+                        $('#amount-' + resepId + ' span').text(response.amount);
+                        
+                        // Hitung total harga baru dan update di kolom Total
+                        let price = parseFloat($('#row-' + resepId + ' td:nth-child(2)').text().replace('Rp ', '').replace('.', '').trim());
+                        let newTotal = price * response.amount;
+                        $('#row-' + resepId + ' td:nth-child(4)').text('Rp ' + newTotal.toFixed(0));
+                    }
+                    // Update total harga
+                    $('#total-price').text('Rp ' + response.total_price);
+                }
+            });
+        }
+
+        // Fitur Checkout
+        $('#checkout-button').on('click', function() {
+            let items = [];
+            let total = 0;
+
+            $('tbody tr').each(function() {
+                let productName = $(this).find('h1').text().trim();
+                let productImage = $(this).find('img').attr('src');
+                let amount = $(this).find('span').text().trim(); 
+                let price = $(this).find('td:nth-child(4)').text().replace('Rp ', '').trim();
+                
+                items.push({
+                    name: productName,
+                    image: productImage,
+                    amount: amount,
+                    price: price
+                });
+                total += parseFloat(price);
+            });
+
+            // Tampilkan ringkasan dalam SweetAlert
+            let summary = '';
+            summary += '<ul style="list-style: none; padding: 0;">';
+            items.forEach(item => {
+                summary += `
+                    <li style="display: flex; align-items: center; margin-bottom: 5px;">
+                        <img src="${item.image}" alt="${item.name}" style="width: 50px; height: 50px; margin-right: 10px; border-radius: 5px;">
+                        <span>${item.name} - Jumlah: ${item.amount} - Total: Rp ${item.price}</span>
+                    </li> <br>`;
+            });
+            summary += '</ul>';
+            summary += `<h4 class="font-bold">Total Keseluruhan: Rp ${total}</h4> <br>`;
+            summary += '<p style="color: #254922">Anda bisa screenshot resep ini dan tunjukkan kepada apoteker untuk membeli produknya.</p>';
+
+            // Modifikasi SweetAlert untuk menambahkan tombol baru
+            Swal.fire({
+                title: 'Ringkasan Pembelian',
+                html: summary,
+                icon: 'info',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Hapus semua obat',
+                cancelButtonText: 'Kembali ke resep'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Hapus semua resep setelah checkout
+                    $.ajax({
+                        url: "{% url 'resep:clear_recipes' %}",  // Sesuaikan URL ini ke view Anda untuk menghapus resep
+                        type: "POST",
+                        data: {
+                            'csrfmiddlewaretoken': '{{ csrf_token }}',
+                        },
+                        success: function() {
+                            // Reload halaman atau perbarui UI sesuai kebutuhan
+                            location.reload();
+                        }
+                    });
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    // Menutup popup jika memilih "Kembali ke resep"
+                    Swal.close();
+                }
+            });
+        });
+
+    });
+</script>
+
 {% endblock content %}

@@ -6,8 +6,9 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect,HttpResponseRedirect
 from django.urls import reverse
-from django.http import JsonResponse
+from django.http import JsonResponse,HttpResponseNotFound
 from django.core import serializers
+
 
 # Create your views here.
 # def show_json(request):
@@ -47,19 +48,17 @@ def add_to_favorites(request, product_id):
 
 
 @login_required
-def remove_from_favorites(request, product_id):
-    product = get_object_or_404(Favorite, pk=product_id)
-    context = {
-        'favorite': product
-    }
-    if request.method == 'POST':    
-        product.delete()
-        # messages.success(request, 'Favorit berhasil dihapus.')
-        return redirect('daftar_favorite:show_favorite')
-    
-    return render(request, 'delete_favorite.html', context)
-
-@login_required
+def delete_favorite(request, product_id):
+    print(f"Trying to delete favorite with ID: {product_id}")  # Debugging line
+    if request.method == 'POST':
+        try:
+            favorite_item = Favorite.objects.get(id=product_id)
+            favorite_item.delete()
+            return JsonResponse({'status': 'success'})
+        except Favorite.DoesNotExist:
+            print("Item not found")  # Debugging line
+            return HttpResponseNotFound('Item not found')
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=400)
 def get_favorite_count(request):
     favorite_count = Favorite.objects.filter(user=request.user).count()
  

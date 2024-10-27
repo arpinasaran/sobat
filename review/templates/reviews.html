@@ -28,6 +28,19 @@
         {% endif %}
     </div>
 
+    <div class="text-center">
+        {% if average_rating %}
+            <p class="text-yellow-600 font-semibold text-lg">
+                Average Rating: {{ average_rating }}/5
+                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="inline h-5 w-5 text-yellow-500" viewBox="0 0 24 24">
+                    <path d="M12 .587l3.668 7.431 8.2 1.191-5.938 5.789 1.408 8.202L12 18.896l-7.338 3.853 1.408-8.202L.132 9.209l8.2-1.191z"/>
+                </svg>
+            </p>
+        {% else %}
+            <p class="text-gray-500">No Ratings Are Present</p>
+        {% endif %}
+    </div><br>
+
     <form method="get" action="" class="mb-6 flex items-center space-x-3">
         <label for="user" class="text-gray-700">Filter:</label>
         <select name="user" id="user" class="ml-2 p-1 border rounded border border-black">
@@ -69,7 +82,7 @@
             </li>
             {% endif %}
         {% empty %}
-            <li class="text-center text-gray-500">No Reviews Are Available For This Product.</li>
+            <li class="text-center text-gray-500">No Reviews Are Available For This Product</li>
         {% endfor %}
     </ul>
 </div>
