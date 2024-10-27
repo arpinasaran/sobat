@@ -5,11 +5,30 @@
 {% include 'navbar.html' %}
 
 <div class="container mx-auto p-6 mt-16">
-    <h1 class="text-3xl font-bold text-center text-blue-800 mb-10">Our Products</h1>
+    <h1 class="text-3xl font-bold text-center text-blue-800 mb-10 font-serif">Our Products</h1>
     
-    <!-- Grid untuk menampilkan produk -->
+    <!-- Search Bar and Filters -->
+    <div class="flex flex-col md:flex-row items-center justify-between mb-6">
+        <input type="text" id="searchBar" placeholder="Search by product name" 
+               class="w-full md:w-1/3 p-2 mb-4 md:mb-0 border rounded" oninput="filterProducts()">
+
+        <select id="categoryFilter" class="w-full md:w-1/5 p-2 mb-4 md:mb-0 border rounded" onchange="filterProducts()">
+            <option value="">All Categories</option>
+            <!-- Populate categories dynamically in JavaScript if needed -->
+        </select>
+
+        <select id="typeFilter" class="w-full md:w-1/5 p-2 mb-4 md:mb-0 border rounded" onchange="filterProducts()">
+            <option value="">All Types</option>
+        </select>
+
+        <select id="formFilter" class="w-full md:w-1/5 p-2 mb-4 md:mb-0 border rounded" onchange="filterProducts()">
+            <option value="">All Forms</option>
+        </select>
+    </div>
+
+    <!-- Grid for displaying products -->
     <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        <!-- Kartu produk akan diisi di sini oleh JavaScript -->
+        <!-- Product cards will be inserted here by JavaScript -->
     </div>
 
     <!-- Tombol Create Product -->
@@ -22,45 +41,143 @@
 
 <!-- Modal untuk Create Drug -->
 <div id="createDrugModal" class="hidden fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
-    <div class="bg-white p-6 rounded-lg shadow-lg w-80">
-        <h2 class="text-xl font-bold mb-4">Create Drug</h2>
+    <div class="bg-white p-8 rounded-lg shadow-lg w-[600px]">
+        <h2 class="text-2xl font-bold mb-6 text-center text-blue-800">Tambahkan Obat Baru</h2>
         <form id="drugForm" enctype="multipart/form-data">
-            <input type="text" name="name" placeholder="Drug Name" class="w-full p-2 mb-2 border rounded" required>
-            <textarea name="desc" placeholder="Description" class="w-full p-2 mb-2 border rounded" required></textarea>
-            <input type="text" name="category" placeholder="Category" class="w-full p-2 mb-2 border rounded" required>
-            <input type="text" name="drug_type" placeholder="Drug Type" class="w-full p-2 mb-2 border rounded" required>
-            <input type="text" name="drug_form" placeholder="Drug Form" class="w-full p-2 mb-2 border rounded" required>
-            <input type="number" name="price" placeholder="Price" class="w-full p-2 mb-2 border rounded" required>
-            <label class="flex items-center">
-                <input type="checkbox" name="availibility" class="mr-2"> Available
-            </label>
-            <input type="file" name="image" class="w-full p-2 mb-4 border rounded" required>
-            <button type="button" onclick="submitDrugForm()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">Create</button>
-            <button type="button" onclick="closeModal()" class="bg-gray-300 hover:bg-gray-400 text-black font-bold py-2 px-4 rounded">Cancel</button>
+            <!-- Nama Obat -->
+            <div class="mb-4">
+                <label for="name" class="block text-sm font-semibold text-gray-700 mb-1">Nama Obat</label>
+                <input type="text" id="name" name="name" placeholder="Nama Obat" class="w-full p-2 border border-gray-300 rounded" required>
+            </div>
+
+            <!-- Deskripsi -->
+            <div class="mb-4">
+                <label for="desc" class="block text-sm font-semibold text-gray-700 mb-1">Deskripsi</label>
+                <textarea id="desc" name="desc" placeholder="Deskripsi Obat" class="w-full p-2 border border-gray-300 rounded" required></textarea>
+            </div>
+
+            <!-- Kategori, Tipe Obat, dan Bentuk Obat -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <!-- Kategori -->
+                <div>
+                    <label for="category" class="block text-sm font-semibold text-gray-700 mb-1">Kategori</label>
+                    <input type="text" id="category" name="category" placeholder="Kategori" class="w-full p-2 border border-gray-300 rounded" required>
+                </div>
+
+                <!-- Tipe Obat -->
+                <div>
+                    <label for="drug_type" class="block text-sm font-semibold text-gray-700 mb-1">Tipe Obat</label>
+                    <select id="drug_type" name="drug_type" class="w-full p-2 border border-gray-300 rounded" required>
+                        <option value="Tradisional">Tradisional</option>
+                        <option value="Modern">Modern</option>
+                    </select>
+                </div>
+
+                <!-- Bentuk Obat -->
+                <div>
+                    <label for="drug_form" class="block text-sm font-semibold text-gray-700 mb-1">Bentuk Obat</label>
+                    <input type="text" id="drug_form" name="drug_form" placeholder="Bentuk Obat" class="w-full p-2 border border-gray-300 rounded" required>
+                </div>
+            </div>
+
+            <!-- Harga dan Gambar Obat -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <!-- Harga -->
+                <div>
+                    <label for="price" class="block text-sm font-semibold text-gray-700 mb-1">Harga</label>
+                    <input type="number" id="price" name="price" placeholder="Harga" class="w-full p-2 border border-gray-300 rounded" required>
+                </div>
+
+                <!-- Gambar Obat -->
+                <div>
+                    <label for="image" class="block text-sm font-semibold text-gray-700 mb-1">Gambar Obat</label>
+                    <input type="file" id="image" name="image" class="w-full p-2 border border-gray-300 rounded" required>
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex justify-end space-x-3">
+                <button type="button" onclick="closeModal()" class="bg-gray-300 hover:bg-gray-400 text-black font-semibold py-2 px-4 rounded">Batal</button>
+                <button type="button" onclick="submitDrugForm()" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded">Tambah</button>
+            </div>
         </form>
     </div>
 </div>
 
+
+
 <!-- Modal untuk Edit Drug -->
-<div id="editDrugModal" class="hidden fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
-    <div class="bg-white p-6 rounded-lg shadow-lg w-80">
-        <h2 class="text-xl font-bold mb-4">Edit Drug</h2>
+<div id="editDrugModal" class="hidden overflow-scroll fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
+    <div class="bg-white p-8 rounded-lg shadow-lg w-[600px]">
+        <h2 class="text-2xl font-bold mb-6 text-center text-blue-800">Edit Obat</h2>
+        <!-- Image Preview
+<div class="mb-4">
+    <label class="block text-sm font-semibold text-gray-700 mb-1">Gambar Obat</label>
+    <img id="edit_image_preview" src="" alt="Current Image" class="w-full h-40 object-cover mb-2 border border-gray-300 rounded">
+    <input type="file" id="edit_image" name="image" class="w-full p-2 border border-gray-300 rounded">
+</div> -->
         <form id="editDrugForm" enctype="multipart/form-data">
-            <input type="text" name="name" placeholder="Drug Name" class="w-full p-2 mb-2 border rounded" required>
-            <textarea name="desc" placeholder="Description" class="w-full p-2 mb-2 border rounded" required></textarea>
-            <input type="text" name="category" placeholder="Category" class="w-full p-2 mb-2 border rounded" required>
-            <input type="text" name="drug_type" placeholder="Drug Type" class="w-full p-2 mb-2 border rounded" required>
-            <input type="text" name="drug_form" placeholder="Drug Form" class="w-full p-2 mb-2 border rounded" required>
-            <input type="number" name="price" placeholder="Price" class="w-full p-2 mb-2 border rounded" required>
-            <label class="flex items-center">
-                <input type="checkbox" name="availibility" class="mr-2"> Available
-            </label>
-            <input type="file" name="image" class="w-full p-2 mb-4 border rounded" required>
-            <button type="button" onclick="submitEditDrugForm()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">Save Changes</button>
-            <button type="button" onclick="closeEditModal()" class="bg-gray-300 hover:bg-gray-400 text-black font-bold py-2 px-4 rounded">Cancel</button>
+            <!-- Nama Obat -->
+            <div class="mb-4">
+                <label for="edit_name" class="block text-sm font-semibold text-gray-700 mb-1">Nama Obat</label>
+                <input type="text" id="edit_name" name="name" class="w-full p-2 border border-gray-300 rounded" value="{{ drug.name }}" required>
+            </div>
+
+            <!-- Deskripsi -->
+            <div class="mb-4">
+                <label for="edit_desc" class="block text-sm font-semibold text-gray-700 mb-1">Deskripsi</label>
+                <textarea id="edit_desc" name="desc" class="w-full p-2 border border-gray-300 rounded" required>{{ drug.desc }}</textarea>
+            </div>
+
+            <!-- Kategori, Tipe Obat, dan Bentuk Obat -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <!-- Kategori -->
+                <div>
+                    <label for="edit_category" class="block text-sm font-semibold text-gray-700 mb-1">Kategori</label>
+                    <input type="text" id="edit_category" name="category" class="w-full p-2 border border-gray-300 rounded" value="{{ drug.category }}" required>
+                </div>
+
+                <!-- Tipe Obat -->
+                <div>
+                    <label for="edit_drug_type" class="block text-sm font-semibold text-gray-700 mb-1">Tipe Obat</label>
+                    <select id="edit_drug_type" name="drug_type" class="w-full p-2 border border-gray-300 rounded" required>
+                        <option value="Tradisional" {% if drug.drug_type == "Tradisional" %}selected{% endif %}>Tradisional</option>
+                        <option value="Modern" {% if drug.drug_type == "Modern" %}selected{% endif %}>Modern</option>
+                    </select>
+                </div>
+
+                <!-- Bentuk Obat -->
+                <div>
+                    <label for="edit_drug_form" class="block text-sm font-semibold text-gray-700 mb-1">Bentuk Obat</label>
+                    <input type="text" id="edit_drug_form" name="drug_form" class="w-full p-2 border border-gray-300 rounded" value="{{ drug.drug_form }}" required>
+                </div>
+            </div>
+
+            <!-- Harga dan Gambar Obat -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <!-- Harga -->
+                <div>
+                    <label for="edit_price" class="block text-sm font-semibold text-gray-700 mb-1">Harga</label>
+                    <input type="number" id="edit_price" name="price" class="w-full p-2 border border-gray-300 rounded" value="{{ drug.price }}" required>
+                </div>
+
+                <!-- Gambar Obat -->
+                <div>
+                    <label for="edit_image" class="block text-sm font-semibold text-gray-700 mb-1">Gambar Obat</label>
+                    <input type="file" id="edit_image" name="image" class="w-full p-2 border border-gray-300 rounded">
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex justify-end space-x-3">
+                <button type="button" onclick="closeEditModal()" class="bg-gray-300 hover:bg-gray-400 text-black font-semibold py-2 px-4 rounded">Batal</button>
+                <button type="button" onclick="submitEditDrugForm()" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded">Simpan Perubahan</button>
+            </div>
         </form>
     </div>
 </div>
+
+
 
 <script>
     async function addToFavorites(productId) {
@@ -110,7 +227,6 @@
 
                     <!-- Dropdown Menu -->
                     <div class="hidden absolute right-0 mt-2 w-32 bg-white rounded-lg shadow-lg z-10 text-sm" id="menu-${product.pk}">
-                        <a href="/product/edit-drug/${product.pk}/" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Edit Product</a>
                         <a href="/product/delete-drug/${product.pk}/" class="block px-4 py-2 text-red-600 hover:bg-red-100">Delete Product</a>
                         <a onclick="openEditModal('${product.pk}', event)" class="block px-4 py-2 text-blue-500 hover:bg-blue-100">Edit Ajax</a>
                     </div>
@@ -119,14 +235,8 @@
                 <!-- Konten Kartu Produk -->
                 <img class="w-full h-48 object-cover mb-3" src="/media/${product.fields.image}" alt="${product.fields.image}">
                 <div class="text-center">
-                    <h3 class="text-lg font-bold text-gray-800 mb-2">${product.fields.name}</h3>
+                    <h3 id="product-name-placeholder" class="text-lg font-light text-gray-800 mb-2 font-serif">${product.fields.name}</h3>
                     <p class="text-green-500 font-semibold text-xl mb-2">Rp ${product.fields.price}</p>
-                    <button class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-full flex items-center space-x-2">
-                        <span>BELI</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                        </svg>
-                    </button>
                 </div>
             </div>
         `;
@@ -164,22 +274,6 @@
         document.getElementById("createDrugModal").classList.add("hidden");
     }
 
-
-    // Fungsi untuk menampilkan semua produk di dalam grid
-    async function displayProducts() {
-        const products = await fetchProducts();
-        const productGrid = document.getElementById('productGrid');
-        
-        // Bersihkan isi grid sebelumnya
-        productGrid.innerHTML = '';
-
-        // Generate kartu untuk setiap produk
-        products.forEach(product => {
-            const cardHTML = createProductCard(product);
-            productGrid.innerHTML += cardHTML;
-        });
-    }
-
     function toggleMenu(event, productId) {
         event.stopPropagation(); // Mencegah klik di luar menu untuk menutup dropdown
         const menu = document.getElementById(`menu-${productId}`);
@@ -205,12 +299,40 @@
 
     let currentDrugId;
 
-    function openEditModal(drugId) {
+    async function openEditModal(drugId) {
         event.stopPropagation();
         currentDrugId = drugId;
-        fetchDrugDetails(drugId);  // Memanggil data untuk mengisi form
-        document.getElementById("editDrugModal").classList.remove("hidden");
+
+        // Fetch existing drug data and populate the form fields
+        try {
+            console.log(drugId);
+            const response = await fetch(`/product/json/${drugId}/`);
+            if (!response.ok) throw new Error('Failed to fetch drug details');
+            const data = await response.json();
+            const drug = data[0].fields;
+            // Fill form fields with existing data
+            document.getElementById('edit_name').value = drug.name;
+            document.getElementById('edit_desc').value = drug.desc;
+            document.getElementById('edit_category').value = drug.category;
+            document.getElementById('edit_drug_type').value = drug.drug_type;
+            document.getElementById('edit_drug_form').value = drug.drug_form;
+            document.getElementById('edit_price').value = drug.price;
+            
+            const imagePath = drug.image ? `/media/${drug.image}` : '';
+            // document.getElementById('edit_image_preview').src = imagePath;
+
+            document.getElementById("editDrugModal").classList.remove("hidden");
+    } 
+        catch (error) {
+            console.error('Error fetching drug details:', error);
+            alert('Could not load drug details. Please try again.');
+        }
     }
+
+    function closeEditModal() {
+        document.getElementById("editDrugModal").classList.add("hidden");
+    }
+
 
     async function fetchDrugDetails(drugId) {
         try {
@@ -225,7 +347,6 @@
             form.drug_type.value = drug.drug_type;
             form.drug_form.value = drug.drug_form;
             form.price.value = drug.price;
-            form.availibility.checked = drug.availibility;
         } catch (error) {
             console.error("Error fetching drug details:", error);
         }
@@ -258,6 +379,69 @@
         })
         .catch(error => console.error("Error:", error));
     }
+
+    let allProducts = []; // Store all products for filtering
+
+// Fetch and store all products on page load
+async function displayProducts() {
+    allProducts = await fetchProducts(); // Fetch all products once
+    populateFilters(allProducts); // Populate category, type, and form filters
+    filterProducts(); // Display initially with no filter
+}
+
+// Function to populate filter options dynamically based on available products
+function populateFilters(products) {
+    const categories = new Set();
+    const types = new Set();
+    const forms = new Set();
+
+    products.forEach(product => {
+        categories.add(product.fields.category);
+        types.add(product.fields.drug_type);
+        forms.add(product.fields.drug_form);
+    });
+
+    populateFilterOptions("categoryFilter", categories);
+    populateFilterOptions("typeFilter", types);
+    populateFilterOptions("formFilter", forms);
+}
+
+// Helper function to add options to each filter dropdown
+function populateFilterOptions(filterId, options) {
+    const filterElement = document.getElementById(filterId);
+    options.forEach(option => {
+        const optElement = document.createElement("option");
+        optElement.value = option;
+        optElement.textContent = option;
+        filterElement.appendChild(optElement);
+    });
+}
+
+// Function to filter products based on search and selected filters
+function filterProducts() {
+    const searchQuery = document.getElementById("searchBar").value.toLowerCase();
+    const selectedCategory = document.getElementById("categoryFilter").value;
+    const selectedType = document.getElementById("typeFilter").value;
+    const selectedForm = document.getElementById("formFilter").value;
+
+    // Filter products based on search and filter criteria
+    const filteredProducts = allProducts.filter(product => {
+        const nameMatch = product.fields.name.toLowerCase().includes(searchQuery);
+        const categoryMatch = selectedCategory ? product.fields.category === selectedCategory : true;
+        const typeMatch = selectedType ? product.fields.drug_type === selectedType : true;
+        const formMatch = selectedForm ? product.fields.drug_form === selectedForm : true;
+        return nameMatch && categoryMatch && typeMatch && formMatch;
+    });
+
+    // Clear the product grid and display filtered products
+    const productGrid = document.getElementById("productGrid");
+    productGrid.innerHTML = ''; // Clear existing products
+    filteredProducts.forEach(product => {
+        const cardHTML = createProductCard(product);
+        productGrid.innerHTML += cardHTML;
+    });
+}
+
 
 </script>
 {% endblock content %}

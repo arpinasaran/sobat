@@ -1,15 +1,15 @@
 {% load static %}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-<nav class="bg-white shadow-md fixed top-0 left-0 z-40 w-full">
+<nav class="bg-white shadow-md fixed top-0 left-0 z-40 w-full h-[70px]">
     <!-- Gambar Header Kiri -->
-    <img src="{% static 'image/header_left.jpg' %}" alt="Header Left" class="absolute top-0 left-0 h-16">
+    <img src="{% static 'image/header_left.jpg' %}" alt="Header Left" class="absolute bottom-0 left-0 h-16">
 
     <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
         <div class="flex-grow flex items-center justify-between h-16" style="padding-left: 100px; padding-right: 100px;">
             <!-- SoBat Text -->
-            <div class="flex items-center space-x-2 bg-white px-2 py-1 rounded-md">
+            <div class="flex items-center space-x-2 bg-white px-0 py-1 rounded-md">
                 <a href="{% url 'main:show_main' %}">
-                    <span class="text-2xl font-bold" style="color: #254922;">SoBat</span>
+                    <span class="text-4xl font-bold font-sans" style="color: #254922;">SoBat</span>
                 </a>
             </div>
             <!-- Desktop Menu -->
