@@ -129,10 +129,6 @@ def delete_answer(request, id):
     
     return HttpResponseNotFound()
 
-def show_xml(request):
-    data = Question.objects.all()
-    return HttpResponse(serializers.serialize("xml", data), content_type="application/xml")
-
 def show_json_question(request):
     questions = Question.objects.select_related('user').all()  # Use select_related for optimization
     data = []
@@ -177,10 +173,6 @@ def show_json_answer(request, id):
         data.append(answer_data)
 
     return JsonResponse(data, safe=False)  # Using JsonResponse to return the custom data
-
-def show_xml_by_id(request, id):
-    data = Question.objects.filter(pk=id)
-    return HttpResponse(serializers.serialize("xml", data), content_type="application/xml")
 
 def show_json_question_by_id(request, id):
     questions = Question.objects.filter(pk=id)
