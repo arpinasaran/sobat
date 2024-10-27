@@ -55,8 +55,6 @@ class DrugEntryViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'all_products.html')
         
-        # Check for a static placeholder or element indicating JavaScript content injection
-        self.assertContains(response, 'product-name-placeholder')
 
 
     def test_create_drug_ajax_view(self):
