@@ -85,85 +85,86 @@
 </nav>
 
 <script>
-  // Function to fetch and update favorite count for both desktop and mobile
-  function fetchFavoriteCount() {
-    document.getElementById('favoriteCount').innerText = 'Loading...';
-    document.getElementById('favoriteCount-mobile').innerText = 'Loading...';
-    fetch("{% url 'daftar_favorite:get_favorite_count' %}")
-        .then(response => response.json())
-        .then(data => {
-            // Update the favorite count for both desktop and mobile elements
-            document.getElementById('favoriteCount').innerText = data.favorite_count;
-            document.getElementById('favoriteCount-mobile').innerText = data.favorite_count;
-        })
-        .catch(error => console.error('Error fetching favorite count:', error));
-  }
-
-  // Function to add to favorite
-  function addToFavorite(event, productId) {
-    event.preventDefault();
-    
-    fetch("/favorite/add/{{ product.pk }}/", {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify({
-            'product_id': productId
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.status === 'success') {
-            // Refresh favorite count after successfully adding
-            fetchFavoriteCount();
-        }
-    })
-    .catch(error => console.error('Error adding to favorite:', error));
-  }
-
-  // Function to get CSRF token
-  function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
+    // Function to fetch and update favorite count for both desktop and mobile
+    function fetchFavoriteCount() {
+      document.getElementById('favoriteCount').innerText = 'Loading...';
+      document.getElementById('favoriteCount-mobile').innerText = 'Loading...';
+      fetch("{% url 'daftar_favorite:get_favorite_count' %}")
+          .then(response => response.json())
+          .then(data => {
+              // Update the favorite count for both desktop and mobile elements
+              document.getElementById('favoriteCount').innerText = data.favorite_count;
+              document.getElementById('favoriteCount-mobile').innerText = data.favorite_count;
+          })
+          .catch(error => console.error('Error fetching favorite count:', error));
     }
-    return cookieValue;
-  }
-
-  // Event listener for the mobile menu button
-  document.addEventListener('DOMContentLoaded', () => {
-    const btn = document.querySelector("button.mobile-menu-button");
-    const menu = document.querySelector(".mobile-menu");
-    const userIcon = document.getElementById("user-icon");
-    const logoutMenu = document.getElementById("logout-menu");
-
-    // Initialize favorite count when the page loads
-    fetchFavoriteCount();
-
-    btn.addEventListener("click", () => {
-        menu.classList.toggle("hidden");
+  
+    // Function to add to favorite
+    function addToFavorite(event, productId) {
+      event.preventDefault();
+      
+      fetch("/favorite/add/{{ product.pk }}/", {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': getCookie('csrftoken')
+          },
+          body: JSON.stringify({
+              'product_id': productId
+          })
+      })
+      .then(response => response.json())
+      .then(data => {
+          if (data.status === 'success') {
+              // Refresh favorite count after successfully adding
+              fetchFavoriteCount();
+          }
+      })
+      .catch(error => console.error('Error adding to favorite:', error));
+    }
+  
+    // Function to get CSRF token
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+          const cookies = document.cookie.split(';');
+          for (let i = 0; i < cookies.length; i++) {
+              const cookie = cookies[i].trim();
+              if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                  cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                  break;
+              }
+          }
+      }
+      return cookieValue;
+    }
+  
+    // Event listener for the mobile menu button
+    document.addEventListener('DOMContentLoaded', () => {
+      const btn = document.querySelector("button.mobile-menu-button");
+      const menu = document.querySelector(".mobile-menu");
+      const userIcon = document.getElementById("user-icon");
+      const logoutMenu = document.getElementById("logout-menu");
+  
+      // Initialize favorite count when the page loads
+      fetchFavoriteCount();
+  
+      btn.addEventListener("click", () => {
+          menu.classList.toggle("hidden");
+      });
+  
+      // Toggle logout menu
+      userIcon.addEventListener("click", () => {
+          logoutMenu.classList.toggle("hidden");
+      });
+  
+      // Close the logout menu when clicking outside
+      window.addEventListener("click", (event) => {
+          if (!userIcon.contains(event.target) && !logoutMenu.contains(event.target)) {
+              logoutMenu.classList.add("hidden");
+          }
+      });
     });
-  });
-
-    // Toggle logout menu
-    userIcon.addEventListener("click", () => {
-        logoutMenu.classList.toggle("hidden");
-    });
-
-    // Close the logout menu when clicking outside
-    window.addEventListener("click", (event) => {
-        if (!userIcon.contains(event.target) && !logoutMenu.contains(event.target)) {
-            logoutMenu.classList.add("hidden");
-        }
-    });
-</script>
+  </script>
+  
 
