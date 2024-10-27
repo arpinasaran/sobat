@@ -10,7 +10,7 @@ urlpatterns = [
     path('delete/<uuid:product_id>/', views.delete_favorite, name='delete_favorite'),
     path('json/', views.show_json, name='show_json'),
     path('', include('main.urls')),
-    # path('like_answer/<str:id>/', views.like_answer, name='like_answer'),
+    
     path('api/favorite_count/', views.get_favorite_count, name='get_favorite_count'),
     path('get-count/', views.get_favorite_count, name='get_favorite_count'),
     path('check-status/<uuid:product_id>/', views.check_favorite_status, name='check_favorite_status'),
