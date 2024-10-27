@@ -1,0 +1,28 @@
+    
+    <h1>Create a New Drug Entry</h1>
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <label for="id_name">Name:</label>
+        <input type="text" id="id_name" name="name" maxlength="63" required><br><br>
+
+        <label for="id_desc">Description:</label>
+        <textarea id="id_desc" name="desc" rows="4" cols="50" required></textarea><br><br>
+
+        <label for="id_category">Category:</label>
+        <input type="text" id="id_category" name="category" maxlength="63" required><br><br>
+
+        <label for="id_drug_type">Drug Type:</label>
+        <input type="text" id="id_drug_type" name="drug_type" maxlength="31" required><br><br>
+
+        <label for="id_drug_form">Drug Form:</label>
+        <input type="text" id="id_drug_form" name="drug_form" maxlength="31" required><br><br>
+
+        <label for="id_price">Price:</label>
+        <input type="number" id="id_price" name="price" required><br><br>
+
+        <label for="id_img">Image:</label>
+        <input type="file" id="id_img" name="img" accept="image/*"><br><br>
+
+        <button type="submit">Create Drug Entry</button>
+    </form>

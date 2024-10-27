@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block meta %}
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.7/dist/purify.min.js"></script>
+<head>
+    <title>Review</title>
+    <link rel="icon" href="{% static 'logo/icon-no-bg.png' %}" type="image/png">
+</head>
+{% endblock meta %}
+
+{% block content %}
+{% include 'navbar.html' %}
+<div class="max-w-lg mx-auto p-4 mt-16">
+    <h2 class="text-2xl font-semibold mb-4">Edit Review for {{ product.name }}</h2>
+
+    <form method="POST" class="space-y-4 bg-white p-6 shadow rounded-md border border-black">
+        {% csrf_token %}
+        {{ form.as_p }}
+        
+        <button type="submit" class="bg-[#254922] hover:bg-[#1e3a3a] text-white font-bold py-2 px-4 rounded-md">
+            Submit
+        </button>
+        <a href="{% url 'review:reviews' product.id %}" class="bg-[#254922] hover:bg-[#1e3a3a] text-white font-bold py-2 px-4 rounded-md" style="padding-top: 10px; padding-bottom: 10px;">
+            Cancel
+        </a>
+    </form>
+</div>
+{% endblock content %}

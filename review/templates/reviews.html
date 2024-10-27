@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block meta %}
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.7/dist/purify.min.js"></script>
+<head>
+    <title>Review</title>
+    <link rel="icon" href="{% static 'logo/icon-no-bg.png' %}" type="image/png">
+</head>
+{% endblock meta %}
+
+{% block content %}
+{% include 'navbar.html' %}
+<div class="max-w-full md:max-w-3xl mx-auto p-2 mt-16 md:p-4">
+    <h2 class="text-xl md:text-2xl font-semibold md:mb-4">Reviews:</h2>
+
+    {% if product.image %}
+        <img class="h-64 object-cover mb-4 mx-auto" src="{{ product.image.url }}" alt="{{ product.name }}">
+    {% endif %}
+    <div class="text-center">
+        <h3 class="text-lg font-bold text-gray-800 mb-2">{{product.name}}</h3>
+        <p class="text-green-500 font-semibold text-xl mb-2">Rp {{product.price}}</p>
+    </div>
+
+    <div class="mt-6 mb-6 md:mt-6">
+        <a href="{% url 'product:show_drug' product.id %}" class="bg-[#254922] hover:bg-[#1e3a3a] text-white py-1 px-3 mr-2 rounded-md text-sm">
+            Back
+        </a>
+        {% if product != None %}
+            {% if request.user.role != "apoteker" %}
+            <a href="{% url 'review:create_review' product.id %}" class="bg-[#254922] hover:bg-[#1e3a3a] text-white py-1 px-3 rounded-md text-sm">
+                Add Review
+            </a>
+            {% endif %}
+        {% endif %}
+    </div>
+
+    <div class="text-center">
+        {% if average_rating %}
+            <p class="text-yellow-600 font-semibold text-lg">
+                Average Rating: {{ average_rating }}/5
+                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="inline h-5 w-5 text-yellow-500" viewBox="0 0 24 24">
+                    <path d="M12 .587l3.668 7.431 8.2 1.191-5.938 5.789 1.408 8.202L12 18.896l-7.338 3.853 1.408-8.202L.132 9.209l8.2-1.191z"/>
+                </svg>
+            </p>
+        {% else %}
+            <p class="text-gray-500">No Ratings Are Present</p>
+        {% endif %}
+    </div><br>
+
+    <form method="get" action="" class="mb-6 flex items-center space-x-3">
+        <label for="search" class="text-gray-700">Search:</label>
+        <input type="text" name="search" id="search" placeholder="Search by User or Comment" value="{{ search_query }}" size="30" class="ml-2 p-1 border rounded border border-black">
+        <label for="rating" class="text-gray-700 ml-4">Rating:</label>
+        <select name="rating" id="rating" class="ml-2 p-1 border rounded border border-black">
+            <option value="">All Ratings</option>
+            {% for rating in "012345" %}
+                <option value="{{ rating }}" {% if rating|stringformat:"s" == selected_rating %} selected {% endif %}>
+                    {{ rating }} Stars
+                </option>
+            {% endfor %}
+        </select>
+
+        <button type="submit" class="bg-[#254922] hover:bg-[#1e3a3a] text-white py-1 px-3 ml-2 rounded-md text-sm">Apply</button>
+    </form>
+
+    <ul class="space-y-2 md:space-y-4">
+        {% for review in reviews %}
+            {% if review.user.role != "apoteker" %}
+            <li class="bg-white shadow p-3 md:p-4 rounded-md border border-black">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
+                    <strong class="text-base md:text-lg">By: {{ review.user.nama }}</strong>
+                    <span class="text-yellow-600 mt-2 md:mt-0">
+                        Rating: {{ review.rating }}/5 
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="inline h-4 w-4 text-yellow-500" viewBox="0 0 24 24">
+                            <path d="M12 .587l3.668 7.431 8.2 1.191-5.938 5.789 1.408 8.202L12 18.896l-7.338 3.853 1.408-8.202L.132 9.209l8.2-1.191z"/>
+                        </svg>
+                    </span>
+                </div>
+                <p class="text-gray-700 mt-2 md:mt-2 text-sm md:text-base">{{ review.comment }}</p>
+                <small class="text-gray-500">Date Published: {{ review.date_created }}</small>
+                {% if request.user == review.user %}
+                    <div class="mt-2 flex space-x-2">
+                        <a href="{% url 'review:edit_review' product_id=product.id review_id=review.id %}" class="bg-[#254922] hover:bg-[#1e3a3a] text-white py-1 px-3 rounded-md text-sm">
+                            Edit
+                        </a>
+                        <a href="{% url 'review:delete_review' product_id=product.id review_id=review.id %}" class="bg-[#254922] hover:bg-[#1e3a3a] text-white py-1 px-3 rounded-md text-sm">
+                            Delete
+                        </a>
+                    </div>
+                {% endif %}
+            </li>
+            {% endif %}
+        {% empty %}
+            <li class="text-center text-gray-500">No Reviews Are Present</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock content %}

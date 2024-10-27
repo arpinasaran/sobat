@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block meta %}
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.7/dist/purify.min.js"></script>
+<head>
+    <title>Shop</title>
+    <link rel="icon" href="{% static 'logo/icon-no-bg.png' %}" type="image/png">
+</head>
+{% endblock meta %}
+{% block content %}
+<div class="pt-16">
+    <div class="container mx-auto px-4 py-8 relative">
+        <!-- Fixed Header and Action Buttons -->
+        <div class="fixed top-8 left-0 right-0 bg-white z-10 shadow-lg p-4 rounded-lg border border-gray-200 mb-6">
+            <div class="flex justify-between items-center">
+                <h1 class="text-2xl font-bold">Manage Shop Products</h1>
+                <div class="flex space-x-4">
+                    <a href="{% url 'shop:profile' shop.id %}" 
+                       class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Cancel
+                    </a>
+                    <button type="submit" form="manage-products-form"
+                            class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Save Changes
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Adding margin to prevent overlap with fixed header -->
+        <div class="mt-32">  <!-- Adjust margin-top to ensure content doesn't hide behind the fixed header -->
+            <!-- Form begins here -->
+            <form id="manage-products-form" method="POST" class="space-y-6">
+                {% csrf_token %}
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {% for product in products %}
+                    <div class="border rounded-lg p-4 relative {% if product.is_selected %}bg-green-50 border-green-200{% endif %}">
+                        <label class="flex items-start space-x-4 cursor-pointer">
+                            <input type="checkbox" 
+                                   name="selected_products" 
+                                   value="{{ product.id }}"
+                                   {% if product.is_selected %}checked{% endif %}
+                                   class="form-checkbox h-5 w-5 text-green-600 rounded transition duration-150 ease-in-out">
+                            <div class="flex-1">
+                                {% if product.image %}
+                                    <img src="{{ product.image.url }}" alt="{{ product.name }}" class="h-32 w-full object-cover rounded-lg mb-3">
+                                {% else %}
+                                    <div class="h-32 bg-gray-100 rounded-lg flex items-center justify-center mb-3">
+                                        <span class="text-4xl">📦</span>
+                                    </div>
+                                {% endif %}
+                                
+                                <h3 class="font-medium text-lg">{{ product.name }}</h3>
+                                <p class="text-gray-600 mt-1">Rp {{ product.price|floatformat:0 }}</p>
+                                {% if product.description %}
+                                    <p class="text-sm text-gray-500 mt-2">{{ product.description|truncatechars:100 }}</p>
+                                {% endif %}
+                            </div>
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-checkbox:checked {
+        background-color: #10B981;
+        border-color: #10B981;
+    }
+
+    .form-checkbox:checked ~ div {
+        opacity: 1;
+    }
+    
+    .product-checkbox:checked + label {
+        background-color: #F0FDF4;
+        border-color: #10B981;
+    }
+
+    /* Fixed Header Styles */
+    .fixed {
+        position: fixed;
+        top: 8; /* Positioning the header lower from the top */
+        left: 0;
+        right: 0;
+        background-color: white;
+        z-index: 10; /* Keep it above other content */
+        margin: 0 auto; /* Centering */
+        width: 90%; /* Full width, can adjust this as needed */
+        max-width: 1200px; /* Limit max width for larger screens */
+    }
+
+    /* Box shadow for floating effect */
+    .shadow-lg {
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Adjust shadow for floating effect */
+    }
+
+    /* Action Button Hover Effects */
+    a:hover, button:hover {
+        transform: scale(1.05); /* Slightly enlarge on hover */
+        transition: transform 0.2s; /* Smooth transition */
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block meta %}
+<head>
+    <title>Register</title>
+    <link rel="icon" href="{% static 'logo/icon-no-bg.png' %}" type="image/png">
+</head>
+{% endblock meta %}
+
+{% block content %}
+<div class="min-h-screen bg-white flex items-center justify-center px-6">
+    <div class="w-full max-w-4xl flex shadow-lg rounded-lg overflow-hidden bg-white">
+
+        <!-- Left Side Image -->
+        <div class="w-1/2 hidden md:block relative">
+            <img src="{% static 'image/register.jpg' %}" alt="Register Image" 
+                 class="img-hover-effect h-full w-full object-cover">
+        </div>
+
+        <!-- Registration Form on the Right -->
+        <div class="w-full md:w-1/2 p-10">
+            <h2 class="text-3xl font-semibold text-center text-gray-900 mb-6">Create Your Account</h2>
+
+            <form method="POST" class="space-y-6">
+                {% csrf_token %}
+                
+                <!-- Input Fields -->
+                <div class="space-y-1">
+                  {% for field in form %}
+                      <label for="{{ field.id_for_label }}" class="block text-sm font-semibold text-gray-700">{{ field.label }}</label>
+                      <div class="relative">
+                          {{ field }}
+                          {% if field.errors %}
+                          <p class="text-sm text-red-600">{{ field.errors.0 }}</p>
+                          {% endif %}
+                      </div>
+                  {% endfor %}
+                </div>
+              
+
+                <!-- Register Button -->
+                <button type="submit" 
+                        class="w-full bg-[#254922] text-white py-3 px-4 rounded-md font-semibold text-sm 
+                               hover:bg-green-800 transition duration-300 focus:outline-none focus:ring-2 
+                               focus:ring-green-400 focus:ring-opacity-50">
+                    Register
+                </button>
+            </form>
+
+            {% if messages %}
+            <div class="mt-4">
+                {% for message in messages %}
+                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                    <span class="block sm:inline">{{ message }}</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Login Link -->
+            <p class="text-center mt-6 text-sm text-gray-500">
+                Already have an account?
+                <a href="{% url 'authentication:login' %}" 
+                   class="text-[#254922] font-semibold hover:underline">
+                    Login here
+                </a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock content %}
