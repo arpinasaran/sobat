@@ -1,52 +1,138 @@
-{% extends 'base.html' %}
-{% load static %}
+    {% extends 'base.html' %}
+    {% load static %}
 
-{% block content %}
-<div class="container mx-auto p-6">
-    <div class="max-w-md mx-auto bg-white rounded-lg shadow-lg p-6">
-        <img class="w-full h-64 object-cover rounded-lg mb-4" src="/media/{{ product.image }}" alt="{{ product.name }}">
-        <h1 class="text-3xl font-bold text-gray-800 mb-4">{{ product.name }}</h1>
-        <p class="text-lg text-gray-600 mb-4">Category: {{ product.category }}</p>
-        <p class="text-lg text-gray-600 mb-4">Type: {{ product.drug_type }}</p>
-        <p class="text-lg text-gray-600 mb-4">Form: {{ product.drug_form }}</p>
-        <p class="text-2xl font-bold text-green-600 mb-4">Rp {{ product.price }}</p>
-        <p class="text-lg text-gray-600 mb-6">{{ product.desc }}</p>
-        <a href="/" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-lg">Back to Products</a>
-        <button id="addToResepBtn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-lg">Tambah ke Resep</button>
-       
+    {% block content %}
+    {% include 'navbar.html' %}
+    <div class="mx-16 h-screen my-20 bg-white ">
+        <div class="flex items-start space-x-6">
+            <!-- Product Image -->
+            <div class="w-1/3 shadow-lg rounded-lg">
+                <img class="w-full h-64 object-cover rounded-lg mb-4" src="/media/{{ product.image }}" alt="{{ product.name }}">
+            </div>
+            
+            <!-- Product Details -->
+            <div class="w-3/5 bg-white rounded-lg p-6 pt-4 shadow-lg">
+                <!-- Product Name and Price -->
+                <h1 class="text-4xl font-extrabold text-gray-800 pb-2">{{ product.name }}</h1>
+                <p class="text-3xl font-bold text-green-600 mb-2">IDR{{ product.price }}</p>
+
+                <!-- Description and Details -->
+                <div class="text-gray-600 mt-4">
+                    <p><strong>Kategori Obat: </strong> {{ product.category }}</p>
+                    <p><strong>Tipe Obat: </strong> {{ product.drug_type }}</p>
+                    <p><strong>Bentuk Obat: </strong> {{ product.drug_form }}</p>
+                    <p class="mt-4">{{ product.desc }}</p>
+                </div>
+
+
+                <!-- Action Buttons -->
+                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+                <!-- Action Buttons -->
+                <div class="mt-6 grid grid-cols-2 ">
+                    <!-- Product Review Button -->
+                    <a href="/review/{{ product.pk }}/" class="flex items-center bg-white text-[#254922] font-semibold hover:text-white hover:bg-[#254922] border border-gray-200 rounded-full p-3 px-4">
+                        <i class="fas fa-comment-dots mr-2"></i> <!-- Icon for review -->
+                        <span>Review Obat</span>
+                    </a>
+
+                    <!-- Add to Cart Button -->
+                    <a href="/cart/add/{{ product.pk }}/" class="flex items-center bg-white text-[#254922] font-semibold hover:text-white hover:bg-[#254922] border border-gray-200 rounded-full p-3 px-4">
+                        <i class="fas fa-shopping-cart mr-2"></i> <!-- Icon for cart -->
+                        <span>Tambahkan ke Resep</span>
+                    </a>
+
+                    <!-- Add to Favorite Button -->
+                    <a id = "addToFavoriteBtn" class="flex items-center bg-white text-[#254922] font-semibold hover:text-white hover:bg-[#254922] border border-gray-200 rounded-full p-3 px-4">
+                        <i class="fas fa-star mr-2"></i> <!-- Icon for favorite -->
+                        <span>Tambahkan ke Favorit</span>
+                    </a>
+
+                    <!-- Product Forum Button -->
+                    <a href="/forum/{{ product.pk }}/" class="flex items-center bg-white text-[#254922] font-semibold hover:text-white hover:bg-[#254922] border border-gray-200 rounded-full p-3 px-4">
+                        <i class="fas fa-comments mr-2"></i> <!-- Icon for forum -->
+                        <span>Forum Produk</span>
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
-    </div>
-</div>
-<script>
-    const csrfToken = '{{ csrf_token }}'; // Tambahkan ini
-
-    document.getElementById('addToResepBtn').addEventListener('click', function() {
-        fetch("{% url 'daftar_favorite:add_to_favorite' product.id %}", {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': csrfToken,
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success') {
-                swal({
-                    title: "Sukses!",
-                    text: "Produk berhasil ditambahkan ke resep!",
-                    icon: "success",
-                    button: "OK",
-                });
-            } else {
-                swal({
-                    title: "Error!",
-                    text: data.message || "Terjadi kesalahan.",
-                    icon: "error",
-                    button: "OK",
-                });
-            }
-        })
-        .catch(error => console.error('Error:', error));
-    });
-
-</script>
-{% endblock content %}
+    <script>
+        function fetchFavoriteCount() {
+            fetch("{% url 'daftar_favorite:get_favorite_count' %}")
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('favoriteCount').innerText = data.favorite_count;
+                })
+                .catch(error => console.error('Error fetching favorite count:', error));
+        }
+        
+        // Script untuk tombol favorite
+        const csrfToken = '{{ csrf_token }}';
+        
+        document.getElementById('addToFavoriteBtn').addEventListener('click', function() {
+            fetch("{% url 'daftar_favorite:add_to_favorite' product.id %}", {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Update jumlah favorite segera setelah berhasil menambahkan
+                    fetchFavoriteCount();
+                    
+                    swal({
+                        title: "Sukses!",
+                        text: "Produk berhasil ditambahkan ke favorit!",
+                        icon: "success",
+                        button: "OK",
+                    });
+                } else {
+                    swal({
+                        title: "Error!",
+                        text: data.message || "Terjadi kesalahan.",
+                        icon: "error",
+                        button: "OK",
+                    });
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+        
+        // Script untuk tombol resep (jika diperlukan)
+        document.getElementById('addToResepBtn').addEventListener('click', function() {
+            fetch("{% url 'daftar_favorite:add_to_favorite' product.id %}", {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Update jumlah favorite segera setelah berhasil menambahkan
+                    fetchFavoriteCount();
+                    
+                    swal({
+                        title: "Sukses!",
+                        text: "Produk berhasil ditambahkan ke resep!",
+                        icon: "success",
+                        button: "OK",
+                    });
+                } else {
+                    swal({
+                        title: "Error!",
+                        text: data.message || "Terjadi kesalahan.",
+                        icon: "error",
+                        button: "OK",
+                    });
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+        
+        // Panggil fetchFavoriteCount saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', fetchFavoriteCount);
+    </script>
+    {% endblock content %}

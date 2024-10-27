@@ -59,9 +59,10 @@ def remove_from_favorites(request, product_id):
     
     return render(request, 'delete_favorite.html', context)
 
+@login_required
 def get_favorite_count(request):
-    if request.user.is_authenticated:
-        favorite_count = Favorite.objects.filter(user=request.user).count()
-    else:
-        favorite_count = 0
+    favorite_count = Favorite.objects.filter(user=request.user).count()
+ 
+   
+    
     return JsonResponse({'favorite_count': favorite_count})

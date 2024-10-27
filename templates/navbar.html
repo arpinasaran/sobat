@@ -43,7 +43,10 @@
     <!-- Mobile Menu -->
     <div class="mobile-menu hidden md:hidden px-4 pt-2 pb-4 bg-white shadow-lg">
         <a href="{% url 'main:show_main' %}" class="block text-gray-700 py-2 hover:bg-gray-100">Home</a>
-        <a href="{% url 'product:show_main' %}" class="block text-gray-700 py-2 hover:bg-gray-100">Products</a>
+        <a  href="{% url 'product:show_main' %}" class="block text-gray-700 py-2 hover:bg-gray-100">Products</a>
+        
+          <a href="{% url 'daftar_favorite:show_favorite' %}" class="text-gray-700 mx-4 hover:underline">Favorite (<span id="favoriteCount-mobile">0</span>)</a>
+      
         <a href="{% url 'forum:show_forum' %}" class="block text-gray-700 py-2 hover:bg-gray-100">QnA</a>
         <a href="{% url 'shop:list' %}" class="block text-gray-700 py-2 hover:bg-gray-100">Shop</a>
         {% if user.is_authenticated %}
@@ -59,22 +62,69 @@
 </nav>
 
 <script>
+  // Function to fetch and update favorite count for both desktop and mobile
   function fetchFavoriteCount() {
     fetch("{% url 'daftar_favorite:get_favorite_count' %}")
         .then(response => response.json())
         .then(data => {
-            // Tampilkan jumlah favorit di elemen yang diinginkan
+            // Update the favorite count for both desktop and mobile elements
             document.getElementById('favoriteCount').innerText = data.favorite_count;
+            document.getElementById('favoriteCount-mobile').innerText = data.favorite_count;
         })
         .catch(error => console.error('Error fetching favorite count:', error));
-}
+  }
 
-// Panggil fungsi saat halaman dimuat
-document.addEventListener('DOMContentLoaded', fetchFavoriteCount);
+  // Function to add to favorite
+  function addToFavorite(event, productId) {
+    event.preventDefault();
+    
+    fetch("/favorite/add/{{ product.pk }}/", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            'product_id': productId
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            // Refresh favorite count after successfully adding
+            fetchFavoriteCount();
+        }
+    })
+    .catch(error => console.error('Error adding to favorite:', error));
+  }
+
+  // Function to get CSRF token
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+  }
+
+  // Event listener for the mobile menu button
+  document.addEventListener('DOMContentLoaded', () => {
     const btn = document.querySelector("button.mobile-menu-button");
     const menu = document.querySelector(".mobile-menu");
+
+    // Initialize favorite count when the page loads
+    fetchFavoriteCount();
 
     btn.addEventListener("click", () => {
         menu.classList.toggle("hidden");
     });
+  });
 </script>
+

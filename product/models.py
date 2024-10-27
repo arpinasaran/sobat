@@ -18,5 +18,7 @@ class DrugEntry(models.Model):
         verbose_name_plural = "Drug Entries"
         ordering = ['name']  # Optional: mengurutkan berdasarkan nama
 
+    shops = models.ManyToManyField('shop.ShopProfile', related_name='ShopDrug')
+
     def __str__(self):
         return self.name
