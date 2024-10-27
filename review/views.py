@@ -36,11 +36,14 @@ def reviews(request, product_id=None):
     users = User.objects.filter(role='pengguna')
     all_reviews = Review.objects.filter(product=product) if product else Review.objects.none()
     selected_user_id = request.GET.get('user')
+    selected_rating = request.GET.get('rating')
     if product:
         if selected_user_id:
             reviews = Review.objects.filter(product=product, user_id=selected_user_id)
         else:
             reviews = Review.objects.filter(product=product)
+        if selected_rating:
+            reviews = reviews.filter(rating=selected_rating)
     else:
         reviews = Review.objects.none()
 
