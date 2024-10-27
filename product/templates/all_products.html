@@ -63,6 +63,25 @@
 </div>
 
 <script>
+    async function addToFavorites(productId) {
+        try {
+            const response = await fetch(`/favorite/add/${productId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({})
+            });
+    
+            // Dapatkan teks respons
+            const message = await response.text();
+            alert(message); // Menampilkan pesan dari server
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred. Please try again.');
+        }
+    }
     // Fungsi untuk mendapatkan data produk dari backend (Django)
     async function fetchProducts() {
         try {
