@@ -35,30 +35,27 @@ def show_json_by_id(request, id):
     return HttpResponse(serializers.serialize("json", data), content_type="application/json")
 @login_required
 def add_to_favorites(request, product_id):
-    # Dapatkan produk berdasarkan ID, atau berikan 404 jika tidak ditemukan
-       
     product = get_object_or_404(DrugEntry, id=product_id)
     favorite, created = Favorite.objects.get_or_create(user=request.user, product=product)
-    
-    # Redirect to a valid URL
-    if created:
-       return JsonResponse({'status': 'success'})
-    else:
-        return JsonResponse({'status': 'failed', 'message': 'Invalid request'}, status=400)
 
+    if created:
+        return JsonResponse({'status': 'success'})
+    else:
+        return JsonResponse({'status': 'failed'}, status=200)
 
 @login_required
 def delete_favorite(request, product_id):
     print(f"Trying to delete favorite with ID: {product_id}")  # Debugging line
     if request.method == 'POST':
         try:
-            favorite_item = Favorite.objects.get(id=product_id)
+            favorite_item = Favorite.objects.filter(id=product_id)
             favorite_item.delete()
             return JsonResponse({'status': 'success'})
         except Favorite.DoesNotExist:
             print("Item not found")  # Debugging line
             return HttpResponseNotFound('Item not found')
-    return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=400)
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=200)
+
 def get_favorite_count(request):
     favorite_count = Favorite.objects.filter(user=request.user).count()
  
@@ -75,3 +72,5 @@ def check_favorite_status(request, product_id):
     return JsonResponse({
         'is_favorite': is_favorite
     })
+    
+        
