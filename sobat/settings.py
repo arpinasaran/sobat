@@ -45,7 +45,8 @@ INSTALLED_APPS = [
     'forum',
     'product',
     'shop.apps.ShopConfig',
-    'resep'
+    'resep',
+    'django.contrib.humanize',
 ]
 
 MIDDLEWARE = [
