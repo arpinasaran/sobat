@@ -115,7 +115,6 @@ def manage_products(request, shop_id):
             ShopProduct.objects.create(
                 shop=shop,
                 product_id=product_id,
-                is_available=True
             )
 
         messages.success(request, 'Shop products updated successfully.')
