@@ -34,7 +34,6 @@ def create_drug_ajax(request):
     drug_type = request.POST.get("drug_type")
     drug_form = request.POST.get("drug_form")
     price = request.POST.get("price")
-    availibility = request.POST.get("availibility") == "true"  # Mengonversi string ke boolean
     image = request.FILES.get("image")  # Mengambil gambar dari FILES, bukan POST
 
     # Membuat entri baru dalam model DrugEntry
@@ -45,7 +44,6 @@ def create_drug_ajax(request):
         drug_type=drug_type,
         drug_form=drug_form,
         price=int(price),
-        availibility=availibility,
         image=image
     )
     new_drug.save()
@@ -65,7 +63,6 @@ def edit_drug_ajax(request, id):
     drug.drug_type = request.POST.get("drug_type", drug.drug_type)
     drug.drug_form = request.POST.get("drug_form", drug.drug_form)
     drug.price = int(request.POST.get("price", drug.price))
-    drug.availibility = request.POST.get("availibility") == "true"
     
     # Mengambil file gambar baru jika ada, atau mempertahankan gambar lama
     if 'image' in request.FILES:
@@ -105,17 +102,9 @@ def show_seller(request, id):
 
     return render(request, 'show_seller.html', {'product' : product})
 
-def show_xml(request):
-    data = DrugEntry.objects.all()
-    return HttpResponse(serializers.serialize("xml", data), content_type="application/xml")
-
 def show_json(request):
     data = DrugEntry.objects.all()
     return HttpResponse(serializers.serialize("json", data), content_type="application/json")
-
-def show_xml_by_id(request, id):
-    data = DrugEntry.objects.filter(pk=id)
-    return HttpResponse(serializers.serialize("xml", data), content_type="application/xml")
 
 def show_json_by_id(request, id):
     data = DrugEntry.objects.filter(pk=id)

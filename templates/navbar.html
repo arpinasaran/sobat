@@ -1,5 +1,5 @@
 {% load static %}
-<nav class="bg-white shadow-md fixed top-0 left-0 z-40 w-full">
+<nav class="bg-white shadow-md fixed top-0 left-0 z-40 w-full font-serif">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-16">
             <!-- Logo and SoBat Text -->
@@ -11,7 +11,7 @@
             </div>
             <!-- Desktop Menu -->
             <div class="hidden md:flex space-x-6">
-                <a href="{% url 'main:show_main' %}" class="text-gray-700 hover:text-black">Home</a>
+                <a href="{% url 'main:show_main' %}" class="text-gray-700 hover:text-black">HOME</a>
                 <a href="{% url 'product:show_main' %}" class="text-gray-700 hover:text-black">Products</a>
                 <a href="{% url 'forum:show_forum' %}" class="text-gray-700 hover:text-black">QnA</a>
                 <a href="{% url 'shop:list' %}" class="text-gray-700 hover:text-black">Shop</a>
