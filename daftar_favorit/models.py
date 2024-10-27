@@ -8,7 +8,6 @@ from product.models import DrugEntry
 class Favorite(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     product = models.ForeignKey(DrugEntry, on_delete=models.CASCADE)
-    # date_added = models.DateTimeField(auto_now_add=True)
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     def __str__(self):

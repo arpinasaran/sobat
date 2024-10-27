@@ -42,11 +42,16 @@
                 </a>
 
                     <!-- Add to Favorite Button -->
-                    <a id = "addToFavoriteBtn" class="flex items-center bg-white text-[#254922] font-semibold hover:text-white hover:bg-[#254922] border border-gray-200 rounded-full p-3 px-4">
-                        <i class="fas fa-star mr-2"></i> <!-- Icon for favorite -->
-                        <span>Tambahkan ke Favorit</span>
+                    <a id="addToFavoriteBtn" class="flex items-center bg-white text-[#254922] font-semibold hover:text-white hover:bg-[#254922] border border-gray-200 rounded-full p-3 px-4">
+                        <i class="fas fa-star mr-2"></i>
+                        <span id="favoriteButtonText">Tambahkan ke Favorit</span>
                     </a>
-
+                    
+                    <!-- Remove from Favorite Button (initially hidden) -->
+                    <a id="removeFromFavoriteBtn" class="flex items-center bg-red-500 text-white font-semibold border border-gray-200 rounded-full p-3 px-4 hidden">
+                        <i class="fas fa-trash mr-2"></i>
+                        <span>Hapus dari Favorit</span>
+                    </a>
                     <!-- Product Forum Button -->
                     <a href="/forum/" class="flex items-center bg-white text-[#254922] font-semibold hover:text-white hover:bg-[#254922] border border-gray-200 rounded-full p-3 px-4">
                         <i class="fas fa-comments mr-2"></i> <!-- Icon for forum -->
@@ -91,7 +96,30 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js"></script>
 
-    <script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js"></script>
+<script>
+        function checkFavoriteStatus() {
+            fetch("{% url 'daftar_favorite:check_favorite_status' product.id %}", {
+                method: 'GET',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                const favoriteBtn = document.getElementById('addToFavoriteBtn');
+                const favoriteText = document.getElementById('favoriteButtonText');
+                
+                if (data.is_favorite) {
+                    favoriteText.innerText = "Sudah Ada di Favorit";
+                    favoriteBtn.classList.add('bg-gray-200');
+                    favoriteBtn.classList.remove('hover:bg-[#254922]');
+                    favoriteBtn.style.cursor = 'default';
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
         function fetchFavoriteCount() {
             fetch("{% url 'daftar_favorite:get_favorite_count' %}")
                 .then(response => response.json())
@@ -104,7 +132,15 @@
         // Script untuk tombol favorite
         const csrfToken = '{{ csrf_token }}';
     
-        document.getElementById('addToFavoriteBtn').addEventListener('click', function() {
+        document.getElementById('addToFavoriteBtn').addEventListener('click', function(e) {
+            const favoriteText = document.getElementById('favoriteButtonText');
+            
+            // Jika sudah di favorit, hentikan eksekusi
+            if (favoriteText.innerText === "Sudah Ada di Favorit") {
+                e.preventDefault();
+                return;
+            }
+    
             fetch("{% url 'daftar_favorite:add_to_favorite' product.id %}", {
                 method: 'POST',
                 headers: {
@@ -114,8 +150,12 @@
             .then(response => response.json())
             .then(data => {
                 if (data.status === 'success') {
-                    // Update jumlah favorite segera setelah berhasil menambahkan
                     fetchFavoriteCount();
+                    favoriteText.innerText = "Sudah Ada di Favorit";
+                    const favoriteBtn = document.getElementById('addToFavoriteBtn');
+                    favoriteBtn.classList.add('bg-gray-200');
+                    favoriteBtn.classList.remove('hover:bg-[#254922]');
+                    favoriteBtn.style.cursor = 'default';
                     
                     swal({
                         title: "Sukses!",
@@ -155,7 +195,7 @@
                 } else {
                     swal({
                         title: "Error!",
-                        text: data.message || "Terjadi kesalahan.",
+                        text: data.message || "Item Sudah ada",
                         icon: "error",
                         button: "OK",
                     });
@@ -165,35 +205,13 @@
         });
         
         // Panggil fetchFavoriteCount saat halaman dimuat
-        document.addEventListener('DOMContentLoaded', fetchFavoriteCount);
-
-
-    document.getElementById('addToResepBtn').addEventListener('click', function() {
-        fetch("{% url 'resep:add_to_resep' product.id %}", {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': csrfToken,
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success') {
-                swal({
-                    title: "Sukses!",
-                    text: "Produk berhasil ditambahkan ke resep!",
-                    icon: "success",
-                    button: "OK",
-                });
-            } else {
-                swal({
-                    title: "Error!",
-                    text: data.message || "Terjadi kesalahan.",
-                    icon: "error",
-                    button: "OK",
-                });
-            }
-        })
-        .catch(error => console.error('Error:', error));
+        document.addEventListener('DOMContentLoaded', function() {
+        fetchFavoriteCount();
+        checkFavoriteStatus();
     });
     </script>
+    
+
+
+
 {% endblock content %}

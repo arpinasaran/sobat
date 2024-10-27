@@ -14,12 +14,5 @@
     <div class="p-4">
         <h3 class="text-lg font-semibold truncate">{{ product.name }}</h3>
         <p class="text-gray-600 font-medium">Rp {{ product.price|floatformat:0 }}</p>
-        <div class="mt-2">
-            {% if product.is_available %}
-                <span class="text-green-500 text-sm font-medium">Tersedia</span>
-            {% else %}
-                <span class="text-red-500 text-sm font-medium">Tidak Tersedia</span>
-            {% endif %}
-        </div>
     </div>
 </div>
