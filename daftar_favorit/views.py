@@ -65,3 +65,13 @@ def get_favorite_count(request):
    
     
     return JsonResponse({'favorite_count': favorite_count})
+@login_required
+def check_favorite_status(request, product_id):
+    is_favorite = Favorite.objects.filter(
+        user=request.user,
+        product_id=product_id
+    ).exists()
+    
+    return JsonResponse({
+        'is_favorite': is_favorite
+    })
