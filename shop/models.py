@@ -1,3 +1,4 @@
+# models.py
 from django.db import models
 from django.conf import settings
 from product.models import DrugEntry
@@ -19,7 +20,6 @@ class ShopProfile(models.Model):
         return f"{self.name} - {self.owner.username}"
 
 class ShopProduct(models.Model):
-    # Menggunakan AutoField sebagai primary key default
     shop = models.ForeignKey(ShopProfile, on_delete=models.CASCADE, related_name='shop_products')
     product = models.ForeignKey(DrugEntry, on_delete=models.CASCADE, related_name='shop_products')
     stock = models.PositiveIntegerField(default=0)
