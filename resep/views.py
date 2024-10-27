@@ -23,6 +23,7 @@ def show_resep(request):
 @login_required
 def update_amount(request):
     deleted = False
+    reloaded = False
 
     resep_id = request.POST.get('resep_id')
     action = request.POST.get('action')
@@ -41,6 +42,7 @@ def update_amount(request):
         else:
             resep.delete()
             deleted = True
+            reloaded = not Resep.objects.filter(user=request.user).exists()
 
     # Hitung total harga baru setelah update
     total_price = sum(item.product.price * item.amount for item in Resep.objects.filter(user=request.user))
@@ -48,7 +50,8 @@ def update_amount(request):
     return JsonResponse({
         'amount': resep.amount if not deleted else 0,  # Kirim jumlah 0 jika produk dihapus
         'total_price': float(total_price),
-        'deleted': deleted  # Flag untuk menandakan produk terhapus
+        'deleted': deleted,  # Flag untuk menandakan produk terhapus
+        'reloaded' : reloaded
     })
 
 @login_required
