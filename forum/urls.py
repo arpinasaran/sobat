@@ -13,9 +13,7 @@ urlpatterns = [
     path('delete_answer/<str:id>/', delete_answer, name='delete_answer'),
     path('answer_question/<str:questionId>/<str:productId>/', answer_question, name='answer_question'),
     path('show_answers/<str:id>/', show_answers, name='show_answers'),
-    path('xml/', show_xml, name='show_xml'),
     path('show_json_answer/<str:id>/', show_json_answer, name='show_json_answer'),
     path('json/', show_json_question, name='show_json_question'),
-    path('xml/<str:id>/', show_xml_by_id, name='show_xml_by_id'),
     path('json/<str:id>/', show_json_question_by_id, name='show_json_question_by_id'),
 ]
