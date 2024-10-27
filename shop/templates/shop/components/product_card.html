@@ -1,7 +1,7 @@
 <!-- templates/shop/components/product_card.html -->
 <div class="bg-white rounded-lg shadow-lg overflow-hidden">
     <a href="{% url 'product:show_drug' product.pk %}">
-        <div class="aspect-w-1 aspect-h-1">
+        <div class="w-full h-48 overflow-hidden">  <!-- Fixed height added here -->
             {% if product.image %}
                 <img src="{{ product.image.url }}" alt="{{ product.name }}" class="w-full h-full object-cover">
             {% else %}
@@ -14,12 +14,5 @@
     <div class="p-4">
         <h3 class="text-lg font-semibold truncate">{{ product.name }}</h3>
         <p class="text-gray-600 font-medium">Rp {{ product.price|floatformat:0 }}</p>
-        <div class="mt-2">
-            {% if product.is_available %}
-                <span class="text-green-500 text-sm font-medium">Tersedia</span>
-            {% else %}
-                <span class="text-red-500 text-sm font-medium">Tidak Tersedia</span>
-            {% endif %}
-        </div>
     </div>
 </div>

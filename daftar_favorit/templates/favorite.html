@@ -53,14 +53,20 @@
     }
     
     function hideDeleteModal() {
+      
         const modal = document.getElementById('deleteConfirmationModal');
-        modal.classList.add('hidden'); // Hide the modal
-        productIdToDelete = null; // Reset the product ID
+        if (modal) {
+            modal.classList.add('hidden');
+        }
+        productIdToDelete = null;
     }
     
-    document.getElementById('deleteConfirmationModal').addEventListener('click', function() {
-        deleteFavoriteItem(productIdToDelete); // Call the delete function
+    document.querySelector('#deleteConfirmationModal .delete-button').addEventListener('click', function() {
+        if (productIdToDelete) {
+            deleteFavoriteItem(productIdToDelete);
+        }
     });
+    
     
     function deleteFavoriteItem(productId) {
         const csrfToken = getCookie('csrftoken'); // Get CSRF token
@@ -93,15 +99,10 @@
             }
         })
         .catch(error => {
-            console.error('Error:', error);
-            alert(`Error: ${error.message}`);
             hideDeleteModal();
         });
     }
     
-    function toggleDropdown(event) {
-        const optionsMenu = event.currentTarget.nextElementSibling; // Get the options menu next to the button
-        optionsMenu.classList.toggle('hidden'); // Toggle the hidden class
-    }
+   
 </script>
 {% endblock content %}
