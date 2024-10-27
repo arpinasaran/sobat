@@ -35,10 +35,16 @@ def shop_catalog(request, shop_id, category=None):
     shop = get_object_or_404(ShopProfile, id=shop_id)
     products = shop.products.all()
 
+    # Filter by category if specified
     if category and category != 'all':
         products = products.filter(category=category)
+    
+    # Search functionality
+    query = request.GET.get('q')
+    if query:
+        products = products.filter(name__icontains=query)
 
-    # Retrieve distinct categories from the related DrugEntry model
+    # Retrieve distinct categories
     categories = DrugEntry.objects.filter(
         shop_products__shop=shop
     ).values_list('category', flat=True).distinct()
@@ -46,7 +52,7 @@ def shop_catalog(request, shop_id, category=None):
     context = {
         'shop': shop,
         'products': products,
-        'categories': sorted(set(categories)),  # Ensure categories are unique and sorted
+        'categories': sorted(set(categories)),
         'current_category': category,
         'is_owner': request.user == shop.owner if request.user.is_authenticated else False
     }
