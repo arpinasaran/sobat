@@ -102,7 +102,7 @@
         
         // Script untuk tombol resep (jika diperlukan)
         document.getElementById('addToResepBtn').addEventListener('click', function() {
-            fetch("{% url 'daftar_favorite:add_to_favorite' product.id %}", {
+            fetch("{% url 'resep:add_to_resep' product.id %}", {
                 method: 'POST',
                 headers: {
                     'X-CSRFToken': csrfToken,
@@ -111,9 +111,6 @@
             .then(response => response.json())
             .then(data => {
                 if (data.status === 'success') {
-                    // Update jumlah favorite segera setelah berhasil menambahkan
-                    fetchFavoriteCount();
-                    
                     swal({
                         title: "Sukses!",
                         text: "Produk berhasil ditambahkan ke resep!",
