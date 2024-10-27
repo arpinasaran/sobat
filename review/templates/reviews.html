@@ -57,7 +57,7 @@
     <ul class="space-y-2 md:space-y-4">
         {% for review in reviews %}
             {% if review.user.role != "apoteker" %}
-            <li class="bg-white shadow p-3 md:p-4 rounded-md">
+            <li class="bg-white shadow p-3 md:p-4 rounded-md border border-black">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
                     <strong class="text-base md:text-lg">By: {{ review.user.nama }}</strong>
                     <span class="text-yellow-600 mt-2 md:mt-0">
