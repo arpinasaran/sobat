@@ -8,7 +8,7 @@ class Resep(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     product = models.ForeignKey(Produk, on_delete=models.CASCADE)
-    amount = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(99)])
+    amount = models.IntegerField(default=1,validators=[MinValueValidator(1), MaxValueValidator(99)])
 
     def __str__(self):
         return f"{self.product.name} - {self.amount}"

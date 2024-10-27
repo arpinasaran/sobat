@@ -20,13 +20,12 @@ class reviewTest(TestCase):
             drug_type="Something",
             drug_form="Capsule",
             price=10000,
-            availibility=True,
             image=SimpleUploadedFile(name='test_image.jpg', content=b'', content_type='image/jpeg')
         )
         self.review = Review.objects.create(
             user = self.user,
             product = self.product,
-            rating = 2.5,
+            rating = 2,
             comment = "This is a disappointing product."
         )
 
@@ -61,11 +60,11 @@ class reviewTest(TestCase):
         review = Review.objects.create(
             user = self.user,
             product = self.product,
-            rating = 4.7,
+            rating = 5,
             comment = "This is a good product!"
         )
         self.assertIsInstance(review.id, uuid.UUID)
-        self.assertEqual(review.rating, 4.7)
+        self.assertEqual(review.rating, 5)
         self.assertEqual(review.comment, "This is a good product!")
         self.assertEqual(review.user, self.user)
         self.assertEqual(review.product, self.product)
@@ -78,13 +77,13 @@ class reviewTest(TestCase):
             comment="Worth the price!"
         )
         self.assertEqual(str(review), f"{self.product.name} Review: 4 Star(s) - {self.user.nama}")
-    
+
     def test_review_date_creation(self):
         review = Review.objects.create(
             user = self.user,
             product = self.product,
             rating = 4,
-            comment="Worth the price!"
+            comment="Worth the price!",
         )
         self.assertEqual(review.date_created, timezone.now().date())
     
@@ -92,7 +91,7 @@ class reviewTest(TestCase):
         review = Review.objects.create(
             user = self.user,
             product = self.product,
-            rating = 9.3,
+            rating = 9,
             comment="Intentionally invalid rating!"
         )
         with self.assertRaises(ValidationError):
@@ -102,7 +101,7 @@ class reviewTest(TestCase):
         review = Review.objects.create(
             user = self.user,
             product = self.product,
-            rating = 5.0,
+            rating = 5,
             comment="Worth the price!"
         )
         review_id = review.id
@@ -121,11 +120,11 @@ class reviewTest(TestCase):
 
     def test_edit_review_view_func(self):
         url = reverse('review:edit_review', args=[self.product.id, self.review.id])
-        response = self.client.post(url, {'rating': 4.4, 'comment': 'Updated comment'})
+        response = self.client.post(url, {'rating': 4, 'comment': 'Updated comment'})
         self.assertEqual(response.status_code, 302)
         self.review.refresh_from_db()
         self.assertEqual(self.review.comment, "Updated comment")
-        self.assertEqual(self.review.rating, 4.4)
+        self.assertEqual(self.review.rating, 4)
 
     def test_delete_review_view_func(self):
         url = reverse('review:delete_review', args=[self.product.id, self.review.id])

@@ -12,17 +12,17 @@ def show_main(request):
     products = DrugEntry.objects.all()
     return render(request, "all_products.html", {'products': products})
 
-def create_drug(request):
-    if request.method == 'POST':
-        form = DrugEntryForm(request.POST, request.FILES)
-        if form.is_valid():
-            form.save()
-            return redirect('product:show_main')  
-    else:
-        form = DrugEntryForm()
+# def create_drug(request):
+#     if request.method == 'POST':
+#         form = DrugEntryForm(request.POST, request.FILES)
+#         if form.is_valid():
+#             form.save()
+#             return redirect('product:show_main')  
+#     else:
+#         form = DrugEntryForm()
     
-    context = {'form': form}
-    return render(request, "create_drug.html", context)
+#     context = {'form': form}
+#     return render(request, "create_drug.html", context)
 
 @csrf_exempt
 @require_POST
@@ -73,17 +73,17 @@ def edit_drug_ajax(request, id):
 
     return HttpResponse(b"UPDATED", status=200)
 
-def edit_drug(request, id):
-    product = DrugEntry.objects.get(pk=id)
+# def edit_drug(request, id):
+#     product = DrugEntry.objects.get(pk=id)
 
-    form = DrugEntryForm(request.POST or None, instance=product)
+#     form = DrugEntryForm(request.POST or None, instance=product)
 
-    if form.is_valid() and request.method == "POST":
-        form.save()
-        return HttpResponseRedirect(reverse('product:show_main'))
+#     if form.is_valid() and request.method == "POST":
+#         form.save()
+#         return HttpResponseRedirect(reverse('product:show_main'))
 
-    context = {'form': form}
-    return render(request, "create_drug.html", context) #still need to fix
+#     context = {'form': form}
+#     return render(request, "create_drug.html", context) #still need to fix
 
 def delete_drug(request, id):
     product = DrugEntry.objects.get(pk=id)
@@ -109,3 +109,4 @@ def show_json(request):
 def show_json_by_id(request, id):
     data = DrugEntry.objects.filter(pk=id)
     return HttpResponse(serializers.serialize("json", data), content_type="application/json")
+

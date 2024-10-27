@@ -1,0 +1,7 @@
+<h1>{{ product.name }}</h1>
+<p>{{ product.description }}</p>
+
+<!-- Tombol untuk menambahkan produk ke favorit -->
+<a href="{% url 'add_to_favorite' product.id %}" class="btn btn-primary">
+    Add to Favorite
+</a>

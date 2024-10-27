@@ -1,26 +1,46 @@
 {% load static %}
-<nav class="bg-white shadow-md fixed top-0 left-0 z-40 w-full font-serif">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between h-16">
-            <!-- Logo and SoBat Text -->
-            <div class="flex items-center space-x-2">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<nav class="bg-white shadow-md fixed top-0 left-0 z-40 w-full h-[70px]">
+    <!-- Gambar Header Kiri -->
+    <img src="{% static 'image/header_left.jpg' %}" alt="Header Left" class="absolute bottom-0 left-0 h-16">
+
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+        <div class="flex-grow flex items-center justify-between h-16" style="padding-left: 100px; padding-right: 100px;">
+            <!-- SoBat Text -->
+            <div class="flex items-center space-x-2 bg-white px-0 py-1 rounded-md">
                 <a href="{% url 'main:show_main' %}">
-                    <img src="{% static 'image/Logo.jpg' %}" alt="SoBat Logo" class="h-10">
+                    <span class="text-4xl font-bold font-sans" style="color: #254922;">SoBat</span>
                 </a>
-                <span class="text-2xl font-bold" style="color: #254922;">SoBat</span>
             </div>
             <!-- Desktop Menu -->
-            <div class="hidden md:flex space-x-6">
-                <a href="{% url 'main:show_main' %}" class="text-gray-700 hover:text-black">HOME</a>
+            <div class="hidden md:flex items-center space-x-6 bg-white px-2 py-1 rounded-md">
+                <a href="{% url 'main:show_main' %}" class="text-gray-700 hover:text-black">Home</a>
                 <a href="{% url 'product:show_main' %}" class="text-gray-700 hover:text-black">Products</a>
-                <a href="{% url 'forum:show_forum' %}" class="text-gray-700 hover:text-black">QnA</a>
+                <div>
+                  <a href="{% url 'daftar_favorite:show_favorite' %}" class="text-gray-700 hover:text-black">Favorite (<span id="favoriteCount">Loading...</span>)</a>
+              </div>
+        <a href="{% url 'forum:show_forum' %}" class="text-gray-700 hover:text-black">QnA</a>
                 <a href="{% url 'shop:list' %}" class="text-gray-700 hover:text-black">Shop</a>
+                <a href="{% url 'resep:show_resep' %}" class="text-gray-700 hover:text-black">
+                    <i class="fas fa-shopping-cart mr-2"></i> <!-- Icon for cart -->
+                </a>
                 {% if user.is_authenticated %}
                     {% if user.shopprofile %}
                         <a href="{% url 'shop:profile' shop_id=user.shopprofile.id %}" class="text-gray-700 hover:text-black">My Shop</a>
                     {% endif %}
-                    <span class="text-gray-500">Welcome, {{ user.username }}</span>
-                    <a href="{% url 'authentication:logout' %}" class="text-gray-700 hover:text-red-600">Logout</a>
+                    <div class="relative inline-block text-left">
+                        <div>
+                            <span class="flex items-center cursor-pointer" id="user-icon">
+                                <img src="{% static 'image/navbar.jpg' %}" alt="User Icon" class="w-10 h-10 rounded-full">
+                                <span class="text-gray-500 ml-2">Welcome, {{ user.username }}</span>
+                            </span>
+                        </div>
+                        <div id="logout-menu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10">
+                            <div class="py-1">
+                                <a href="{% url 'authentication:logout' %}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Logout</a>
+                            </div>
+                        </div>
+                    </div>
                 {% else %}
                     <a href="{% url 'authentication:login' %}" class="text-gray-700 hover:text-blue-600">Login</a>
                     <a href="{% url 'authentication:register' %}" class="text-gray-700 hover:text-green-600">Register</a>
@@ -28,6 +48,9 @@
             </div>
             <!-- Mobile Menu Button -->
             <div class="md:hidden flex items-center">
+                <a href="{% url 'resep:show_resep' %}" class="text-gray-700 hover:text-black">
+                    <i class="fas fa-shopping-cart mr-2"></i> <!-- Icon for cart -->
+                </a>
                 <button class="mobile-menu-button">
                     <svg class="w-6 h-6 text-gray-800" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" stroke="currentColor">
                         <path d="M4 6h16M4 12h16M4 18h16"></path>
@@ -37,10 +60,16 @@
         </div>
     </div>
 
+    <!-- Gambar Header Kanan -->
+    <img src="{% static 'image/header_right.jpg' %}" alt="Header Right" class="absolute top-0 right-0 h-16">
+
     <!-- Mobile Menu -->
     <div class="mobile-menu hidden md:hidden px-4 pt-2 pb-4 bg-white shadow-lg">
         <a href="{% url 'main:show_main' %}" class="block text-gray-700 py-2 hover:bg-gray-100">Home</a>
-        <a href="{% url 'product:show_main' %}" class="block text-gray-700 py-2 hover:bg-gray-100">Products</a>
+        <a  href="{% url 'product:show_main' %}" class="block text-gray-700 py-2 hover:bg-gray-100">Products</a>
+        
+        <a href="{% url 'daftar_favorite:show_favorite' %}" class="block text-gray-700 py-2 hover:bg-gray-100">Favorite (<span id="favoriteCount-mobile">Loading...</span>)</a>
+      
         <a href="{% url 'forum:show_forum' %}" class="block text-gray-700 py-2 hover:bg-gray-100">QnA</a>
         <a href="{% url 'shop:list' %}" class="block text-gray-700 py-2 hover:bg-gray-100">Shop</a>
         {% if user.is_authenticated %}
@@ -56,10 +85,86 @@
 </nav>
 
 <script>
-    const btn = document.querySelector("button.mobile-menu-button");
-    const menu = document.querySelector(".mobile-menu");
-
-    btn.addEventListener("click", () => {
-        menu.classList.toggle("hidden");
+    // Function to fetch and update favorite count for both desktop and mobile
+    function fetchFavoriteCount() {
+      document.getElementById('favoriteCount').innerText = 'Loading...';
+      document.getElementById('favoriteCount-mobile').innerText = 'Loading...';
+      fetch("{% url 'daftar_favorite:get_favorite_count' %}")
+          .then(response => response.json())
+          .then(data => {
+              // Update the favorite count for both desktop and mobile elements
+              document.getElementById('favoriteCount').innerText = data.favorite_count;
+              document.getElementById('favoriteCount-mobile').innerText = data.favorite_count;
+          })
+          .catch(error => console.error('Error fetching favorite count:', error));
+    }
+  
+    // Function to add to favorite
+    function addToFavorite(event, productId) {
+      event.preventDefault();
+      
+      fetch("/favorite/add/{{ product.pk }}/", {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': getCookie('csrftoken')
+          },
+          body: JSON.stringify({
+              'product_id': productId
+          })
+      })
+      .then(response => response.json())
+      .then(data => {
+          if (data.status === 'success') {
+              // Refresh favorite count after successfully adding
+              fetchFavoriteCount();
+          }
+      })
+      .catch(error => console.error('Error adding to favorite:', error));
+    }
+  
+    // Function to get CSRF token
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+          const cookies = document.cookie.split(';');
+          for (let i = 0; i < cookies.length; i++) {
+              const cookie = cookies[i].trim();
+              if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                  cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                  break;
+              }
+          }
+      }
+      return cookieValue;
+    }
+  
+    // Event listener for the mobile menu button
+    document.addEventListener('DOMContentLoaded', () => {
+      const btn = document.querySelector("button.mobile-menu-button");
+      const menu = document.querySelector(".mobile-menu");
+      const userIcon = document.getElementById("user-icon");
+      const logoutMenu = document.getElementById("logout-menu");
+  
+      // Initialize favorite count when the page loads
+      fetchFavoriteCount();
+  
+      btn.addEventListener("click", () => {
+          menu.classList.toggle("hidden");
+      });
+  
+      // Toggle logout menu
+      userIcon.addEventListener("click", () => {
+          logoutMenu.classList.toggle("hidden");
+      });
+  
+      // Close the logout menu when clicking outside
+      window.addEventListener("click", (event) => {
+          if (!userIcon.contains(event.target) && !logoutMenu.contains(event.target)) {
+              logoutMenu.classList.add("hidden");
+          }
+      });
     });
-</script>
+  </script>
+  
+

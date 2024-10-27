@@ -1,5 +1,5 @@
 from django.urls import path, include
-from product.views import show_main, create_drug, edit_drug, delete_drug, show_drug
+from product.views import show_main, delete_drug, show_drug
 from product.views import show_json, show_json_by_id
 from product.views import create_drug_ajax, edit_drug_ajax
 

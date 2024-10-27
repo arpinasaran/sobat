@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block meta %}
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.7/dist/purify.min.js"></script>
+{% endblock meta %}
+
+{% block content %}
+{% include 'navbar.html' %}
+<div class="container mx-auto p-6">
+    <h2 class="text-3xl font-bold text-blue-700 mb-6">Your Favorites</h2>
+    <div class="flex flex-wrap justify">
+        {% if favorite_items %}
+            {% for product in favorite_items %}
+                <div class="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 p-2" id="product-{{ product.id }}">
+                    <div class="bg-white rounded-lg shadow-lg p-6 flex flex-col h-full">
+                        <img class="w-full h-48 object-cover rounded-lg mb-4" src="/media/{{ product.product.image }}" alt="{{ product.product.name }}">
+                        <h1 class="text-xl font-bold text-gray-800 mb-2">{{ product.product.name }}</h1>
+                        <p class="text-xl font-bold text-green-600 mb-2">Rp {{ product.product.price }}</p>
+                        <p class="text-sm text-gray-600 mb-4 flex-1">{{ product.product.desc }}</p>
+                        <div class="relative inline-block text-left">
+                            <button onclick="showDeleteModal('{{ product.id }}')" class="text-red-500 hover:text-red-600 focus:outline-none">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="black" class="bi bi-trash" viewBox="0 0 16 16">
+                                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6Z"/>
+                                    <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1v1ZM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118ZM2.5 3h11V2h-11v1Z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p class="text-gray-600 mt-10 text-center">No items in your favorites.</p>
+        {% endif %}
+    </div>
+</div>
+
+{% include 'delete_modal.html' %}
+
+<script>
+    let productIdToDelete = null; // Variable to store the ID of the item to be deleted
+
+    function showDeleteModal(productId) {
+        productIdToDelete = productId; // Set the product ID to be deleted
+        const modal = document.getElementById('deleteConfirmationModal');
+        modal.classList.remove('hidden'); // Show the modal
+    }
+    
+    function hideDeleteModal() {
+        const modal = document.getElementById('deleteConfirmationModal');
+        modal.classList.add('hidden'); // Hide the modal
+        productIdToDelete = null; // Reset the product ID
+    }
+    
+    document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+        deleteFavoriteItem(productIdToDelete); // Call the delete function
+    });
+    
+    function deleteFavoriteItem(productId) {
+        const csrfToken = getCookie('csrftoken'); // Get CSRF token
+    
+        fetch(`/favorite/delete/${productId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken,
+                'Content-Type': 'application/json',
+            },
+            credentials: 'same-origin'
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.status === 'success') {
+                // Remove the item from the DOM
+                const productElement = document.getElementById(`product-${productId}`);
+                if (productElement) {
+                    productElement.remove();
+                    fetchFavoriteCount(); // Update favorite count
+                }
+                hideDeleteModal(); // Hide the modal
+            } else {
+                throw new Error(data.message || 'Failed to delete item');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert(`Error: ${error.message}`);
+            hideDeleteModal();
+        });
+    }
+    
+    function toggleDropdown(event) {
+        const optionsMenu = event.currentTarget.nextElementSibling; // Get the options menu next to the button
+        optionsMenu.classList.toggle('hidden'); // Toggle the hidden class
+    }
+</script>
+{% endblock content %}
