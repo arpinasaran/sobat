@@ -44,15 +44,8 @@
     </div><br>
 
     <form method="get" action="" class="mb-6 flex items-center space-x-3">
-        <label for="user" class="text-gray-700">User:</label>
-        <select name="user" id="user" class="ml-2 p-1 border rounded border border-black">
-            <option value="">All Users</option>
-            {% for user in users %}
-                <option value="{{ user.id }}" {% if user.id|stringformat:"s" == selected_user_id %} selected {% endif %}>
-                    {{ user.nama }}
-                </option>
-            {% endfor %}
-        </select>
+        <label for="search" class="text-gray-700">Search:</label>
+        <input type="text" name="search" id="search" placeholder="Search by User or Comment" value="{{ search_query }}" size="30" class="ml-2 p-1 border rounded border border-black">
         <label for="rating" class="text-gray-700 ml-4">Rating:</label>
         <select name="rating" id="rating" class="ml-2 p-1 border rounded border border-black">
             <option value="">All Ratings</option>
@@ -63,7 +56,7 @@
             {% endfor %}
         </select>
 
-        <button type="submit" class="bg-[#254922] hover:bg-[#1e3a3a] text-white py-1 px-3 ml-2 rounded-md text-sm">Filter</button>
+        <button type="submit" class="bg-[#254922] hover:bg-[#1e3a3a] text-white py-1 px-3 ml-2 rounded-md text-sm">Apply</button>
     </form>
 
     <ul class="space-y-2 md:space-y-4">
