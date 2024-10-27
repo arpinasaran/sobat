@@ -6,22 +6,6 @@
 {% endblock meta %}
 
 {% block content %}
-<style>
-  .line-clamp-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2; /* Number of lines */
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-  .line-clamp-6 {
-    display: -webkit-box;
-    -webkit-line-clamp: 6;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-</style>
 
 {% include 'navbar.html' %}
 
@@ -132,6 +116,8 @@
         }
 
         const isLiked = question.fields.likes.includes(currentUserPk);
+
+        console.log(question.fields.answers);
 
         // Conditional HTML rendering based on whether `product` exists
         questionContent.innerHTML = `

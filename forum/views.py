@@ -73,10 +73,10 @@ def answer_question(request, questionId, productId):
         new_answer.drug_ans = chosen_product
         new_answer.user = request.user
 
-        question.answers.add(request.user)
-        question.save()
-
         new_answer.save()
+
+        question.num_answer += 1  # Increment answer count
+        question.save()
 
         return HttpResponse(b"CREATED", status=201)
 
@@ -121,7 +121,9 @@ def like_answer(request, id):
 def delete_answer(request, id):
     if request.method == 'DELETE':
         answer = Answer.objects.get(pk=id)
-        answer.question.answers.remove(request.user)
+        question = answer.question
+        question.num_answer -= 1  # Decrement answer count
+        question.save()
         answer.delete()
         return HttpResponse(b"DELETED", status=200)
     
@@ -147,7 +149,7 @@ def show_json_question(request):
                 "question": question.question,
                 "likes": list(question.likes.values_list('id', flat=True)),
                 "num_likes": question.likes.count(),
-                "num_answer": question.answers.count(),
+                "num_answer": question.num_answer,
             }
         }
         data.append(question_data)
@@ -195,7 +197,7 @@ def show_json_question_by_id(request, id):
                 "question": question.question,
                 "likes": list(question.likes.values_list('id', flat=True)),
                 "num_likes": question.likes.count(),
-                "num_answer": question.answers.count(),
+                "num_answer": question.num_answer,
             }
         }
         data.append(question_data)

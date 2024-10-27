@@ -10,7 +10,7 @@ class Question(models.Model):
     question_title = models.CharField(max_length=100)
     question = models.TextField()
     likes = models.ManyToManyField(User, related_name='question_like')
-    answers = models.ManyToManyField(User, related_name='question_answer')
+    num_answer = models.IntegerField(default=0)
 
 class Answer(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
