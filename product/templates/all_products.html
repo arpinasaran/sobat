@@ -1,11 +1,18 @@
 {% extends 'base.html' %}
 {% load static %}
-
+{% load humanize %}
+{% block meta %}
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.7/dist/purify.min.js"></script>
+<head>
+    <title>Product</title>
+    <link rel="icon" href="{% static 'logo/icon-no-bg.png' %}" type="image/png">
+</head>
+{% endblock meta %}
 {% block content %}
 {% include 'navbar.html' %}
 
 <div class="container mx-auto p-6 mt-16">
-    <h1 class="text-3xl font-bold text-center text-blue-800 mb-10 font-serif">Our Products</h1>
+    <h1 class="text-5xl font-extrabold text-center text-[#254922] mb-10">Solo Obat</h1>
     
     <!-- Search Bar and Filters -->
     <div class="flex flex-col md:flex-row items-center justify-between mb-6">
@@ -27,13 +34,13 @@
     </div>
 
     <!-- Grid for displaying products -->
-    <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div id="productGrid" class="flex flex-wrap justify-between gap-3">
         <!-- Product cards will be inserted here by JavaScript -->
     </div>
 
     <!-- Tombol Create Product -->
     {% if request.user.role == "apoteker" %}
-    <button onclick="openModal()" class="fixed bottom-10 right-30 bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-full shadow-lg transition duration-300">
+    <button onclick="openModal()" class="fixed bottom-10 right-10 bg-green-800 text-white font-bold py-3 px-6 rounded-lg">
         Add New Drug
     </button>    
     {% endif %}
@@ -177,6 +184,9 @@
     </div>
 </div>
 
+<script>
+    const userRole = "{{ request.user.role }}"; // Pass the user role to JavaScript
+</script>
 
 
 <script>
@@ -213,11 +223,13 @@
 
     // Fungsi untuk membuat kartu produk
     function createProductCard(product) {
+        const isApoteker = userRole === "apoteker";
         return `
-            <div class="w-64 card bg-white shadow-lg rounded-lg overflow-hidden border border-gray-200 flex flex-col items-center p-4 relative cursor-pointer" 
+            <div class="w-64 card bg-white shadow-sm rounded-sm overflow-hidden border border-gray-200 flex flex-col items-center p-4 relative cursor-pointer" 
                 onclick="window.location.href='/product/view-drug/${product.pk}/';">
                 
                 <!-- Icon Titik Tiga di Pojok Kanan Atas -->
+                ${isApoteker ? `
                 <div class="absolute top-2 right-2">
                     <button onclick="toggleMenu(event, '${product.pk}')" class="text-gray-600 hover:text-gray-800 focus:outline-none">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -231,12 +243,12 @@
                         <a onclick="openEditModal('${product.pk}', event)" class="block px-4 py-2 text-blue-500 hover:bg-blue-100">Edit Ajax</a>
                     </div>
                 </div>
-
+            ` : ''}
                 <!-- Konten Kartu Produk -->
                 <img class="w-48 h-48 object-fit mb-3" src="/media/${product.fields.image}" alt="${product.fields.image}">
                 <div class="text-center">
-                    <h3 id="product-name-placeholder" class="text-lg font-light text-gray-800 mb-2 font-serif">${product.fields.name}</h3>
-                    <p class="text-green-500 font-semibold text-xl mb-2">Rp ${product.fields.price}</p>
+                    <h3 id="product-name-placeholder" class="text-lg font-bold text-gray-800 mb-2">${product.fields.name}</h3>
+                    <p class="text-green-800 font-bold text-xl mb-2">Rp${product.fields.price.toLocaleString('id-ID')}</p>
                 </div>
             </div>
         `;

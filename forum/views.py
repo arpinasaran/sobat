@@ -73,10 +73,10 @@ def answer_question(request, questionId, productId):
         new_answer.drug_ans = chosen_product
         new_answer.user = request.user
 
-        question.num_answer += 1
-        question.save()
-
         new_answer.save()
+
+        question.num_answer += 1  # Increment answer count
+        question.save()
 
         return HttpResponse(b"CREATED", status=201)
 
@@ -121,15 +121,13 @@ def like_answer(request, id):
 def delete_answer(request, id):
     if request.method == 'DELETE':
         answer = Answer.objects.get(pk=id)
+        question = answer.question
+        question.num_answer -= 1  # Decrement answer count
+        question.save()
         answer.delete()
         return HttpResponse(b"DELETED", status=200)
     
     return HttpResponseNotFound()
-
-
-def show_xml(request):
-    data = Question.objects.all()
-    return HttpResponse(serializers.serialize("xml", data), content_type="application/xml")
 
 def show_json_question(request):
     questions = Question.objects.select_related('user').all()  # Use select_related for optimization
@@ -175,10 +173,6 @@ def show_json_answer(request, id):
         data.append(answer_data)
 
     return JsonResponse(data, safe=False)  # Using JsonResponse to return the custom data
-
-def show_xml_by_id(request, id):
-    data = Question.objects.filter(pk=id)
-    return HttpResponse(serializers.serialize("xml", data), content_type="application/xml")
 
 def show_json_question_by_id(request, id):
     questions = Question.objects.filter(pk=id)

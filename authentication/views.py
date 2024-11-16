@@ -5,7 +5,7 @@ from django.contrib.auth import authenticate, login, logout
 import datetime
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-from authentication.forms import CreateUserForm, UserForm
+from authentication.forms import CreateUserForm
 
 # Create your views here.
 def register(request):

@@ -1,6 +1,12 @@
 {% extends 'base.html' %}
 {% load static %}
-
+{% block meta %}
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.7/dist/purify.min.js"></script>
+<head>
+    <title>Shop Catalog</title>
+    <link rel="icon" href="{% static 'logo/icon-no-bg.png' %}" type="image/png">
+</head>
+{% endblock meta %}
 {% block content %}
 {% include 'navbar.html' %}
 <div class="pt-16"> {# Add top padding to account for fixed navbar #}
@@ -58,19 +64,23 @@
                 Etalase
             </a>
         </div>
-        
-        <!-- Categories Navigation -->
-        <div class="flex flex-wrap gap-4 mb-8">
-            <a href="{% url 'shop:catalog' shop.id %}"
-                class="px-4 py-2 rounded-lg bg-[#254922] text-white border-2 border-transparent hover:bg-white hover:text-[#254922] hover:border-[#254922] transition duration-200">
-                All Products
-            </a>
-            {% for category in categories %}
-            <a href="{% url 'shop:catalog_category' shop.id category %}"
-                class="px-4 py-2 rounded-lg border-2 border-[#254922] bg-white text-[#254922] {% if current_category == category %}bg-[#254922] text-white{% else %}hover:bg-[#254922] hover:text-white{% endif %} transition duration-200">
-                {{ category }}
-            </a>
-            {% endfor %}
+
+        <!-- Filter and Search Section -->
+        <div class="flex items-center mb-8 space-x-4">
+            <label for="category-filter" class="text-gray-700 font-semibold">Filter:</label>
+            <select id="category-filter" onchange="window.location.href=this.value" class="px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-700">
+                <option value="{% url 'shop:catalog' shop.id %}">All Products</option>
+                {% for category in categories %}
+                <option value="{% url 'shop:catalog_category' shop.id category %}" {% if current_category == category %}selected{% endif %}>
+                    {{ category }}
+                </option>
+                {% endfor %}
+            </select>
+            
+            <!-- Search Bar -->
+            <form action="{% url 'shop:catalog' shop.id %}" method="get" class="flex-1">
+                <input type="text" name="q" placeholder="Search products..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#254922]" value="{{ request.GET.q }}">
+            </form>
         </div>
 
         <!-- Products Listing -->
