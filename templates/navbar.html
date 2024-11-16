@@ -16,7 +16,9 @@
             <div class="hidden md:flex items-center space-x-12 bg-white px-2 py-1 rounded-md">
                 <a href="{% url 'main:show_main' %}" class="text-gray-700 hover:text-black">Home</a>
                 <a href="{% url 'product:show_main' %}" class="text-gray-700 hover:text-black">Products</a>
-                <a href="{% url 'daftar_favorite:show_favorite' %}" class="text-gray-700 hover:text-black">Favorite (<span id="favoriteCount">Loading...</span>)</a>
+                <a href="{% url 'daftar_favorite:show_favorite' %}" class="text-gray-700 hover:text-black">
+                    Favorite (<span id="favoriteCount" class="inline-block w-4 text-center">⏳</span>)
+                </a>
                 <a href="{% url 'forum:show_forum' %}" class="text-gray-700 hover:text-black">QnA</a>
                 <a href="{% url 'shop:list' %}" class="text-gray-700 hover:text-black">Shop</a>
                 <a href="{% url 'resep:show_resep' %}" class="text-gray-700 hover:text-black">Cart</a>
@@ -48,7 +50,7 @@
         <a href="{% url 'main:show_main' %}" class="block text-gray-700 py-2 hover:bg-gray-100">Home</a>
         <a  href="{% url 'product:show_main' %}" class="block text-gray-700 py-2 hover:bg-gray-100">Products</a>
         
-        <a href="{% url 'daftar_favorite:show_favorite' %}" class="block text-gray-700 py-2 hover:bg-gray-100">Favorite (<span id="favoriteCount-mobile">Loading...</span>)</a>
+        <a href="{% url 'daftar_favorite:show_favorite' %}" class="block text-gray-700 py-2 hover:bg-gray-100">Favorite (<span id="favoriteCount-mobile">⏳</span>)</a>
       
         <a href="{% url 'forum:show_forum' %}" class="block text-gray-700 py-2 hover:bg-gray-100">QnA</a>
         <a href="{% url 'shop:list' %}" class="block text-gray-700 py-2 hover:bg-gray-100">Shop</a>
@@ -67,8 +69,8 @@
 <script>
     // Function to fetch and update favorite count for both desktop and mobile
     function fetchFavoriteCount() {
-      document.getElementById('favoriteCount').innerText = 'Loading...';
-      document.getElementById('favoriteCount-mobile').innerText = 'Loading...';
+      document.getElementById('favoriteCount').innerText = '⏳';
+      document.getElementById('favoriteCount-mobile').innerText = '⏳';
       fetch("{% url 'daftar_favorite:get_favorite_count' %}")
           .then(response => response.json())
           .then(data => {

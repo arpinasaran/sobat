@@ -25,9 +25,7 @@ def show_favorite(request):
     }
     return render(request,'favorite.html',context)
 
-def show_json(request):
-    data = Favorite.objects.filter(user=request.user)
-    return HttpResponse(serializers.serialize("json", data), content_type="application/json")
+
 
 
 def show_json_by_id(request, id):
@@ -72,5 +70,10 @@ def check_favorite_status(request, product_id):
     return JsonResponse({
         'is_favorite': is_favorite
     })
+    
+    
+def show_json(request):
+    data = Favorite.objects.filter(user=request.user)
+    return HttpResponse(serializers.serialize("json", data), content_type="application/json")
     
         
