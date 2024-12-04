@@ -1,216 +1,224 @@
-    {% extends 'base.html' %}
-    {% load static %}
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+{% block meta %}
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.7/dist/purify.min.js"></script>
+<head>
+    <title>Product Details</title>
+    <link rel="icon" href="{% static 'logo/icon-no-bg.png' %}" type="image/png">
+</head>
+{% endblock meta %}
+{% block content %}
+{% include 'navbar.html' %}
+<div class="mx-16 h-screen my-20 bg-white ">
+    <div class="flex items-start space-x-6">
+        <!-- Product Image -->
+        <div class="w-1/3 shadow-lg rounded-lg">
+            <img class="w-full h-64 object-cover rounded-lg mb-4" src="/media/{{ product.image }}" alt="{{ product.name }}">
+        </div>
+        
+        <!-- Product Details -->
+        <div class="w-3/5 bg-white rounded-lg p-6 pt-4 shadow-lg">
+            <!-- Product Name and Price -->
+            <h1 class="text-4xl font-extrabold text-gray-800 pb-2">{{ product.name }}</h1>
+            <p class="text-3xl font-bold text-green-600 mb-2">Rp {{ product.price|intcomma }}</p>
 
-    {% block content %}
-    {% include 'navbar.html' %}
-    <div class="mx-16 h-screen my-20 bg-white ">
-        <div class="flex items-start space-x-6">
-            <!-- Product Image -->
-            <div class="w-1/3 shadow-lg rounded-lg">
-                <img class="w-full h-64 object-cover rounded-lg mb-4" src="/media/{{ product.image }}" alt="{{ product.name }}">
+            <!-- Description and Details -->
+            <div class="text-gray-600 mt-4">
+                <p><strong>Drug Category: </strong> {{ product.category }}</p>
+                <p><strong>Drug Type: </strong> {{ product.drug_type }}</p>
+                <p><strong>Drug Form: </strong> {{ product.drug_form }}</p>
+                <p class="mt-4">{{ product.desc }}</p>
             </div>
-            
-            <!-- Product Details -->
-            <div class="w-3/5 bg-white rounded-lg p-6 pt-4 shadow-lg">
-                <!-- Product Name and Price -->
-                <h1 class="text-4xl font-extrabold text-gray-800 pb-2">{{ product.name }}</h1>
-                <p class="text-3xl font-bold text-green-600 mb-2">IDR{{ product.price }}</p>
-
-                <!-- Description and Details -->
-                <div class="text-gray-600 mt-4">
-                    <p><strong>Kategori Obat: </strong> {{ product.category }}</p>
-                    <p><strong>Tipe Obat: </strong> {{ product.drug_type }}</p>
-                    <p><strong>Bentuk Obat: </strong> {{ product.drug_form }}</p>
-                    <p class="mt-4">{{ product.desc }}</p>
-                </div>
 
 
-                <!-- Action Buttons -->
-                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-                <!-- Action Buttons -->
-                <div class="mt-6 grid grid-cols-2 ">
-                    <!-- Product Review Button -->
-                    <a href="/review/{{ product.pk }}/" class="flex items-center bg-white text-[#254922] font-semibold hover:text-white hover:bg-[#254922] border border-gray-200 rounded-full p-3 px-4">
-                        <i class="fas fa-comment-dots mr-2"></i> <!-- Icon for review -->
-                        <span>Review Obat</span>
-                    </a>
-
-                <!-- Add to Cart Button -->
-                <a href="javascript:void(0);" id="addToResepBtn" class="flex items-center bg-white text-[#254922] font-semibold hover:text-white hover:bg-[#254922] border border-gray-200 rounded-full p-3 px-4">
-                    <i class="fas fa-shopping-cart mr-2"></i>
-                    <span>Tambahkan ke Resep</span>
+            <!-- Action Buttons -->
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+            <!-- Action Buttons -->
+            <div class="mt-6 grid grid-cols-2 ">
+                <!-- Product Review Button -->
+                <a href="/review/{{ product.pk }}/" class="flex items-center bg-white text-[#254922] font-semibold hover:text-white hover:bg-[#254922] border border-gray-200 rounded-full p-3 px-4">
+                    <i class="fas fa-comment-dots mr-2"></i> <!-- Icon for review -->
+                    <span>Review</span>
                 </a>
 
-                    <!-- Add to Favorite Button -->
-                    <a id="addToFavoriteBtn" class="flex items-center bg-white text-[#254922] font-semibold hover:text-white hover:bg-[#254922] border border-gray-200 rounded-full p-3 px-4">
-                        <i class="fas fa-star mr-2"></i>
-                        <span id="favoriteButtonText">Tambahkan ke Favorit</span>
-                    </a>
-                    
-                    <!-- Remove from Favorite Button (initially hidden) -->
-                    <a id="removeFromFavoriteBtn" class="flex items-center bg-red-500 text-white font-semibold border border-gray-200 rounded-full p-3 px-4 hidden">
-                        <i class="fas fa-trash mr-2"></i>
-                        <span>Hapus dari Favorit</span>
-                    </a>
-                    <!-- Product Forum Button -->
-                    <a href="/forum/{{ product.pk }}/" class="flex items-center bg-white text-[#254922] font-semibold hover:text-white hover:bg-[#254922] border border-gray-200 rounded-full p-3 px-4">
-                        <i class="fas fa-comments mr-2"></i> <!-- Icon for forum -->
-                        <span>Forum Produk</span>
-                    </a>
-                </div>
+            <!-- Add to Cart Button -->
+            <a href="javascript:void(0);" id="addToResepBtn" class="flex items-center bg-white text-[#254922] font-semibold hover:text-white hover:bg-[#254922] border border-gray-200 rounded-full p-3 px-4">
+                <i class="fas fa-shopping-cart mr-2"></i>
+                <span>Add to Cart</span>
+            </a>
+
+                <!-- Add to Favorite Button -->
+                <a id="addToFavoriteBtn" class="flex items-center bg-white text-[#254922] font-semibold hover:text-white hover:bg-[#254922] border border-gray-200 rounded-full p-3 px-4">
+                    <i class="fas fa-star mr-2"></i>
+                    <span id="favoriteButtonText">Add to Favorite</span>
+                </a>
+                
+                <!-- Remove from Favorite Button (initially hidden) -->
+                <a id="removeFromFavoriteBtn" class="flex items-center bg-red-500 text-white font-semibold border border-gray-200 rounded-full p-3 px-4 hidden">
+                    <i class="fas fa-trash mr-2"></i>
+                    <span>Delete from Favorite</span>
+                </a>
+                <!-- Product Forum Button -->
+                <a href="/forum/" class="flex items-center bg-white text-[#254922] font-semibold hover:text-white hover:bg-[#254922] border border-gray-200 rounded-full p-3 px-4">
+                    <i class="fas fa-comments mr-2"></i> <!-- Icon for forum -->
+                    <span>Forum</span>
+                </a>
             </div>
-        </div>
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {% for shop in product.shops.all %}
-            <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
-                <div class="h-48 bg-gray-200 relative">
-                {% if shop.profile_image %}
-                    <img src="{{ shop.profile_image.url }}" alt="{{ shop.name }}" class="w-full h-full object-cover">
-                    {% else %}
-                    <div class="w-full h-full flex items-center justify-center bg-gray-100">
-                        <span class="text-6xl">🏪</span>
-                    </div>
-                {% endif %}
-                </div>
-                <div class="p-6">
-                <h3 class="text-xl font-semibold text-gray-800 mb-2">{{ shop.name }}</h3>
-                <p class="text-gray-600 mb-4">{{ shop.address }}</p>
-                <div class="flex items-center text-gray-500 mb-4">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                    <span>{{ shop.opening_time|time:"H:i" }} - {{ shop.closing_time|time:"H:i" }}</span>
-                </div>
-                <div class="flex justify-between items-center">
-                    <a href="{% url 'shop:profile' shop_id=shop.id %}" class="bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-300">
-                    Visit Shop
-                    </a>
-                </div>
-                </div>
-            </div>
-        
-            {% endfor %}
         </div>
     </div>
+    <div class="text-2xl font-semibold text-black my-6">Available on</div>
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {% for shop in product.shops.all %}
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
+            <div class="h-48 bg-gray-200 relative">
+            {% if shop.profile_image %}
+                <img src="{{ shop.profile_image.url }}" alt="{{ shop.name }}" class="w-full h-full object-cover">
+                {% else %}
+                <div class="w-full h-full flex items-center justify-center bg-gray-100">
+                    <span class="text-6xl">🏪</span>
+                </div>
+            {% endif %}
+            </div>
+            <div class="p-6">
+            <h3 class="text-xl font-semibold text-gray-800 mb-2">{{ shop.name }}</h3>
+            <p class="text-gray-600 mb-4">{{ shop.address }}</p>
+            <div class="flex items-center text-gray-500 mb-4">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <span>{{ shop.opening_time|time:"H:i" }} - {{ shop.closing_time|time:"H:i" }}</span>
+            </div>
+            <div class="flex justify-between items-center">
+                <a href="{% url 'shop:profile' shop_id=shop.id %}" class="bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-300">
+                Visit Shop
+                </a>
+            </div>
+            </div>
+        </div>
     
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js"></script>
+        {% endfor %}
+    </div>
+</div>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js"></script>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js"></script>
 <script>
-        function checkFavoriteStatus() {
-            fetch("{% url 'daftar_favorite:check_favorite_status' product.id %}", {
-                method: 'GET',
-                headers: {
-                    'X-CSRFToken': '{{ csrf_token }}',
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                const favoriteBtn = document.getElementById('addToFavoriteBtn');
-                const favoriteText = document.getElementById('favoriteButtonText');
-                
-                if (data.is_favorite) {
-                    favoriteText.innerText = "Sudah Ada di Favorit";
-                    favoriteBtn.classList.add('bg-gray-200');
-                    favoriteBtn.classList.remove('hover:bg-[#254922]');
-                    favoriteBtn.style.cursor = 'default';
-                }
-            })
-            .catch(error => console.error('Error:', error));
-        }
-        function fetchFavoriteCount() {
-            fetch("{% url 'daftar_favorite:get_favorite_count' %}")
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('favoriteCount').innerText = data.favorite_count;
-                })
-                .catch(error => console.error('Error fetching favorite count:', error));
-        }
-        
-        // Script untuk tombol favorite
-        const csrfToken = '{{ csrf_token }}';
-    
-        document.getElementById('addToFavoriteBtn').addEventListener('click', function(e) {
+    function checkFavoriteStatus() {
+        fetch("{% url 'daftar_favorite:check_favorite_status' product.id %}", {
+            method: 'GET',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            const favoriteBtn = document.getElementById('addToFavoriteBtn');
             const favoriteText = document.getElementById('favoriteButtonText');
             
-            // Jika sudah di favorit, hentikan eksekusi
-            if (favoriteText.innerText === "Sudah Ada di Favorit") {
-                e.preventDefault();
-                return;
+            if (data.is_favorite) {
+                favoriteText.innerText = "Sudah Ada di Favorit";
+                favoriteBtn.classList.add('bg-gray-200');
+                favoriteBtn.classList.remove('hover:bg-[#254922]');
+                favoriteBtn.style.cursor = 'default';
             }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+    function fetchFavoriteCount() {
+        fetch("{% url 'daftar_favorite:get_favorite_count' %}")
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('favoriteCount').innerText = data.favorite_count;
+            })
+            .catch(error => console.error('Error fetching favorite count:', error));
+    }
     
-            fetch("{% url 'daftar_favorite:add_to_favorite' product.id %}", {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': csrfToken,
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    fetchFavoriteCount();
-                    favoriteText.innerText = "Sudah Ada di Favorit";
-                    const favoriteBtn = document.getElementById('addToFavoriteBtn');
-                    favoriteBtn.classList.add('bg-gray-200');
-                    favoriteBtn.classList.remove('hover:bg-[#254922]');
-                    favoriteBtn.style.cursor = 'default';
-                    
-                    swal({
-                        title: "Sukses!",
-                        text: "Produk berhasil ditambahkan ke favorit!",
-                        icon: "success",
-                        button: "OK",
-                    });
-                } else {
-                    swal({
-                        title: "Error!",
-                        text: data.message || "Terjadi kesalahan.",
-                        icon: "error",
-                        button: "OK",
-                    });
-                }
-            })
-            .catch(error => console.error('Error:', error));
-        });
+    // Script untuk tombol favorite
+    const csrfToken = '{{ csrf_token }}';
+
+    document.getElementById('addToFavoriteBtn').addEventListener('click', function(e) {
+        const favoriteText = document.getElementById('favoriteButtonText');
         
-        // Script untuk tombol resep (jika diperlukan)
-        document.getElementById('addToResepBtn').addEventListener('click', function() {
-            fetch("{% url 'resep:add_to_resep' product.id %}", {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': csrfToken,
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    swal({
-                        title: "Sukses!",
-                        text: "Produk berhasil ditambahkan ke resep!",
-                        icon: "success",
-                        button: "OK",
-                    });
-                } else {
-                    swal({
-                        title: "Error!",
-                        text: data.message || "Item Sudah ada",
-                        icon: "error",
-                        button: "OK",
-                    });
-                }
-            })
-            .catch(error => console.error('Error:', error));
-        });
-        
-        // Panggil fetchFavoriteCount saat halaman dimuat
-        document.addEventListener('DOMContentLoaded', function() {
-        fetchFavoriteCount();
-        checkFavoriteStatus();
+        // Jika sudah di favorit, hentikan eksekusi
+        if (favoriteText.innerText === "Already on Favorite") {
+            e.preventDefault();
+            return;
+        }
+
+        fetch("{% url 'daftar_favorite:add_to_favorite' product.id %}", {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken,
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                fetchFavoriteCount();
+                favoriteText.innerText = "Already on Favorite";
+                const favoriteBtn = document.getElementById('addToFavoriteBtn');
+                favoriteBtn.classList.add('bg-gray-200');
+                favoriteBtn.classList.remove('hover:bg-[#254922]');
+                favoriteBtn.style.cursor = 'default';
+                
+                swal({
+                    title: "Sukses!",
+                    text: "Produk added to Favorite!",
+                    icon: "success",
+                    button: "OK",
+                });
+            } else {
+                swal({
+                    title: "Error!",
+                    text: data.message || "Error.",
+                    icon: "error",
+                    button: "OK",
+                });
+            }
+        })
+        .catch(error => console.error('Error:', error));
     });
-    </script>
     
+    // Script untuk tombol resep (jika diperlukan)
+    document.getElementById('addToResepBtn').addEventListener('click', function() {
+        fetch("{% url 'resep:add_to_resep' product.id %}", {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken,
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                swal({
+                    title: "Sukses!",
+                    text: "Product Added to Cart!",
+                    icon: "success",
+                    button: "OK",
+                });
+            } else {
+                swal({
+                    title: "Error!",
+                    text: data.message || "Item Already Exists",
+                    icon: "error",
+                    button: "OK",
+                });
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    });
+    
+    // Panggil fetchFavoriteCount saat halaman dimuat
+    document.addEventListener('DOMContentLoaded', function() {
+    fetchFavoriteCount();
+    checkFavoriteStatus();
+});
+</script>
+
 
 
 

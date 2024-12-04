@@ -35,10 +35,16 @@ def shop_catalog(request, shop_id, category=None):
     shop = get_object_or_404(ShopProfile, id=shop_id)
     products = shop.products.all()
 
+    # Filter by category if specified
     if category and category != 'all':
         products = products.filter(category=category)
+    
+    # Search functionality
+    query = request.GET.get('q')
+    if query:
+        products = products.filter(name__icontains=query)
 
-    # Retrieve distinct categories from the related DrugEntry model
+    # Retrieve distinct categories
     categories = DrugEntry.objects.filter(
         shop_products__shop=shop
     ).values_list('category', flat=True).distinct()
@@ -46,7 +52,7 @@ def shop_catalog(request, shop_id, category=None):
     context = {
         'shop': shop,
         'products': products,
-        'categories': sorted(set(categories)),  # Ensure categories are unique and sorted
+        'categories': sorted(set(categories)),
         'current_category': category,
         'is_owner': request.user == shop.owner if request.user.is_authenticated else False
     }
@@ -87,7 +93,6 @@ def edit_profile(request, shop_id):
         form = ShopProfileForm(instance=shop)
     return render(request, 'shop/edit_profile.html', {'form': form, 'shop': shop})
 
-# views.py
 @login_required
 def manage_products(request, shop_id):
     shop = get_object_or_404(ShopProfile, id=shop_id)
@@ -95,49 +100,43 @@ def manage_products(request, shop_id):
     if request.user != shop.owner:
         messages.error(request, "You don't have permission to manage products in this shop.")
         return redirect('shop:profile', shop_id=shop_id)
-        
+    
     if request.method == 'POST':
-        selected_product_ids = request.POST.getlist('selected_products')
-        
-        # Get current products in shop
-        current_products = set(ShopProduct.objects.filter(shop=shop).values_list('product_id', flat=True))
-        
-        # Keep selected product IDs as strings (assuming they are UUIDs)
-        new_products = set(selected_product_ids)
-        
-        # Remove products that were unselected
-        products_to_remove = current_products - new_products
-        ShopProduct.objects.filter(shop=shop, product_id__in=products_to_remove).delete()
+        form = ManageProductForm(request.POST, shop=shop)
+        if form.is_valid():
+            selected_products = form.cleaned_data['selected_products']
+            
+            # Get current products in shop
+            current_products = set(ShopProduct.objects.filter(shop=shop).values_list('product_id', flat=True))
+            # Convert selected products to set of IDs
+            new_products = set(product.id for product in selected_products)
+            
+            # Remove products that were unselected
+            products_to_remove = current_products - new_products
+            ShopProduct.objects.filter(shop=shop, product_id__in=products_to_remove).delete()
+            
+            # Add newly selected products
+            products_to_add = new_products - current_products
+            for product_id in products_to_add:
+                ShopProduct.objects.create(
+                    shop=shop,
+                    product_id=product_id,
+                )
+            
+            messages.success(request, 'Shop products updated successfully.')
+            return redirect('shop:profile', shop_id=shop_id)
+    else:
+        form = ManageProductForm(shop=shop)
 
-        for product_id in products_to_remove:
-            product = DrugEntry.objects.get(pk=product_id)
-            product.shops.remove(shop)
-
-        # Add newly selected products
-        products_to_add = new_products - current_products
-        for product_id in products_to_add:
-            ShopProduct.objects.create(
-                shop=shop,
-                product_id=product_id,
-                is_available=True
-            )
-            product = DrugEntry.objects.get(pk=product_id)
-            product.shops.add(shop)
-
-        messages.success(request, 'Shop products updated successfully.')
-        return redirect('shop:profile', shop_id=shop_id)
-    
-    # Get all products and mark which ones are already in the shop
-    all_products = DrugEntry.objects.all()
-    selected_product_ids = set(ShopProduct.objects.filter(shop=shop).values_list('product_id', flat=True))
-    
-    # Add is_selected attribute to each product
-    for product in all_products:
-        product.is_selected = product.id in selected_product_ids
+    # Annotate each product with 'is_selected' based on current shop products
+    products = DrugEntry.objects.all()
+    for product in products:
+        product.is_selected = ShopProduct.objects.filter(shop=shop, product_id=product.id).exists()
     
     context = {
+        'form': form,
         'shop': shop,
-        'products': all_products
+        'products': products
     }
     return render(request, 'shop/manage_products.html', context)
 
@@ -150,8 +149,6 @@ def delete_product(request, shop_id, product_id):
         messages.error(request, "You don't have permission to delete products from this shop.")
         return redirect('shop:profile', shop_id=shop_id)
     
-    product = DrugEntry.objects.get(pk=product_id)
-    product.shops.remove(shop)
     shop_product.delete()
     messages.success(request, 'Product removed from shop successfully.')
     return redirect('shop:profile', shop_id=shop_id)
@@ -169,12 +166,3 @@ def delete_shop(request, shop_id):
     if request.method == 'POST':
         shop.delete()
         return redirect('shop:list')
-
-def product_detail(request, shop_id, product_id):
-    shop = get_object_or_404(Shop, id=shop_id)
-    product = get_object_or_404(Product, id=product_id)
-    context = {
-        'shop': shop,
-        'product': product,
-    }
-    return render(request, 'shop/product_detail.html', context)

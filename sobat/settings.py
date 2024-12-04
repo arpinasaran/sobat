@@ -46,7 +46,8 @@ INSTALLED_APPS = [
     'product',
     'shop.apps.ShopConfig',
     'resep',
-    'corsheaders'
+    'corsheaders',
+    'django.contrib.humanize',
 ]
 
 MIDDLEWARE = [

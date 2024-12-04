@@ -8,8 +8,7 @@ class ShopProfileAdmin(admin.ModelAdmin):
 
 @admin.register(ShopProduct)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('product_name', 'shop', 'product_category', 'product_price', 'is_available')
-    list_filter = ('is_available',)
+    list_display = ('product_name', 'shop', 'product_category', 'product_price')
     search_fields = ('product__name', 'product__description', 'shop__name')
     
     # Custom methods to access fields from the related DrugEntry model

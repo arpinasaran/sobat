@@ -1,7 +1,7 @@
 from django.urls import path, include
 from product.views import show_main, delete_drug, show_drug
 from product.views import show_json, show_json_by_id
-from product.views import create_drug_ajax, edit_drug_ajax
+from product.views import create_drug_ajax, edit_drug_ajax, update
 
 app_name = 'product'
 
@@ -15,4 +15,5 @@ urlpatterns = [
     path('json/<str:id>/', show_json_by_id, name='show_json_by_id'),
     path('json/', show_json, name='show_json'),
     path('view-drug/<str:id>/', show_drug, name='show_drug'),
+    path('update-drug-shop/', update, name='update'),
 ]

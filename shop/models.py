@@ -1,3 +1,4 @@
+# models.py
 from django.db import models
 from django.conf import settings
 from product.models import DrugEntry
@@ -19,10 +20,8 @@ class ShopProfile(models.Model):
         return f"{self.name} - {self.owner.username}"
 
 class ShopProduct(models.Model):
-    # Menggunakan AutoField sebagai primary key default
     shop = models.ForeignKey(ShopProfile, on_delete=models.CASCADE, related_name='shop_products')
     product = models.ForeignKey(DrugEntry, on_delete=models.CASCADE, related_name='shop_products')
-    is_available = models.BooleanField(default=True)
     stock = models.PositiveIntegerField(default=0)
     selling_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)

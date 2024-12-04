@@ -2,22 +2,25 @@
 {% load static %}
 {% load custom_filters %}
 {% block meta %}
-<title>Resep</title>
+<head>
+    <title>Resep</title>
+    <link rel="icon" href="{% static 'logo/icon-no-bg.png' %}" type="image/png">
+</head>
 {% endblock meta %}
 {% block content %}
 {% include 'navbar.html' %}
 <div class="overflow-x-hidden px-4 md:px-8 pb-8 pt-24 min-h-screen bg-gray-100 flex flex-col">
     {% if not resep %}
-    <p class="text-center text-xl">Belum ada obat yang dimasukkan ke resep.</p>
+    <p class="text-center text-[#254922] text-xl">No medicine has been added to the prescription yet.</p>
     {% else %}
     <div class="overflow-x-auto" style="box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.05), 0 6px 20px 0 rgba(0, 0, 0, 0.05)">
         <table class="min-w-full bg-white border border-gray-300">
             <thead>
                 <tr class="bg-gray-300 text-center">
-                    <th class="py-2 px-4 border-b">Produk</th>
-                    <th class="py-2 px-4 border-b">Harga</th>
-                    <th class="py-2 px-4 border-b">Jumlah</th>
-                    <th class="py-2 px-4 border-b">Total</th>
+                    <th class="py-2 px-4 border-b">Product</th>
+                    <th class="py-2 px-4 border-b">Price</th>
+                    <th class="py-2 px-4 border-b">Amount</th>
+                    <th class="py-2 px-4 border-b">Subtotal</th>
                 </tr>
             </thead>
             <tbody>
@@ -43,7 +46,7 @@
     </div>
     <div class="mt-4 text-center">
         <div class="bg-gray-200 p-4 rounded-lg shadow-md inline-block">
-            <h3 class="text-xl font-bold">Total Harga: <span id="total-price" class="text-black">Rp {{ total_price }}</span></h3>
+            <h3 class="text-xl font-bold">Total Price: <span id="total-price" class="text-black">Rp {{ total_price }}</span></h3>
         </div>
         <br>
         <button id="checkout-button" class="mt-4 btn btn-checkout">Checkout</button>  <!-- Tambahkan tombol Checkout -->
@@ -119,13 +122,13 @@
             if ($('#amount-' + resepId + ' span').text() === '1') {
                 // SweetAlert untuk konfirmasi penghapusan
                 Swal.fire({
-                    title: 'Apakah Anda yakin?',
-                    text: "Produk ini akan dihapus dari resep Anda!",
+                    title: 'Are you sure?',
+                    text: "This product will be removed from your prescription!",
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#3085d6',
                     cancelButtonColor: '#d33',
-                    confirmButtonText: 'Ya, hapus!'
+                    confirmButtonText: 'Yes, delete it!'
                 }).then((result) => {
                     if (result.isConfirmed) {
                         updateAmount(resepId, 'decrease');
@@ -198,19 +201,19 @@
                     </li> <br>`;
             });
             summary += '</ul>';
-            summary += `<h4 class="font-bold">Total Keseluruhan: Rp ${total}</h4> <br>`;
-            summary += '<p style="color: #254922">Anda bisa screenshot resep ini dan tunjukkan kepada apoteker untuk membeli produknya.</p>';
+            summary += `<h4 class="font-bold">Total Price: Rp ${total}</h4> <br>`;
+            summary += '<p style="color: #254922">You can take a screenshot of this prescription and show it to the pharmacist to purchase the products.</p>';
 
             // Modifikasi SweetAlert untuk menambahkan tombol baru
             Swal.fire({
-                title: 'Ringkasan Pembelian',
+                title: 'Purchase Summary',
                 html: summary,
                 icon: 'info',
                 showCancelButton: true,
                 confirmButtonColor: '#d33',
                 cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Hapus semua obat',
-                cancelButtonText: 'Kembali ke resep'
+                confirmButtonText: 'Remove all medications',
+                cancelButtonText: 'Back to prescription'
             }).then((result) => {
                 if (result.isConfirmed) {
                     // Hapus semua resep setelah checkout
