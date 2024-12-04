@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .forms import ReviewForm
 from product.models import DrugEntry as Produk
 from authentication.models import User
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 from .models import Produk, Review
 from django.db.models import Avg
@@ -35,18 +35,15 @@ def reviews(request, product_id=None):
     product = get_object_or_404(Produk, id=product_id) if product_id else None
     all_reviews = Review.objects.filter(product=product) if product else Review.objects.none()
     
-    # Get filters from the request
     selected_rating = request.GET.get('rating')
     search_query = request.GET.get('search', '')
 
     if product:
         reviews = Review.objects.filter(product=product)
         
-        # Filter by rating
         if selected_rating:
             reviews = reviews.filter(rating=selected_rating)
         
-        # Search by user
         if search_query:
             reviews = [
                 review for review in reviews 
@@ -66,3 +63,21 @@ def reviews(request, product_id=None):
         'search_query': search_query
     }
     return render(request, 'reviews.html', context)
+
+
+def reviews_json(request, product_id):
+    product = get_object_or_404(Produk, id=product_id)
+    reviews = Review.objects.filter(product=product)
+    reviews_data = [
+        {
+            "id": review.id,
+            "user": review.user.id,
+            "username": review.user.nama,
+            "product": review.product.id,
+            "rating": review.rating,
+            "comment": review.comment,
+            "date_created": review.date_created,
+        }
+        for review in reviews
+    ]
+    return JsonResponse(reviews_data, safe=False)

@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-w@j*4!(w=a)xxe4#o&4m+4p3uf-kbco8422_$fh&$ybjde#8*9
 PRODUCTION = os.getenv("PRODUCTION", False)
 DEBUG = not PRODUCTION
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1", "m-arvin-sobat.pbp.cs.ui.ac.id"]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "m-arvin-sobat.pbp.cs.ui.ac.id", "10.0.2.2"]
 
 # Application definition
 
@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'product',
     'shop.apps.ShopConfig',
     'resep',
+    'corsheaders',
     'django.contrib.humanize',
     
 ]
@@ -59,7 +60,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
+    'corsheaders.middleware.CorsMiddleware'
 ]
 
 ROOT_URLCONF = 'sobat.urls'
