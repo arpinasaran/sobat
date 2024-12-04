@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'resep',
     'corsheaders',
     'django.contrib.humanize',
+    
 ]
 
 MIDDLEWARE = [
