@@ -1,4 +1,6 @@
+import json
 from django.shortcuts import render, redirect, get_object_or_404,reverse
+from daftar_favorit.forms import FavoriteForm
 from daftar_favorit.models import Favorite
 from product.models import DrugEntry
 from django.http import HttpResponse
@@ -25,9 +27,7 @@ def show_favorite(request):
     }
     return render(request,'favorite.html',context)
 
-def show_json(request):
-    data = Favorite.objects.filter(user=request.user)
-    return HttpResponse(serializers.serialize("json", data), content_type="application/json")
+
 
 
 def show_json_by_id(request, id):
@@ -73,4 +73,25 @@ def check_favorite_status(request, product_id):
         'is_favorite': is_favorite
     })
     
+    
+def show_json(request):
+    data = Favorite.objects.filter(user=request.user)
+    return HttpResponse(serializers.serialize("json", data), content_type="application/json")
+
+
+@login_required
+def edit_favorit(request, favorite_id):
+    if request.method == "POST":
+        # Ambil objek Favorite berdasarkan UUID
+        favorite = get_object_or_404(Favorite, id=favorite_id, user=request.user)
         
+        # Jika form menggunakan data JSON
+        form = FavoriteForm(request.POST, instance=favorite)
+        
+        if form.is_valid():
+            form.save()  # Simpan perubahan ke database
+            return JsonResponse({"status": "success", "message": "Favorite updated successfully."}, status=200)
+        else:
+            return JsonResponse({"status": "error", "message": "Form is not valid.", "errors": form.errors}, status=400)
+    else:
+        return JsonResponse({"status": "error", "message": "Only POST requests are allowed."}, status=405)
