@@ -7,6 +7,7 @@ app_name = 'daftar_favorite'
 urlpatterns = [
     path('', views.show_favorite, name='show_favorite'),
     path('add/<uuid:product_id>/', views.add_to_favorites, name='add_to_favorite'),
+    path('edit/<uuid:favorite_id>/', views.edit_favorit, name='edit_favorite'),
     path('delete/<uuid:product_id>/', views.delete_favorite, name='delete_favorite'),
     path('json/', views.show_json, name='show_json'),
     path('', include('main.urls')),
