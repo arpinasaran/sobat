@@ -47,7 +47,7 @@ Aplikasi ini memberikan solusi lengkap untuk masyarakat Solo dan pengunjung kota
 
 ## Modul Aplikasi
 
-### 1. **Modul Autentikasi**
+### 1. **Modul Autentikasi** 
 Modul ini menangani proses autentikasi pengguna, termasuk login, registrasi, dan manajemen akun. Pengguna yang sudah terdaftar dapat login dengan kredensial mereka, sementara pengguna baru dapat membuat akun. Fitur utama:
 - **Login**: Verifikasi identitas pengguna.
 - **Registrasi**: Pendaftaran akun baru.

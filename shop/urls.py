@@ -11,6 +11,6 @@ urlpatterns = [
     path('<uuid:shop_id>/catalog/', views.shop_catalog, name='catalog'),
     path('<uuid:shop_id>/catalog/<str:category>/', views.shop_catalog, name='catalog_category'),
     path('<uuid:shop_id>/edit/', views.edit_profile, name='edit_profile'),
-    path('<uuid:shop_id>/manage-products/', views.manage_products, name='manage_products'),  # Updated this line
+    path('<uuid:shop_id>/manage-products/', views.manage_products, name='manage_products'),
     path('<uuid:shop_id>/product/<uuid:product_id>/delete/', views.delete_product, name='delete_product'),
 ]
