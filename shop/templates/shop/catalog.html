@@ -1,6 +1,12 @@
 {% extends 'base.html' %}
 {% load static %}
-
+{% block meta %}
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.7/dist/purify.min.js"></script>
+<head>
+    <title>Shop Catalog</title>
+    <link rel="icon" href="{% static 'logo/icon-no-bg.png' %}" type="image/png">
+</head>
+{% endblock meta %}
 {% block content %}
 {% include 'navbar.html' %}
 <div class="pt-16"> {# Add top padding to account for fixed navbar #}
