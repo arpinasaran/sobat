@@ -7,6 +7,7 @@ from django.http import HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 from .models import Review
 from django.db.models import Avg
+from django.views.decorators.csrf import csrf_exempt
 
 def create_review(request, product_id=None):
     product = get_object_or_404(Produk, id=product_id) if product_id else None
@@ -83,6 +84,7 @@ def reviews_json(request, product_id):
     ]
     return JsonResponse(reviews_data, safe=False)
 
+@csrf_exempt
 def create_review_flutter(request, product_id):
     if request.method == 'POST':
         try:
