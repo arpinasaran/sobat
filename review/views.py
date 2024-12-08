@@ -104,3 +104,35 @@ def create_review_flutter(request, product_id):
             return JsonResponse({"status": "error"}, status=400)
     else:
         return JsonResponse({"status": "error"}, status=405)
+
+@csrf_exempt
+def edit_review_flutter(request, review_id, product_id):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            review = Review.objects.get(id=review_id)
+            review.rating = int(data["rating"])
+            review.comment = data["comment"]
+            review.save()
+
+            return JsonResponse({"status": "success"}, status=200)
+        except Review.DoesNotExist:
+            return JsonResponse({"status": "error"}, status=404)
+        except Exception as e:
+            return JsonResponse({"status": "error"}, status=400)
+    else:
+        return JsonResponse({"status": "error"}, status=405)
+
+@csrf_exempt
+def delete_review_flutter(request, review_id, product_id):
+    if request.method == 'POST':
+        try:
+            review = Review.objects.get(id=review_id)
+            review.delete()
+            return JsonResponse({"status": "success"}, status=200)
+        except Review.DoesNotExist:
+            return JsonResponse({"status": "error"}, status=404)
+        except Exception as e:
+            return JsonResponse({"status": "error"}, status=400)
+    else:
+        return JsonResponse({"status": "error"}, status=405)

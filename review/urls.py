@@ -11,5 +11,7 @@ urlpatterns = [
     path('<str:product_id>/<str:review_id>/delete/', delete_review, name='delete_review'),
     path('<str:product_id>/json/', reviews_json, name='reviews_json'),
     path('<str:product_id>/json/', reviews_json, name='reviews_json'),
-    path('<str:product_id>/create-flutter/', create_review_flutter, name='create_product_flutter'),
+    path('<str:product_id>/create-flutter/', create_review_flutter, name='create_review_flutter'),
+    path('<str:product_id>/<str:review_id>/edit-flutter/', edit_review_flutter, name='edit_review_flutter'),
+    path('<str:product_id>/<str:review_id>/delete-flutter/', delete_review_flutter, name='delete_review_flutter'),
 ]
