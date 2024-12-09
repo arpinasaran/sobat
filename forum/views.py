@@ -59,6 +59,21 @@ def add_question_ajax(request, id):
     return HttpResponseNotFound()
 
 @csrf_exempt
+def add_question_flutter(request):
+    if request.method == 'POST':
+
+        data = json.loads(request.body)
+        new_mood = MoodEntry.objects.create(
+            user=request.user,
+        )
+
+        new_mood.save()
+
+        return JsonResponse({"status": "success"}, status=200)
+    else:
+        return JsonResponse({"status": "error"}, status=401)
+
+@csrf_exempt
 @login_required(login_url='/login')
 def answer_question(request, questionId, productId):
     form = AnswerForm(request.POST or None)
