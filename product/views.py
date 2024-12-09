@@ -53,6 +53,24 @@ def create_drug_ajax(request):
     return HttpResponse(b"CREATED", status=201)
 
 @csrf_exempt
+def create_drug_flutter(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        new_drug = DrugEntry.objects.create(
+            name=data["name"],
+            desc=data["desc"],
+            category=data["category"],
+            drug_type=data["drug_type"],
+            drug_form=data["drug_form"],
+            price=int(data["price"]),
+            image=["image"]
+        )
+        new_drug.save()
+        return JsonResponse({"status": "success"}, status=200)
+    else:
+        return JsonResponse({"status": "error"}, status=401)
+
+@csrf_exempt
 @require_POST
 def edit_drug_ajax(request, id):
     # Mendapatkan entri berdasarkan ID
@@ -131,3 +149,4 @@ def update(request):
             product.shops.add(shop)
 
     return HttpResponse("Updated all shop-product relationships successfully.")
+
