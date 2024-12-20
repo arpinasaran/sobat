@@ -1,4 +1,5 @@
 #views.py
+import json
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -9,6 +10,20 @@ from .models import ShopProfile, ShopProduct
 from .forms import ShopProfileForm, ManageProductForm
 from product.models import DrugEntry
 from collections import defaultdict
+
+from django.http import HttpResponse
+from django.http import JsonResponse
+from django.core import serializers
+
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+
+from django.views.decorators.csrf import csrf_exempt
+
+import base64
+from django.core.files.base import ContentFile
+from datetime import datetime
+from django.conf import settings
 
 def shop_list(request):
     shops = ShopProfile.objects.all().order_by('-created_at')
@@ -166,3 +181,105 @@ def delete_shop(request, shop_id):
     if request.method == 'POST':
         shop.delete()
         return redirect('shop:list')
+
+@csrf_exempt
+def show_json(request):
+    try:
+        shops = ShopProfile.objects.all()
+        data = json.loads(serializers.serialize("json", shops))
+        
+        # Add full URL to profile images
+        for item in data:
+            if item['fields']['profile_image']:
+                item['fields']['profile_image'] = request.build_absolute_uri(
+                    settings.MEDIA_URL + item['fields']['profile_image']
+                )
+        
+        # Create response with the modified data
+        response = JsonResponse(data, safe=False)
+        
+        # Add CORS headers
+        response["Access-Control-Allow-Origin"] = "*"
+        response["Access-Control-Allow-Methods"] = "GET, OPTIONS"
+        response["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
+        
+        return response
+    except Exception as e:
+        print(f"Error in show_json: {str(e)}")
+        return JsonResponse({"error": str(e)}, status=500)
+    
+def show_json_by_id(request, id):
+    try:
+        shop = get_object_or_404(ShopProfile, id=id)
+        return HttpResponse(serializers.serialize("json", [shop]), 
+                          content_type="application/json")
+    except (ValueError, TypeError):
+        return JsonResponse({
+            "error": "Invalid shop ID format"
+        }, status=400)
+    
+@csrf_exempt
+@login_required
+def create_shop_flutter(request):
+    if request.method == 'POST':
+        try:
+            # Validasi apakah user adalah apoteker
+            if not request.user.groups.filter(name='Apoteker').exists():
+                return JsonResponse({
+                    "status": "error",
+                    "message": "Only apoteker can add a shop."
+                }, status=403)
+
+            # Ambil data dari request
+            name = request.POST.get('name', 'Unnamed Shop')
+            address = request.POST.get('address', 'No Address Provided')
+            opening_time = request.POST.get('opening_time', '00:00')
+            closing_time = request.POST.get('closing_time', '23:59')
+
+            # Validasi waktu
+            def validate_time_format(time_str):
+                try:
+                    datetime.strptime(time_str, '%H:%M')
+                    return time_str
+                except ValueError:
+                    raise ValueError("Invalid time format. Use HH:MM.")
+
+            opening_time = validate_time_format(opening_time)
+            closing_time = validate_time_format(closing_time)
+
+            # Buat toko baru
+            new_shop = ShopProfile.objects.create(
+                name=name,
+                address=address,
+                opening_time=opening_time,
+                closing_time=closing_time,
+                owner=request.user,  # owner otomatis dari user login
+            )
+
+            return JsonResponse({
+                "status": "success",
+                "data": {
+                    "name": new_shop.name,
+                    "address": new_shop.address,
+                    "opening_time": str(new_shop.opening_time),
+                    "closing_time": str(new_shop.closing_time),
+                }
+            }, status=201)
+
+        except ValueError as e:
+            return JsonResponse({
+                "status": "error",
+                "message": str(e)
+            }, status=400)
+
+        except Exception as e:
+            return JsonResponse({
+                "status": "error",
+                "message": f"Unexpected error: {str(e)}"
+            }, status=500)
+
+@login_required
+def get_user_role(request):
+    return JsonResponse({
+        'role': 'apoteker' if request.user.groups.filter(name='Apoteker').exists() else 'user'
+    })
