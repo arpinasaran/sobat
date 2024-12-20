@@ -7,6 +7,7 @@ from forum.models import Question, Answer
 from django.core import serializers
 from forum.forms import QuestionForm, AnswerForm
 from product.models import DrugEntry
+import json
 
 @login_required(login_url='/login')
 def show_forum(request):
@@ -57,6 +58,24 @@ def add_question_ajax(request, id):
         return HttpResponse(b"CREATED", status=201)
 
     return HttpResponseNotFound()
+
+@csrf_exempt
+def add_question_flutter(request):
+    if request.method == 'POST':
+
+        data = json.loads(request.body)
+        new_question = Question.objects.create(
+            user=request.user,
+            drug_asked=None,
+            question_title="ambas",
+            question="onyong",
+        )
+
+        new_question.save()
+
+        return JsonResponse({"status": "success"}, status=200)
+    else:
+        return JsonResponse({"status": "error"}, status=401)
 
 @csrf_exempt
 @login_required(login_url='/login')
@@ -140,7 +159,7 @@ def show_json_question(request):
                 "user": question.user.id,  # Include user ID
                 "username": question.user.username,  # Include username
                 "role": question.user.role,
-                "drug_asked": str(question.drug_asked.id) if question.drug_asked else None,
+                "drug_asked": str(question.drug_asked.id) if question.drug_asked else "",
                 "question_title": question.question_title,
                 "question": question.question,
                 "likes": list(question.likes.values_list('id', flat=True)),
@@ -160,7 +179,7 @@ def show_json_answer(request, id):
         answer_data = {
             "pk": str(answer.id),
             "fields": {
-                "user": answer.user.id,  # Include user ID
+                "user": request.user.id,  # Include user ID
                 "username": answer.user.username,  # Include username
                 "role": answer.user.role,
                 "drug_ans": str(answer.drug_ans.id) if answer.drug_ans else None,
