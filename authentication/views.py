@@ -89,16 +89,15 @@ def register_mobile(request):
 
 @csrf_exempt
 def login_mobile(request):
-    nama = request.POST['nama']
     username = request.POST['username']
     password = request.POST['password']
-    role = request.POST['role']
-    user = authenticate(nama=nama, username=username, password=password, role=role)
+    user = authenticate(username=username, password=password)
     if user is not None:
         if user.is_active:
             login(request, user)
             # Status login sukses.
             return JsonResponse({
+                "id": user.id,
                 "nama": user.nama,
                 "username": user.username,
                 "role": user.role,
