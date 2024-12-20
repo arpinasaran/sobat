@@ -86,155 +86,176 @@
   });
 
   async function refreshCards(questions = null) {
-    const questionsCardContainer = document.getElementById("question_cards");
+      const questionsCardContainer = document.getElementById("question_cards");
+      questionsCardContainer.innerHTML = "";
 
-    questionsCardContainer.innerHTML = "";
+      if (!questions) {
+          questions = await getQuestions();
+      }
 
-    if (!questions) {
-      questions = await getQuestions();
-    }
-
-    // Check if products array is empty
-    if (questions.length === 0) {
-          const noProductsMessage = document.createElement("div");
-          noProductsMessage.className = "text-center text-gray-700 mt-4"; // Styling for the message
-          noProductsMessage.innerHTML = `<p>No products found matching your search.</p>`;
-          questionsCardContainer.appendChild(noProductsMessage);
+      // Check if questions array is empty
+      if (questions.length === 0) {
+          const noQuestionsMessage = document.createElement("div");
+          noQuestionsMessage.className = "text-center text-gray-700 mt-4";
+          noQuestionsMessage.innerHTML = `<p>No questions found matching your search.</p>`;
+          questionsCardContainer.appendChild(noQuestionsMessage);
           return;
       }
 
-    // Sort questions by likes in ascending order
-    questions.sort((a, b) => b.fields.num_likes - a.fields.num_likes);
+      const currentUserPk = parseInt("{{ user_pk }}");
 
-    const currentUserPk = parseInt("{{ user_pk }}");
+      for (const question of questions) {
+          let product = null;
+          if (question.fields.drug_asked) {
+              const products = await getProductById(question.fields.drug_asked);
+              product = products[0];
+          }
 
-    for (const question of questions) {
-        const questionContent = document.createElement("div");
-        questionContent.className = "container py-2";
+          const questionContent = document.createElement("div");
+          questionContent.className = "container py-2";
+          questionContent.setAttribute('data-question-id', question.pk);
 
-        // Check if drug_asked is not null, then get product information
-        let product = null;
-        if (question.fields.drug_asked) {
-            const products = await getProductById(question.fields.drug_asked);
-            product = products[0]; // Check if product exists
-        }
+          questionContent.innerHTML = `
+              ${question.fields.role == "apoteker" ? 
+                  `<div class="bg-green-100 shadow-lg rounded-lg border border-green-700 p-4 transition-transform hover:scale-105 duration-300 ease-in-out card max-w-sm mx-auto" style="max-width: 600px;">` : 
+                  `<div class="shadow-lg rounded-lg border border-green-700 p-4 transition-transform hover:scale-105 duration-300 ease-in-out card max-w-sm mx-auto" style="max-width: 600px;">`}
+                  ${product
+                      ? `<div class="grid grid-cols-[8rem_auto] gap-6">
+                          <!-- First Column: Image and Product Name -->
+                          <div class="flex flex-col items-center">
+                              <img class="w-28 h-28 object-cover rounded-lg shadow-md border border-green-500 mb-2" 
+                                  src="/media/${product.fields.image}" alt="${product.fields.name}" />
+                              <p class="text-xs font-bold text-green-700 text-center">${product.fields.name}</p>
+                          </div>
+                          <!-- Second Column: Question Title and Question Text -->
+                          <div class="text-left">
+                              <div class="flex items-center space-x-2 mb-1">
+                                  <p class="text-xs text-gray-600">By ${question.fields.username}</p>
+                                  ${question.fields.role == "apoteker" ? 
+                                      `<p class="text-xs border border-green-900 bg-green-100 text-green-800 px-2 py-1 rounded-full">Apoteker</p>` : 
+                                      ``}
+                              </div>
+                              <p class="text-base font-bold text-green-900 mt-1">
+                                  ${question.fields.question_title}
+                              </p>
+                              <p class="text-xs text-gray-700 mt-1">
+                                  ${question.fields.question}
+                              </p>
+                          </div>
+                      </div>`
+                      : `<div class="text-left mx-4">
+                          <div class="flex items-center space-x-2 mb-1">
+                              <p class="text-xs text-gray-600">By ${question.fields.username}</p>
+                              ${question.fields.role == "apoteker" ? 
+                                  `<p class="text-xs border border-green-900 bg-green-100 text-green-800 px-2 py-1 rounded-full">Apoteker</p>` : 
+                                  ``}
+                          </div>
+                          <p class="text-base font-bold text-green-900 mt-1">
+                              ${question.fields.question_title}
+                          </p>
+                          <p class="text-xs text-gray-700 mt-1">
+                              ${question.fields.question}
+                          </p>
+                      </div>`}
 
-        const isLiked = question.fields.likes.includes(currentUserPk);
+                  <!-- Buttons for Likes, Answers, and Delete -->
+                  <div class="mt-4 flex items-center">
+                      <button type="button" class="flex items-center like-button" onclick="likeQuestion('${question.pk}')">
+                          ${question.fields.likes.includes(currentUserPk)
+                              ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="red" class="w-5 h-5">
+                                  <path d="m11.645 20.91-.007-.003-.022-.012a15.247 15.247 0 0 1-.383-.218 25.18 25.18 0 0 1-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0 1 12 5.052 5.5 5.5 0 0 1 16.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 0 1-4.244 3.17 15.247 15.247 0 0 1-.383.219l-.022.012-.007.004-.003.001a.752.752 0 0 1-.704 0l-.003-.001Z" />
+                                </svg>`
+                              : `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="red" class="w-5 h-5">
+                                  <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
+                                </svg>`}
+                      </button>
+                      <p class="mx-2 text-gray-700 like-count">${question.fields.num_likes}</p>
 
-        console.log(question.fields.answers);
+                      <a href="/forum/show_answers/${question.pk}/" class="flex items-center">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="grey" viewBox="0 0 24 24">
+                              <path d="M3 12c0 4.418 4.03 8 9 8 1.613 0 3.13-.389 4.456-1.074L21 21l-1.467-4.423A7.958 7.958 0 0 0 21 12c0-4.418-4.03-8-9-8s-9 3.582-9 8Zm4.25-.75h9.5a.75.75 0 1 1 0 1.5h-9.5a.75.75 0 1 1 0-1.5Zm4 4h5.5a.75.75 0 1 1 0 1.5h-5.5a.75.75 0 1 1 0-1.5Zm5.5-7h-7.5a.75.75 0 1 1 0-1.5h7.5a.75.75 0 1 1 0 1.5Z"/>
+                          </svg>
+                          <p class="ml-1 text-gray-700">${question.fields.num_answer}</p>
+                      </a>
 
-        // Conditional HTML rendering based on whether `product` exists
-        questionContent.innerHTML = `
-            ${question.fields.role == "apoteker" ? `<div class="bg-green-100 shadow-lg rounded-lg border border-green-700 p-4 transition-transform hover:scale-105 duration-300 ease-in-out card max-w-sm mx-auto" style="max-width: 600px;">` : `
-          <div class="shadow-lg rounded-lg border border-green-700 p-4 transition-transform hover:scale-105 duration-300 ease-in-out card max-w-sm mx-auto" style="max-width: 600px;">`}
-              ${product
-                ? `<div class="grid grid-cols-[8rem_auto] gap-6">
-                    <!-- First Column: Image and Product Name -->
-                    <div class="flex flex-col items-center">
-                        <img class="w-28 h-28 object-cover rounded-lg shadow-md border border-green-500 mb-2" 
-                            src="/media/${product.fields.image}" alt="${product.fields.name}" />
-                        <p class="text-xs font-bold text-green-700 text-center">${product.fields.name}</p>
-                    </div>
-                    <!-- Second Column: Question Title and Question Text -->
-                    <div class="text-left">
-                        <div class="flex items-center space-x-2 mb-1">
-                          <p class="text-xs text-gray-600">By ${question.fields.username}</p>
-                          ${question.fields.role == "apoteker" ? `<p class="text-xs border border-green-900 bg-green-100 text-green-800 px-2 py-1 rounded-full">Apoteker</p>` : ``}
-                        </div>
-                        <p class="text-base font-bold text-green-900 mt-1">
-                            ${question.fields.question_title}
-                        </p>
-                        <p class="text-xs text-gray-700 mt-1">
-                            ${question.fields.question}
-                        </p>
-                    </div>
-                  </div>`
-                : `<div class="text-left mx-4">
-                    <div class="flex items-center space-x-2 mb-1">
-                      <p class="text-xs text-gray-600">By ${question.fields.username}</p>
-                      ${question.fields.role == "apoteker" ? `<p class="text-xs border border-green-900 bg-green-100 text-green-800 px-2 py-1 rounded-full">Apoteker</p>` : ``}
-                    </div>
-                    <p class="text-base font-bold text-green-900 mt-1">
-                        ${question.fields.question_title}
-                    </p>
-                    <p class="text-xs text-gray-700 mt-1">
-                        ${question.fields.question}
-                    </p>
-                  </div>`}
-
-              <!-- Buttons for Likes, Answers, and Delete -->
-              <div class="mt-4 flex items-center">
-                  <button type="submit" onclick="likeQuestion('${question.pk}');" class="flex items-center">
-                      ${isLiked
-                          ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="red" class="w-5 h-5">
-                              <path d="m11.645 20.91-.007-.003-.022-.012a15.247 15.247 0 0 1-.383-.218 25.18 25.18 0 0 1-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0 1 12 5.052 5.5 5.5 0 0 1 16.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 0 1-4.244 3.17 15.247 15.247 0 0 1-.383.219l-.022.012-.007.004-.003.001a.752.752 0 0 1-.704 0l-.003-.001Z" />
-                            </svg>`
-                          : `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="red" class="w-5 h-5">
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
-                            </svg>`
-                      }
-                  </button>
-                  <p class="mx-2 text-gray-700">${question.fields.num_likes}</p>
-
-                  <a href="/forum/show_answers/${question.pk}/" class="flex items-center">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="grey" viewBox="0 0 24 24">
-                          <path d="M3 12c0 4.418 4.03 8 9 8 1.613 0 3.13-.389 4.456-1.074L21 21l-1.467-4.423A7.958 7.958 0 0 0 21 12c0-4.418-4.03-8-9-8s-9 3.582-9 8Zm4.25-.75h9.5a.75.75 0 1 1 0 1.5h-9.5a.75.75 0 1 1 0-1.5Zm4 4h5.5a.75.75 0 1 1 0 1.5h-5.5a.75.75 0 1 1 0-1.5Zm5.5-7h-7.5a.75.75 0 1 1 0-1.5h7.5a.75.75 0 1 1 0 1.5Z"/>
-                      </svg>
-                      <p class="ml-1 text-gray-700">${question.fields.num_answer}</p>
-                  </a>
-
-                  <button type="submit" onclick="deleteQuestion('${question.pk}')" class="ml-auto" id="delete-button" style="display: none;">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="black" viewBox="0 0 16 16">
-                          <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6Z"/>
-                          <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1v1ZM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118ZM2.5 3h11V2h-11v1Z"/>
-                      </svg>
-                  </button>
+                      ${question.fields.user === currentUserPk ? 
+                          `<button type="button" onclick="deleteQuestion('${question.pk}')" class="ml-auto delete-button">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="black" viewBox="0 0 16 16">
+                                  <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6Z"/>
+                                  <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1v1ZM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118ZM2.5 3h11V2h-11v1Z"/>
+                              </svg>
+                          </button>` : 
+                          ''}
+                  </div>
               </div>
-            </div>
           `;
 
-
-        const deleteButton = questionContent.querySelector("#delete-button");
-        if (question.fields.user === currentUserPk) {
-            deleteButton.style.display = "block"; // Show the button
-        } else {
-            deleteButton.style.display = "none"; // Hide the button
-        }
-
-        // Append the question content to the container
-        questionsCardContainer.appendChild(questionContent);
-    }
-}
-
-
+          // Append the question content to the container
+          questionsCardContainer.appendChild(questionContent);
+      }
+  }
 
   refreshCards();
 
-  function likeQuestion(questionId) {
-    const scrollPosition = window.scrollY;
+  async function likeQuestion(questionId) {
+      try {
+          const response = await fetch(`/forum/like_question/${questionId}/`, {
+              method: "POST"
+          });
+          const data = await response.json();
+          
+          const questionCard = document.querySelector(`[data-question-id="${questionId}"]`);
+          if (!questionCard) return;
+          
+          const likeButton = questionCard.querySelector('.like-button');
+          const likeCount = questionCard.querySelector('.like-count');
 
-    fetch(`/forum/like_question/${questionId}/`, {
-        method: "POST"
-    }).then(() => {
-        // Refresh the cards after liking the question
-        refreshCards().then(() => {
-            window.scrollTo(0, scrollPosition);
-        });
-    });
+          likeCount.textContent = data.like_count;
+          
+          if (data.is_liked) {
+              likeButton.innerHTML = `
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="red" class="w-5 h-5">
+                      <path d="m11.645 20.91-.007-.003-.022-.012a15.247 15.247 0 0 1-.383-.218 25.18 25.18 0 0 1-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0 1 12 5.052 5.5 5.5 0 0 1 16.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 0 1-4.244 3.17 15.247 15.247 0 0 1-.383.219l-.022.012-.007.004-.003.001a.752.752 0 0 1-.704 0l-.003-.001Z" />
+                  </svg>`;
+          } else {
+              likeButton.innerHTML = `
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="red" class="w-5 h-5">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
+                  </svg>`;
+          }
+      } catch (error) {
+          console.error('Error updating like:', error);
+      }
   }
 
-
-  function deleteQuestion(questionId) {
-    const scrollPosition = window.scrollY;
-    
-    fetch(`/forum/delete_question/${questionId}/`, {
-        method: "DELETE"
-    }).then(() => {
-        // Refresh the cards after liking the question
-        refreshCards().then(() => {
-            window.scrollTo(0, scrollPosition);
-        });
-    });
+  async function deleteQuestion(questionId) {
+      if (!confirm('Are you sure you want to delete this question?')) {
+          return;
+      }
+      
+      try {
+          const response = await fetch(`/forum/delete_question/${questionId}/`, {
+              method: "DELETE"
+          });
+          
+          if (response.ok) {
+              const questionCard = document.querySelector(`[data-question-id="${questionId}"]`);
+              if (questionCard) {
+                  questionCard.style.transition = 'all 0.3s ease';
+                  questionCard.style.opacity = '0';
+                  questionCard.style.transform = 'scale(0.95)';
+                  
+                  setTimeout(() => {
+                      questionCard.remove();
+                  }, 300);
+              }
+          } else {
+              throw new Error('Failed to delete question');
+          }
+      } catch (error) {
+          console.error('Error deleting question:', error);
+          alert('Failed to delete question. Please try again.');
+      }
   }
 </script>
 {% endblock content %}

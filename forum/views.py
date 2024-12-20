@@ -105,13 +105,21 @@ def answer_question(request, questionId, productId):
 @login_required(login_url='/login')
 def like_question(request, id):
     if request.method == 'POST':
-        question = get_object_or_404(Question, pk=id)
-        if question.likes.filter(id=request.user.id).exists():
-            question.likes.remove(request.user) #unlike
+        question = Question.objects.get(pk=id)
+        user = request.user
+        
+        if user in question.likes.all():
+            question.likes.remove(user)
+            is_liked = False
         else:
-            question.likes.add(request.user) #like
-        return JsonResponse({"status": "success", "liked": not question.likes.filter(id=request.user.id).exists()})
-    return JsonResponse({"status": "failed"}, status=400)
+            question.likes.add(user)
+            is_liked = True
+            
+        return JsonResponse({
+            'status': 'success',
+            'like_count': question.likes.count(),
+            'is_liked': is_liked
+        })
 
 @csrf_exempt
 @login_required(login_url='/login')
@@ -127,13 +135,21 @@ def delete_question(request, id):
 @login_required(login_url='/login')
 def like_answer(request, id):
     if request.method == 'POST':
-        answer = get_object_or_404(Answer, pk=id)
-        if answer.likes.filter(id=request.user.id).exists():
-            answer.likes.remove(request.user) #unlike
+        answer = Answer.objects.get(pk=id)
+        user = request.user
+        
+        if user in answer.likes.all():
+            answer.likes.remove(user)
+            is_liked = False
         else:
-            answer.likes.add(request.user) #like
-        return JsonResponse({"status": "success", "liked": not answer.likes.filter(id=request.user.id).exists()})
-    return JsonResponse({"status": "failed"}, status=400)
+            answer.likes.add(user)
+            is_liked = True
+            
+        return JsonResponse({
+            'status': 'success',
+            'like_count': answer.likes.count(),
+            'is_liked': is_liked
+        })
 
 @csrf_exempt
 @login_required(login_url='/login')
