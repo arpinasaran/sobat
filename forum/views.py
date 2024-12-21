@@ -60,15 +60,18 @@ def add_question_ajax(request, id):
     return HttpResponseNotFound()
 
 @csrf_exempt
-def add_question_flutter(request):
+def add_question_flutter(request, id):
     if request.method == 'POST':
 
         data = json.loads(request.body)
+        chosen_product = None
+        if id != "-1":
+            chosen_product = DrugEntry.objects.get(pk=id)
         new_question = Question.objects.create(
             user=request.user,
-            drug_asked=None,
-            question_title="ambas",
-            question="onyong",
+            drug_asked=chosen_product,
+            question_title=data["question_title"],
+            question=data["question"],
         )
 
         new_question.save()
@@ -130,6 +133,16 @@ def delete_question(request, id):
         return HttpResponse(b"DELETED", status=200)
     
     return HttpResponseNotFound()
+
+@csrf_exempt
+@login_required(login_url='/login')
+def delete_question_flutter(request, id):
+    if request.method == 'POST':
+        question = Question.objects.get(pk=id)
+        question.delete()
+        return JsonResponse({
+            'status': 'success',
+        })
 
 @csrf_exempt
 @login_required(login_url='/login')
