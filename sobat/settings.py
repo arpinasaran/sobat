@@ -152,7 +152,14 @@ SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SAMESITE = 'None'
 SESSION_COOKIE_SAMESITE = 'None'
 
+CSRF_TRUSTED_ORIGIN = [
+    'http://localhost:57098',
+    'http://127.0.0.1:57098',
+    'http://m-arvin-sobat.pbp.cs.ui.ac.id', 
+]
+
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:57098',
     'http://127.0.0.1:57098',
+    'http://m-arvin-sobat.pbp.cs.ui.ac.id',
 ]
