@@ -17,7 +17,7 @@ urlpatterns = [
     path('check-status/<uuid:product_id>/', views.check_favorite_status, name='check_favorite_status'),
     path('get-csrf-token/', views.get_csrf_token, name='get_csrf_token'),
     path('api/<uuid:product_id>/', views.favorite_by_id, name='favorites_json'),
-    
+    path('api/edit/<uuid:favorite_id>/', views.edit_favorit_flutter, name='edit_favorite_flutter'),
     path('api/add/<uuid:product_id>/', views.add_favorite_flutter, name='add_favorite_flutter'),
 ]
     

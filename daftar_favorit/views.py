@@ -120,9 +120,7 @@ def get_csrf_token(request):
 
 @csrf_exempt 
 def favorite_by_id(request,product_id):
-    if not request.user.is_authenticated:
-        # Return a 403 Forbidden response for unauthenticated users
-        return HttpResponseForbidden('User is not authenticated')
+    
 
     if request.method == "DELETE":
         try:
@@ -132,42 +130,61 @@ def favorite_by_id(request,product_id):
         except Favorite.DoesNotExist:
             print("Item not found")  # Debugging line
             return HttpResponseNotFound('Item not found')
-    elif request.method == "POST":
-        try:
-            product = get_object_or_404(DrugEntry, id=product_id)
-            favorite, created = Favorite.objects.get_or_create(user=request.user, product=product)
-            if created:
-                return JsonResponse({'status': 'success', 'message': 'Favorite added successfully.'}, status=200)
-            else:
-                return JsonResponse({'status': 'success', 'message': 'Product already in favorites.'}, status=200)
-        except Exception as e:
-            # Print the exception for debugging
-            print(f"Error: {e}")
-            return JsonResponse({'status': 'error', 'message': 'Failed to add favorite.'}, status=500)
+    # elif request.method == "POST":
+    #     try:
+    #         product = get_object_or_404(DrugEntry, id=product_id)
+    #         favorite, created = Favorite.objects.get_or_create(user=request.user, product=product)
+    #         if created:
+    #             return JsonResponse({'status': 'success', 'message': 'Favorite added successfully.'}, status=200)
+    #         else:
+    #             return JsonResponse({'status': 'success', 'message': 'Product already in favorites.'}, status=200)
+    #     except Exception as e:
+    #         # Print the exception for debugging
+    #         print(f"Error: {e}")
+    #         return JsonResponse({'status': 'error', 'message': 'Failed to add favorite.'}, status=500)
     return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=200)
 
-@csrf_exempt
 
+@csrf_exempt
 def add_favorite_flutter(request, product_id):
-   
+    if not request.user.is_authenticated:
+        return JsonResponse({'status': 'error', 'message': 'User not authenticated'}, status=403)
+
     if request.method == "POST":
         try:
-            # Ensure the product exists
+            # Validasi produk berdasarkan ID
             product = get_object_or_404(DrugEntry, id=product_id)
 
-            # Create or fetch the favorite entry for the authenticated user
+            # Tambahkan ke favorit
             favorite, created = Favorite.objects.get_or_create(user=request.user, product=product)
             if created:
                 return JsonResponse({'status': 'success', 'message': 'Favorite added successfully.'}, status=200)
             else:
-                return JsonResponse({'status': 'success', 'message': 'Product already in favorites.'}, status=200)
+                return JsonResponse({'status': 'failed', 'message': 'Product already in favorites.'}, status=200)
 
         except Exception as e:
-            # Log exception for debugging
+            # Log untuk debugging
             print(f"Error in add_favorite_flutter: {e}")
             return JsonResponse({'status': 'error', 'message': 'Failed to add favorite.'}, status=500)
 
     return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=400)
+
+@csrf_exempt
+def edit_favorit_flutter(request, favorite_id):
+    if request.method == "POST":
+        # Ambil objek Favorite berdasarkan UUID
+        favorite = get_object_or_404(Favorite, id=favorite_id, user=request.user)
+        
+        # Jika form menggunakan data JSON
+        form = FavoriteForm(request.POST, instance=favorite)
+        
+        if form.is_valid():
+            form.save()  # Simpan perubahan ke database
+            return JsonResponse({"status": "success", "message": "Favorite updated successfully."}, status=200)
+        else:
+            return JsonResponse({"status": "error", "message": "Form is not valid.", "errors": form.errors}, status=400)
+    else:
+        return JsonResponse({"status": "error", "message": "Only POST requests are allowed."}, status=405)
 
     
         
