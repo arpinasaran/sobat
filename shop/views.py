@@ -24,6 +24,15 @@ import base64
 from django.core.files.base import ContentFile
 from datetime import datetime
 from django.conf import settings
+from .models import ShopProfile
+
+from base64 import b64decode
+from django.core.files.base import ContentFile
+from .models import ShopProfile
+
+from django.contrib.auth.models import User
+import logging
+from django.contrib.sessions.models import Session
 
 def shop_list(request):
     shops = ShopProfile.objects.all().order_by('-created_at')
@@ -223,20 +232,27 @@ def show_json_by_id(request, id):
 def create_shop_flutter(request):
     if request.method == 'POST':
         try:
-            # Validasi apakah user adalah apoteker
-            if not request.user.groups.filter(name='Apoteker').exists():
+            # Ambil data dari request
+            name = request.POST.get('name', '').strip()
+            address = request.POST.get('address', '').strip()
+            opening_time = request.POST.get('opening_time', '').strip()
+            closing_time = request.POST.get('closing_time', '').strip()
+
+            # Log untuk debugging
+            print("Data diterima:", {
+                "name": name,
+                "address": address,
+                "opening_time": opening_time,
+                "closing_time": closing_time,
+            })
+
+            # Validasi input
+            if not name or not address or not opening_time or not closing_time:
                 return JsonResponse({
                     "status": "error",
-                    "message": "Only apoteker can add a shop."
-                }, status=403)
+                    "message": "All fields are required."
+                }, status=400)
 
-            # Ambil data dari request
-            name = request.POST.get('name', 'Unnamed Shop')
-            address = request.POST.get('address', 'No Address Provided')
-            opening_time = request.POST.get('opening_time', '00:00')
-            closing_time = request.POST.get('closing_time', '23:59')
-
-            # Validasi waktu
             def validate_time_format(time_str):
                 try:
                     datetime.strptime(time_str, '%H:%M')
@@ -253,7 +269,7 @@ def create_shop_flutter(request):
                 address=address,
                 opening_time=opening_time,
                 closing_time=closing_time,
-                owner=request.user,  # owner otomatis dari user login
+                owner=request.user,  # Owner adalah user login
             )
 
             return JsonResponse({
@@ -267,19 +283,84 @@ def create_shop_flutter(request):
             }, status=201)
 
         except ValueError as e:
-            return JsonResponse({
-                "status": "error",
-                "message": str(e)
-            }, status=400)
+            return JsonResponse({"status": "error", "message": str(e)}, status=400)
 
         except Exception as e:
             return JsonResponse({
                 "status": "error",
                 "message": f"Unexpected error: {str(e)}"
             }, status=500)
+    return JsonResponse({"status": "error", "message": "Invalid request method."}, status=405)
+
+@csrf_exempt
+def edit_shop_flutter(request, id):
+    if request.method == 'POST':
+        try:
+            # Parse JSON data
+            data = json.loads(request.body)
+            
+            # Fetch shop instance
+            shop = ShopProfile.objects.get(id=id, owner=request.user)
+
+            # Update fields
+            shop.name = data.get('name', shop.name)
+            shop.address = data.get('address', shop.address)
+            shop.opening_time = data.get('opening_time', shop.opening_time)
+            shop.closing_time = data.get('closing_time', shop.closing_time)
+
+            # Save changes
+            shop.save()
+
+            # Return success response
+            response_data = {
+                "status": "success",
+                "message": "Shop profile updated successfully!",
+                "data": {
+                    "name": shop.name,
+                    "address": shop.address,
+                    "opening_time": str(shop.opening_time),
+                    "closing_time": str(shop.closing_time),
+                    "profile_image": shop.profile_image.url if shop.profile_image else None,
+                },
+            }
+            return JsonResponse(response_data)
+
+        except ShopProfile.DoesNotExist:
+            return JsonResponse({"status": "error", "message": "Shop not found."}, status=404)
+
+        except Exception as e:
+            return JsonResponse({"status": "error", "message": f"Unexpected error: {str(e)}"}, status=500)
+
+    return JsonResponse({"status": "error", "message": "Invalid request method."}, status=405)
 
 @login_required
-def get_user_role(request):
+def check_ownership(request, shop_id):
+    try:
+        shop = ShopProfile.objects.get(pk=shop_id)
+        is_owner = shop.owner == request.user
+        return JsonResponse({'is_owner': is_owner})
+    except ShopProfile.DoesNotExist:
+        return JsonResponse({'is_owner': False})
+    
+@login_required
+def get_user(request):
     return JsonResponse({
-        'role': 'apoteker' if request.user.groups.filter(name='Apoteker').exists() else 'user'
+        'id': request.user.id,
+        'username': request.user.username
     })
+
+@csrf_exempt
+def get_user_id_flutter(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({'status': False, 'error': 'user not authenticated'}, status=401)
+    
+    return JsonResponse({'status': True, 'user_id': request.user.id})
+
+@csrf_exempt
+def check_login(request):
+    user_data = {
+        'status': request.user.is_authenticated,
+        'username': request.user.username if request.user.is_authenticated else None,
+        'user_id': request.user.id if request.user.is_authenticated else None
+    }
+    return JsonResponse(user_data)
