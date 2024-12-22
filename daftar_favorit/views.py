@@ -120,8 +120,6 @@ def get_csrf_token(request):
 
 @csrf_exempt 
 def favorite_by_id(request,product_id):
-    
-
     if request.method == "DELETE":
         try:
             favorite_item = Favorite.objects.get(id=product_id)
