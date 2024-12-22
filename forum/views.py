@@ -60,6 +60,7 @@ def add_question_ajax(request, id):
     return HttpResponseNotFound()
 
 @csrf_exempt
+@login_required(login_url='/login')
 def add_question_flutter(request, id):
     if request.method == 'POST':
 
@@ -103,6 +104,32 @@ def answer_question(request, questionId, productId):
         return HttpResponse(b"CREATED", status=201)
 
     return HttpResponseNotFound()
+
+@csrf_exempt
+@login_required(login_url='/login')
+def answer_question_flutter(request, questionId, productId):
+    if request.method == 'POST':
+
+        data = json.loads(request.body)
+        chosen_product = None
+        if productId != "-1":
+            chosen_product = DrugEntry.objects.get(pk=productId)
+        question = Question.objects.get(pk=questionId)
+        new_answer = Answer.objects.create(
+            user=request.user,
+            question=question,
+            answer=data["answer"],
+            drug_ans=chosen_product,
+        )
+
+        new_answer.save()
+
+        question.num_answer += 1  # Increment answer count
+        question.save()
+
+        return JsonResponse({"status": "success"}, status=200)
+    else:
+        return JsonResponse({"status": "error"}, status=401)
 
 @csrf_exempt
 @login_required(login_url='/login')
@@ -177,6 +204,21 @@ def delete_answer(request, id):
     
     return HttpResponseNotFound()
 
+@csrf_exempt
+@login_required(login_url='/login')
+def delete_answer_flutter(request, id):
+    if request.method == 'POST':
+        answer = Answer.objects.get(pk=id)
+        question = answer.question
+        question.num_answer -= 1
+        question.save()
+        answer.delete()
+        return JsonResponse({
+            'status': 'success',
+        })
+
+@csrf_exempt
+@login_required(login_url='/login')
 def show_json_question(request):
     questions = Question.objects.select_related('user').all()  # Use select_related for optimization
     data = []
@@ -200,6 +242,8 @@ def show_json_question(request):
 
     return JsonResponse(data, safe=False)  # Using JsonResponse to return the custom data
 
+@csrf_exempt
+@login_required(login_url='/login')
 def show_json_answer(request, id):
     answers = Answer.objects.filter(question=id)  # Use select_related for optimization
     data = []
@@ -208,10 +252,10 @@ def show_json_answer(request, id):
         answer_data = {
             "pk": str(answer.id),
             "fields": {
-                "user": request.user.id,  # Include user ID
+                "user": answer.user.id,  # Include user ID
                 "username": answer.user.username,  # Include username
                 "role": answer.user.role,
-                "drug_ans": str(answer.drug_ans.id) if answer.drug_ans else None,
+                "drug_ans": str(answer.drug_ans.id) if answer.drug_ans else "",
                 "question": answer.question.pk,
                 "answer": answer.answer,
                 "likes": list(answer.likes.values_list('id', flat=True)),
@@ -222,6 +266,8 @@ def show_json_answer(request, id):
 
     return JsonResponse(data, safe=False)  # Using JsonResponse to return the custom data
 
+@csrf_exempt
+@login_required(login_url='/login')
 def show_json_question_by_id(request, id):
     questions = Question.objects.filter(pk=id)
     data = []
