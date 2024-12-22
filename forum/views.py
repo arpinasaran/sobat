@@ -7,6 +7,7 @@ from forum.models import Question, Answer
 from django.core import serializers
 from forum.forms import QuestionForm, AnswerForm
 from product.models import DrugEntry
+import json
 
 @login_required(login_url='/login')
 def show_forum(request):
@@ -59,6 +60,24 @@ def add_question_ajax(request, id):
     return HttpResponseNotFound()
 
 @csrf_exempt
+def add_question_flutter(request):
+    if request.method == 'POST':
+
+        data = json.loads(request.body)
+        new_question = Question.objects.create(
+            user=request.user,
+            drug_asked=None,
+            question_title="ambas",
+            question="onyong",
+        )
+
+        new_question.save()
+
+        return JsonResponse({"status": "success"}, status=200)
+    else:
+        return JsonResponse({"status": "error"}, status=401)
+
+@csrf_exempt
 @login_required(login_url='/login')
 def answer_question(request, questionId, productId):
     form = AnswerForm(request.POST or None)
@@ -86,13 +105,21 @@ def answer_question(request, questionId, productId):
 @login_required(login_url='/login')
 def like_question(request, id):
     if request.method == 'POST':
-        question = get_object_or_404(Question, pk=id)
-        if question.likes.filter(id=request.user.id).exists():
-            question.likes.remove(request.user) #unlike
+        question = Question.objects.get(pk=id)
+        user = request.user
+        
+        if user in question.likes.all():
+            question.likes.remove(user)
+            is_liked = False
         else:
-            question.likes.add(request.user) #like
-        return JsonResponse({"status": "success", "liked": not question.likes.filter(id=request.user.id).exists()})
-    return JsonResponse({"status": "failed"}, status=400)
+            question.likes.add(user)
+            is_liked = True
+            
+        return JsonResponse({
+            'status': 'success',
+            'like_count': question.likes.count(),
+            'is_liked': is_liked
+        })
 
 @csrf_exempt
 @login_required(login_url='/login')
@@ -108,13 +135,21 @@ def delete_question(request, id):
 @login_required(login_url='/login')
 def like_answer(request, id):
     if request.method == 'POST':
-        answer = get_object_or_404(Answer, pk=id)
-        if answer.likes.filter(id=request.user.id).exists():
-            answer.likes.remove(request.user) #unlike
+        answer = Answer.objects.get(pk=id)
+        user = request.user
+        
+        if user in answer.likes.all():
+            answer.likes.remove(user)
+            is_liked = False
         else:
-            answer.likes.add(request.user) #like
-        return JsonResponse({"status": "success", "liked": not answer.likes.filter(id=request.user.id).exists()})
-    return JsonResponse({"status": "failed"}, status=400)
+            answer.likes.add(user)
+            is_liked = True
+            
+        return JsonResponse({
+            'status': 'success',
+            'like_count': answer.likes.count(),
+            'is_liked': is_liked
+        })
 
 @csrf_exempt
 @login_required(login_url='/login')
@@ -140,7 +175,7 @@ def show_json_question(request):
                 "user": question.user.id,  # Include user ID
                 "username": question.user.username,  # Include username
                 "role": question.user.role,
-                "drug_asked": str(question.drug_asked.id) if question.drug_asked else None,
+                "drug_asked": str(question.drug_asked.id) if question.drug_asked else "",
                 "question_title": question.question_title,
                 "question": question.question,
                 "likes": list(question.likes.values_list('id', flat=True)),
@@ -160,7 +195,7 @@ def show_json_answer(request, id):
         answer_data = {
             "pk": str(answer.id),
             "fields": {
-                "user": answer.user.id,  # Include user ID
+                "user": request.user.id,  # Include user ID
                 "username": answer.user.username,  # Include username
                 "role": answer.user.role,
                 "drug_ans": str(answer.drug_ans.id) if answer.drug_ans else None,
