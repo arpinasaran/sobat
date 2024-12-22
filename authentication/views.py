@@ -10,6 +10,7 @@ from authentication.forms import CreateUserForm
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from authentication.models import User
+from django.contrib.sessions.models import Session
 import json
 
 # Create your views here.
@@ -90,15 +91,20 @@ def register_mobile(request):
 
 @csrf_exempt
 def login_mobile(request):
+    nama = request.POST['nama']
     username = request.POST['username']
     password = request.POST['password']
-    user = authenticate(username=username, password=password)
+    role = request.POST['role']
+    
+    # Autentikasi pengguna
+    user = authenticate(nama=nama, username=username, password=password, role=role)
+    
     if user is not None:
         if user.is_active:
             login(request, user)
             # Status login sukses, termasuk user_id
             return JsonResponse({
-                "id": user.id,
+                "user_id": user.id,  # Menambahkan user_id dalam response
                 "nama": user.nama,
                 "username": user.username,
                 "role": user.role,

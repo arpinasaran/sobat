@@ -293,6 +293,7 @@ def create_shop_flutter(request):
     return JsonResponse({"status": "error", "message": "Invalid request method."}, status=405)
 
 @csrf_exempt
+@login_required
 def edit_shop_flutter(request, id):
     if request.method == 'POST':
         try:
@@ -302,11 +303,24 @@ def edit_shop_flutter(request, id):
             # Fetch shop instance
             shop = ShopProfile.objects.get(id=id, owner=request.user)
 
-            # Update fields
-            shop.name = data.get('name', shop.name)
-            shop.address = data.get('address', shop.address)
-            shop.opening_time = data.get('opening_time', shop.opening_time)
-            shop.closing_time = data.get('closing_time', shop.closing_time)
+            # Log for debugging
+            print("Edit Data Received:", data)
+
+            # Validate time format
+            def validate_time_format(time_str):
+                try:
+                    datetime.strptime(time_str, '%H:%M')
+                    return time_str
+                except ValueError:
+                    raise ValueError("Invalid time format. Use HH:MM.")
+
+            # Update fields if provided
+            shop.name = data.get('name', shop.name).strip()
+            shop.address = data.get('address', shop.address).strip()
+            if 'opening_time' in data:
+                shop.opening_time = validate_time_format(data['opening_time'])
+            if 'closing_time' in data:
+                shop.closing_time = validate_time_format(data['closing_time'])
 
             # Save changes
             shop.save()
@@ -327,6 +341,9 @@ def edit_shop_flutter(request, id):
 
         except ShopProfile.DoesNotExist:
             return JsonResponse({"status": "error", "message": "Shop not found."}, status=404)
+
+        except ValueError as e:
+            return JsonResponse({"status": "error", "message": str(e)}, status=400)
 
         except Exception as e:
             return JsonResponse({"status": "error", "message": f"Unexpected error: {str(e)}"}, status=500)
