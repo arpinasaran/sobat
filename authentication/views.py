@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.shortcuts import render, redirect
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
@@ -12,6 +13,7 @@ from authentication.models import User
 import json
 
 # Create your views here.
+@csrf_exempt
 def register(request):
     form = CreateUserForm()
 
@@ -24,6 +26,7 @@ def register(request):
     context = {'form':form}
     return render(request, 'register.html', context)
 
+@csrf_exempt
 def login_user(request):
    if request.method == 'POST':
         form = AuthenticationForm(data=request.POST)
@@ -41,6 +44,7 @@ def login_user(request):
    context = {'form': form}
    return render(request, 'login.html', context)
 
+@csrf_exempt
 def logout_user(request):
     logout(request)
     response = HttpResponseRedirect(reverse('authentication:login'))
@@ -95,7 +99,7 @@ def login_mobile(request):
     if user is not None:
         if user.is_active:
             login(request, user)
-            # Status login sukses.
+            # Status login sukses, termasuk user_id
             return JsonResponse({
                 "id": user.id,
                 "nama": user.nama,
@@ -132,3 +136,27 @@ def logout_mobile(request):
         "status": False,
         "message": "Logout gagal."
         }, status=401)
+    
+@csrf_exempt
+def get_user_role(request):
+    try:
+        print("User authenticated:", request.user.is_authenticated)  # Debug print
+        print("User:", request.user)  # Debug print
+        if request.user.is_authenticated:
+            print("User role:", request.user.role)  # Debug print
+            return JsonResponse({
+                'status': 'success',
+                'role': request.user.role,
+                'message': 'Role retrieved successfully'
+            })
+        return JsonResponse({
+            'status': 'error',
+            'role': '',
+            'message': 'User not authenticated'
+        })
+    except Exception as e:
+        print("Error in get_user_role:", str(e))  # Debug print
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e)
+        })

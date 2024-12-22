@@ -89,3 +89,44 @@ def show_json(request):
 def show_json_by_id(request, id):
     data = Resep.objects.filter(pk=id)
     return HttpResponse(serializers.serialize("json", data), content_type="application/json")
+
+@csrf_exempt
+def flutter_update_amount(request):
+    deleted = False
+    reloaded = False
+
+    resep_id = request.POST.get('resep_id')
+    action = request.POST.get('action')
+
+    resep = get_object_or_404(Resep, id=resep_id, user=request.user)
+    
+    if action == 'increase' and resep.amount < 99:
+        resep.amount += 1
+        resep.save()
+        deleted = False
+    elif action == 'decrease':
+        if resep.amount > 1:
+            resep.amount -= 1
+            resep.save()
+            deleted = False
+        else:
+            resep.delete()
+            deleted = True
+            reloaded = not Resep.objects.filter(user=request.user).exists()
+
+    # Hitung total harga baru setelah update
+    total_price = sum(item.product.price * item.amount for item in Resep.objects.filter(user=request.user))
+
+    return JsonResponse({
+        'amount': resep.amount if not deleted else 0,  # Kirim jumlah 0 jika produk dihapus
+        'total_price': float(total_price),
+        'deleted': deleted,  # Flag untuk menandakan produk terhapus
+        'reloaded' : reloaded
+    })
+
+@csrf_exempt
+def flutter_clear_recipes(request):
+    if request.method == 'POST':
+        # Logika untuk menghapus semua resep
+        Resep.objects.filter(user=request.user).delete()
+        return JsonResponse({'success': True})
