@@ -159,9 +159,3 @@ CSRF_TRUSTED_ORIGIN = [
     "http://192.168.56.1:8000", 
     'http://localhost:65368',
 ]
-
-# CORS_ALLOWED_ORIGINS = [
-#     'http://localhost',
-#     'http://127.0.0.1',
-#     'http://m-arvin-sobat.pbp.cs.ui.ac.id',
-# ]
