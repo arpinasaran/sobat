@@ -7,6 +7,7 @@ from forum.models import Question, Answer
 from django.core import serializers
 from forum.forms import QuestionForm, AnswerForm
 from product.models import DrugEntry
+import json
 
 @login_required(login_url='/login')
 def show_forum(request):
@@ -60,6 +61,28 @@ def add_question_ajax(request, id):
 
 @csrf_exempt
 @login_required(login_url='/login')
+def add_question_flutter(request, id):
+    if request.method == 'POST':
+
+        data = json.loads(request.body)
+        chosen_product = None
+        if id != "-1":
+            chosen_product = DrugEntry.objects.get(pk=id)
+        new_question = Question.objects.create(
+            user=request.user,
+            drug_asked=chosen_product,
+            question_title=data["question_title"],
+            question=data["question"],
+        )
+
+        new_question.save()
+
+        return JsonResponse({"status": "success"}, status=200)
+    else:
+        return JsonResponse({"status": "error"}, status=401)
+
+@csrf_exempt
+@login_required(login_url='/login')
 def answer_question(request, questionId, productId):
     form = AnswerForm(request.POST or None)
 
@@ -84,15 +107,49 @@ def answer_question(request, questionId, productId):
 
 @csrf_exempt
 @login_required(login_url='/login')
+def answer_question_flutter(request, questionId, productId):
+    if request.method == 'POST':
+
+        data = json.loads(request.body)
+        chosen_product = None
+        if productId != "-1":
+            chosen_product = DrugEntry.objects.get(pk=productId)
+        question = Question.objects.get(pk=questionId)
+        new_answer = Answer.objects.create(
+            user=request.user,
+            question=question,
+            answer=data["answer"],
+            drug_ans=chosen_product,
+        )
+
+        new_answer.save()
+
+        question.num_answer += 1  # Increment answer count
+        question.save()
+
+        return JsonResponse({"status": "success"}, status=200)
+    else:
+        return JsonResponse({"status": "error"}, status=401)
+
+@csrf_exempt
+@login_required(login_url='/login')
 def like_question(request, id):
     if request.method == 'POST':
-        question = get_object_or_404(Question, pk=id)
-        if question.likes.filter(id=request.user.id).exists():
-            question.likes.remove(request.user) #unlike
+        question = Question.objects.get(pk=id)
+        user = request.user
+        
+        if user in question.likes.all():
+            question.likes.remove(user)
+            is_liked = False
         else:
-            question.likes.add(request.user) #like
-        return JsonResponse({"status": "success", "liked": not question.likes.filter(id=request.user.id).exists()})
-    return JsonResponse({"status": "failed"}, status=400)
+            question.likes.add(user)
+            is_liked = True
+            
+        return JsonResponse({
+            'status': 'success',
+            'like_count': question.likes.count(),
+            'is_liked': is_liked
+        })
 
 @csrf_exempt
 @login_required(login_url='/login')
@@ -106,15 +163,33 @@ def delete_question(request, id):
 
 @csrf_exempt
 @login_required(login_url='/login')
+def delete_question_flutter(request, id):
+    if request.method == 'POST':
+        question = Question.objects.get(pk=id)
+        question.delete()
+        return JsonResponse({
+            'status': 'success',
+        })
+
+@csrf_exempt
+@login_required(login_url='/login')
 def like_answer(request, id):
     if request.method == 'POST':
-        answer = get_object_or_404(Answer, pk=id)
-        if answer.likes.filter(id=request.user.id).exists():
-            answer.likes.remove(request.user) #unlike
+        answer = Answer.objects.get(pk=id)
+        user = request.user
+        
+        if user in answer.likes.all():
+            answer.likes.remove(user)
+            is_liked = False
         else:
-            answer.likes.add(request.user) #like
-        return JsonResponse({"status": "success", "liked": not answer.likes.filter(id=request.user.id).exists()})
-    return JsonResponse({"status": "failed"}, status=400)
+            answer.likes.add(user)
+            is_liked = True
+            
+        return JsonResponse({
+            'status': 'success',
+            'like_count': answer.likes.count(),
+            'is_liked': is_liked
+        })
 
 @csrf_exempt
 @login_required(login_url='/login')
@@ -129,6 +204,21 @@ def delete_answer(request, id):
     
     return HttpResponseNotFound()
 
+@csrf_exempt
+@login_required(login_url='/login')
+def delete_answer_flutter(request, id):
+    if request.method == 'POST':
+        answer = Answer.objects.get(pk=id)
+        question = answer.question
+        question.num_answer -= 1
+        question.save()
+        answer.delete()
+        return JsonResponse({
+            'status': 'success',
+        })
+
+@csrf_exempt
+@login_required(login_url='/login')
 def show_json_question(request):
     questions = Question.objects.select_related('user').all()  # Use select_related for optimization
     data = []
@@ -140,7 +230,7 @@ def show_json_question(request):
                 "user": question.user.id,  # Include user ID
                 "username": question.user.username,  # Include username
                 "role": question.user.role,
-                "drug_asked": str(question.drug_asked.id) if question.drug_asked else None,
+                "drug_asked": str(question.drug_asked.id) if question.drug_asked else "",
                 "question_title": question.question_title,
                 "question": question.question,
                 "likes": list(question.likes.values_list('id', flat=True)),
@@ -152,6 +242,8 @@ def show_json_question(request):
 
     return JsonResponse(data, safe=False)  # Using JsonResponse to return the custom data
 
+@csrf_exempt
+@login_required(login_url='/login')
 def show_json_answer(request, id):
     answers = Answer.objects.filter(question=id)  # Use select_related for optimization
     data = []
@@ -163,7 +255,7 @@ def show_json_answer(request, id):
                 "user": answer.user.id,  # Include user ID
                 "username": answer.user.username,  # Include username
                 "role": answer.user.role,
-                "drug_ans": str(answer.drug_ans.id) if answer.drug_ans else None,
+                "drug_ans": str(answer.drug_ans.id) if answer.drug_ans else "",
                 "question": answer.question.pk,
                 "answer": answer.answer,
                 "likes": list(answer.likes.values_list('id', flat=True)),
@@ -174,6 +266,8 @@ def show_json_answer(request, id):
 
     return JsonResponse(data, safe=False)  # Using JsonResponse to return the custom data
 
+@csrf_exempt
+@login_required(login_url='/login')
 def show_json_question_by_id(request, id):
     questions = Question.objects.filter(pk=id)
     data = []
