@@ -130,3 +130,23 @@ def flutter_clear_recipes(request):
         # Logika untuk menghapus semua resep
         Resep.objects.filter(user=request.user).delete()
         return JsonResponse({'success': True})
+    
+@csrf_exempt
+def flutter_add_to_resep(request, product_id):
+    if request.method == 'POST':
+        product = get_object_or_404(Produk, id=product_id)
+
+        # Menambahkan produk ke resep atau memperbarui jumlah jika sudah ada
+        resep, created = Resep.objects.get_or_create(user=request.user, product=product)
+
+        if not created and resep.amount < 99:
+            resep.amount += 1
+        else:
+            resep.amount = 1
+
+        resep.save()
+
+        return JsonResponse({'status': 'success', 'amount': resep.amount})
+    return JsonResponse({'status': 'failed', 'message': 'Invalid request'}, status=400)
+
+from django.views.decorators.csrf import csrf_exempt

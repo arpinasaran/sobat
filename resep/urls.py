@@ -1,5 +1,5 @@
 from django.urls import path, include
-from resep.views import show_resep, update_amount, add_to_resep, clear_recipes, show_json, show_json_by_id, flutter_update_amount, flutter_clear_recipes
+from resep.views import show_resep, update_amount, add_to_resep, clear_recipes, show_json, show_json_by_id, flutter_update_amount, flutter_clear_recipes, flutter_add_to_resep
 
 app_name = 'resep'
 
@@ -12,4 +12,5 @@ urlpatterns = [
     path('json/', show_json, name='show_json'),
     path('flutter_update/', flutter_update_amount, name='flutter_update_amount'),
     path('flutter_clear/', flutter_clear_recipes, name='flutter_clear'),
+    path('flutter_add/<str:product_id>/', flutter_add_to_resep, name='flutter_add'),
 ]
