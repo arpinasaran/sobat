@@ -82,10 +82,12 @@ def clear_recipes(request):
         Resep.objects.filter(user=request.user).delete()
         return JsonResponse({'success': True})
 
+@csrf_exempt
 def show_json(request):
-    data = Resep.objects.all()
+    data = Resep.objects.filter(user=request.user)
     return HttpResponse(serializers.serialize("json", data), content_type="application/json")
 
+@csrf_exempt
 def show_json_by_id(request, id):
     data = Resep.objects.filter(pk=id)
     return HttpResponse(serializers.serialize("json", data), content_type="application/json")
